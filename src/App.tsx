@@ -1,4 +1,5 @@
 import { useState } from "react";
+import { useNavigate, Routes, Route, Link } from "react-router-dom";
 import {
 	ArrowRight,
 	Check,
@@ -16,17 +17,27 @@ import { Dashboard } from "./Dashboard";
 import { timeline, tracks } from "./data";
 
 export function App() {
+	return (
+		<Routes>
+			<Route path="/" element={<Landing />} />
+			<Route path="/platform" element={<Platform />} />
+			<Route path="/verify" element={<VerifyPage />} />
+			<Route path="*" element={<Landing />} />
+		</Routes>
+	);
+}
+
+function Landing() {
+	const navigate = useNavigate();
 	const [menuOpen, setMenuOpen] = useState(false);
-	const [dashboardOpen, setDashboardOpen] = useState(false);
-	const [verifyOpen, setVerifyOpen] = useState(false);
 
 	return (
 		<div className="site-shell">
 			<header className="nav-wrap">
-				<a className="brand" href="#top" aria-label="VMEDITHON home">
+				<Link className="brand" to="/" aria-label="VMEDITHON home">
 					<span className="brand-mark"><span>V</span></span>
 					<span>VMEDITHON<small>2026</small></span>
-				</a>
+				</Link>
 				<button type="button" className="mobile-menu" onClick={() => setMenuOpen((open) => !open)} aria-label="Toggle navigation">
 					{menuOpen ? <X /> : <Menu />}
 				</button>
@@ -35,9 +46,9 @@ export function App() {
 					<a href="#journey">Journey</a>
 					<a href="#experience">Experience</a>
 					<a href="#partners">Partners</a>
-					<button type="button" className="text-button" onClick={() => setVerifyOpen(true)}>Verify certificate</button>
+					<button type="button" className="text-button" onClick={() => navigate("/verify")}>Verify certificate</button>
 				</nav>
-				<button type="button" className="nav-cta" onClick={() => setDashboardOpen(true)}>
+				<button type="button" className="nav-cta" onClick={() => navigate("/platform")}>
 					Open platform <ArrowRight size={16} />
 				</button>
 			</header>
@@ -55,7 +66,7 @@ export function App() {
 						</p>
 						<div className="hero-actions">
 							<a className="button primary" href="#tracks">Explore the tracks <ArrowRight size={18} /></a>
-							<button type="button" className="button ghost" onClick={() => setDashboardOpen(true)}>View platform preview</button>
+							<button type="button" className="button ghost" onClick={() => navigate("/platform")}>View platform preview</button>
 						</div>
 					</div>
 					<div className="hero-card">
@@ -155,39 +166,83 @@ export function App() {
 						<h2>Your idea deserves<br />a stronger ending.</h2>
 					</div>
 					<div className="closing-actions">
-						<button type="button" className="button light-button" onClick={() => setDashboardOpen(true)}>Preview participant portal <CircleArrowOutUpRight /></button>
+						<button type="button" className="button light-button" onClick={() => navigate("/platform")}>Preview participant portal <CircleArrowOutUpRight /></button>
 						<p>Round one is free. Submission dates will be announced soon.</p>
 					</div>
 				</section>
 			</main>
 
 			<footer>
-				<a className="brand footer-brand" href="#top"><span className="brand-mark"><span>V</span></span><span>VMEDITHON<small>2026</small></span></a>
+				<Link className="brand footer-brand" to="/"><span className="brand-mark"><span>V</span></span><span>VMEDITHON<small>2026</small></span></Link>
 				<p>Research · Industry · Project<br />Vellore Institute of Technology</p>
-				<div><a href="#tracks">Tracks</a><a href="#journey">Timeline</a><button type="button" onClick={() => setVerifyOpen(true)}>Verify certificate</button></div>
+				<div><a href="#tracks">Tracks</a><a href="#journey">Timeline</a><button type="button" onClick={() => navigate("/verify")}>Verify certificate</button></div>
 				<small>© 2026 VMEDITHON. Built for what comes next.</small>
 			</footer>
-
-			{dashboardOpen && <Dashboard onClose={() => setDashboardOpen(false)} />}
-			{verifyOpen && <VerifyModal onClose={() => setVerifyOpen(false)} />}
 		</div>
 	);
 }
 
-function VerifyModal({ onClose }: { readonly onClose: () => void }) {
+function Platform() {
+	const navigate = useNavigate();
+	return <Dashboard onClose={() => navigate("/")} />;
+}
+
+function VerifyPage() {
+	const navigate = useNavigate();
 	const [code, setCode] = useState("");
-	const [searched, setSearched] = useState(false);
+	const [result, setResult] = useState<null | { status: string; recipient_name: string; track: string | null; event_name: string; issued_at: string | null }>(null);
+	const [loading, setLoading] = useState(false);
+	const [error, setError] = useState<string | null>(null);
+
+	async function verify() {
+		setLoading(true);
+		setError(null);
+		setResult(null);
+		try {
+			const response = await fetch(`/api/public/certificates/${encodeURIComponent(code)}`);
+			const data = (await response.json()) as { status?: string; recipient_name?: string; track?: string | null; event_name?: string; issued_at?: string | null; error?: { message?: string } };
+			if (!response.ok) {
+				setError(data.error?.message ?? "Certificate not found");
+			} else {
+				setResult({
+					status: data.status ?? "unknown",
+					recipient_name: data.recipient_name ?? "",
+					track: data.track ?? null,
+					event_name: data.event_name ?? "VMEDITHON 2026",
+					issued_at: data.issued_at ?? null,
+				});
+			}
+		} catch {
+			setError("Could not verify certificate. Please try again.");
+		}
+		setLoading(false);
+	}
+
 	return (
-		<div className="modal-backdrop" role="presentation">
+		<div className="modal-backdrop" role="presentation" style={{ position: "fixed", inset: 0 }}>
 			<div className="verify-modal" role="dialog" aria-modal="true" aria-label="Verify certificate">
-				<button type="button" className="icon-button close-modal" onClick={onClose}><X /></button>
+				<button type="button" className="icon-button close-modal" onClick={() => navigate("/")}><X /></button>
 				<div className="verify-icon"><QrCode /></div>
 				<span className="kicker">PUBLIC VERIFICATION</span>
 				<h2>Verify a certificate</h2>
 				<p>Enter the unique ID printed in the lower corner of any VMEDITHON certificate.</p>
-				<label>Certificate ID<input value={code} onChange={(event) => { setCode(event.target.value); setSearched(false); }} placeholder="e.g. VMT26-P-0184" /></label>
-				<button type="button" className="button primary full" onClick={() => setSearched(true)}><Search /> Verify certificate</button>
-				{searched && <div className="demo-result"><FileUp /><span><strong>Demo preview</strong>Certificate lookup will become active when event records are connected.</span></div>}
+				<label>
+					Certificate ID
+					<input value={code} onChange={(event) => { setCode(event.target.value); setError(null); setResult(null); }} placeholder="e.g. VMT26-P-0184" />
+				</label>
+				<button type="button" className="button primary full" onClick={verify} disabled={loading}><Search /> {loading ? "Verifying..." : "Verify certificate"}</button>
+				{error && <div className="demo-result" style={{ background: "#fff0f0" }}><FileUp /><span><strong>Not found</strong>{error}</span></div>}
+				{result && (
+					<div className="demo-result">
+						<FileUp />
+						<span>
+							<strong>{result.status === "issued" ? "Verified" : result.status}</strong>
+							{result.recipient_name} — {result.event_name}
+							{result.track && <span><br />Track: {result.track}</span>}
+							{result.issued_at && <span><br />Issued: {new Date(result.issued_at).toLocaleDateString()}</span>}
+						</span>
+					</div>
+				)}
 			</div>
 		</div>
 	);
