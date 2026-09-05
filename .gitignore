@@ -28,6 +28,11 @@ yarn-error.log*
 # local env files
 .env*.local
 .env
+.dev.vars
+
+# wrangler / cloudflare
+.wrangler
+worker-configuration.d.ts
 
 # vercel
 .vercel
@@ -35,3 +40,4 @@ yarn-error.log*
 # typescript
 *.tsbuildinfo
 next-env.d.ts
+test-results/
