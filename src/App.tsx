@@ -255,6 +255,33 @@ function VerifyPage() {
 		document.body.removeChild(link);
 	}
 
+	async function downloadPng() {
+		if (!fileUrl) return;
+		const img = new Image();
+		img.crossOrigin = "anonymous";
+		img.src = fileUrl;
+		await new Promise<void>((resolve, reject) => {
+			img.onload = () => resolve();
+			img.onerror = () => reject(new Error("Could not load certificate image"));
+		});
+		const canvas = document.createElement("canvas");
+		canvas.width = 800;
+		canvas.height = 600;
+		const ctx = canvas.getContext("2d");
+		if (!ctx) return;
+		ctx.drawImage(img, 0, 0, 800, 600);
+		const blob = await new Promise<Blob | null>((resolve) => canvas.toBlob((b) => resolve(b), "image/png"));
+		if (!blob) return;
+		const url = URL.createObjectURL(blob);
+		const link = document.createElement("a");
+		link.href = url;
+		link.download = `${code}.png`;
+		document.body.appendChild(link);
+		link.click();
+		document.body.removeChild(link);
+		URL.revokeObjectURL(url);
+	}
+
 	return (
 		<div className="modal-backdrop" role="presentation" style={{ position: "fixed", inset: 0 }}>
 			<div className="verify-modal" role="dialog" aria-modal="true" aria-label="Verify certificate">
@@ -283,7 +310,10 @@ function VerifyPage() {
 				{fileUrl && (
 					<div style={{ marginTop: 16, textAlign: "center" }}>
 						<img src={fileUrl} alt="Certificate" style={{ maxWidth: "100%", border: "1px solid #eee", borderRadius: 8 }} />
-						<button type="button" className="button primary full" onClick={download} style={{ marginTop: 12 }}><FileUp /> Download certificate</button>
+						<div style={{ display: "flex", gap: 8, marginTop: 12 }}>
+							<button type="button" className="button primary full" onClick={download}><FileUp /> SVG</button>
+							<button type="button" className="button primary full" onClick={downloadPng}><FileUp /> PNG</button>
+						</div>
 					</div>
 				)}
 			</div>
