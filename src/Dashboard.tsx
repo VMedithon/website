@@ -621,10 +621,50 @@ function People() {
 	</>;
 }
 
+type SubmissionDetail = {
+	id: string;
+	team_id: string;
+	team_name: string;
+	round: number;
+	kind: string;
+	title: string;
+	proposed_track: string;
+	status: string;
+	created_at: string;
+	reviewers: { id: string; reviewer_id: string; full_name: string | null }[];
+	reviews: { id: string; reviewer_id: string; full_name: string | null; score: number | null; notes: string | null; track_recommendation: string | null }[];
+};
+
 function Submissions() {
 	const api = useApi();
 	const { data, loading, error, refetch } = useFetch<{ items: { id: string; team_id: string; team_name: string; round: number; kind: string; title: string; proposed_track: string; status: string; created_at: string }[] }>("/staff/submissions");
+	const { data: members } = useFetch<{ items: { id: string; user_id: string; full_name: string | null; email: string; role: string }[] }>("/staff/members");
 	const [importing, setImporting] = useState(false);
+	const [selected, setSelected] = useState<string | null>(null);
+	const [detail, setDetail] = useState<SubmissionDetail | null>(null);
+	const [detailLoading, setDetailLoading] = useState(false);
+	const [reviewerIds, setReviewerIds] = useState<string[]>([]);
+	const [track, setTrack] = useState<(typeof TRACKS)[number] | "">("");
+	const [busy, setBusy] = useState(false);
+	const [message, setMessage] = useState<string | null>(null);
+
+	useEffect(() => {
+		if (!selected) { setDetail(null); return; }
+		let cancelled = false;
+		setDetailLoading(true);
+		api(`/staff/submissions/${selected}`)
+			.then((res) => {
+				if (!cancelled) {
+					const d = res as SubmissionDetail;
+					setDetail(d);
+					setReviewerIds(d.reviewers.map((r) => r.reviewer_id));
+					setTrack(d.proposed_track as (typeof TRACKS)[number] ?? "");
+				}
+			})
+			.catch(() => { /* ignore */ })
+			.finally(() => { if (!cancelled) setDetailLoading(false); });
+		return () => { cancelled = true; };
+	}, [api, selected]);
 
 	async function importFile(event: React.ChangeEvent<HTMLInputElement>) {
 		const file = event.target.files?.[0];
@@ -643,26 +683,91 @@ function Submissions() {
 		}
 	}
 
+	async function assignReviewers() {
+		if (!selected) return;
+		setBusy(true);
+		setMessage(null);
+		try {
+			await api(`/staff/submissions/${selected}/reviewers`, { method: "POST", body: JSON.stringify({ reviewer_ids: reviewerIds }) });
+			setMessage("Reviewers assigned.");
+			void refetch();
+		} catch (err) {
+			setMessage(err instanceof Error ? err.message : "Failed to assign");
+		} finally {
+			setBusy(false);
+		}
+	}
+
+	async function assignTrack() {
+		if (!selected || !track) return;
+		setBusy(true);
+		setMessage(null);
+		try {
+			await api(`/staff/submissions/${selected}/assign-track`, { method: "POST", body: JSON.stringify({ track }) });
+			setMessage("Track assigned.");
+			void refetch();
+		} catch (err) {
+			setMessage(err instanceof Error ? err.message : "Failed to assign track");
+		} finally {
+			setBusy(false);
+		}
+	}
+
 	if (loading) return <Empty message="Loading submissions..." />;
 	if (error) return <Empty message={error} />;
 
 	const items = data?.items ?? [];
 
+	if (selected) {
+		return <>
+			<div className="page-title"><div><span><button type="button" className="icon-button" onClick={() => setSelected(null)}><X /></button> SUBMISSION</span><h1>{detail?.title ?? "Submission"}</h1></div></div>
+			{detailLoading ? <Empty message="Loading submission..." /> : detail && <section className="panel" style={{ padding: 24, marginBottom: 24 }}>
+				<p><strong>Team:</strong> {detail.team_name}</p>
+				<p><strong>Proposed track:</strong> {detail.proposed_track}</p>
+				<p><strong>Status:</strong> <span className={`table-status ${statusClass(detail.status)}`}>{detail.status}</span></p>
+				<div className="data-table" style={{ marginTop: 16 }}><div className="table-row head"><span>REVIEWER</span><span>SCORE</span><span>RECOMMENDED TRACK</span></div>
+					{detail.reviews.map((r) => <div className="table-row" key={r.id}><span>{r.full_name ?? r.reviewer_id}</span><span>{r.score ?? "—"}</span><span>{r.track_recommendation ?? "—"}</span></div>)}
+					{detail.reviews.length === 0 && <div className="table-row"><span style={{ gridColumn: "1 / -1" }}>No reviews yet.</span></div>}
+				</div>
+			</section>}
+			<section className="panel" style={{ padding: 24, marginBottom: 24 }}>
+				<h3 style={{ marginTop: 0 }}>Assign reviewers</h3>
+				<div style={{ maxHeight: 160, overflow: "auto", border: "1px solid #eee", padding: 8, borderRadius: 8, marginBottom: 12 }}>
+					{members?.items.filter((m) => ["master_admin", "faculty_coordinator", "judge"].includes(m.role)).map((m) => <label key={m.id} style={{ display: "flex", alignItems: "center", gap: 8, padding: "4px 0" }}>
+						<input type="checkbox" checked={reviewerIds.includes(m.user_id)} onChange={(e) => setReviewerIds((ids) => e.target.checked ? [...ids, m.user_id] : ids.filter((id) => id !== m.user_id))} />
+						{m.full_name ?? m.email}
+					</label>)}
+				</div>
+				<button type="button" className="dash-primary" onClick={assignReviewers} disabled={busy}><FilePlus2 /> Save reviewers</button>
+				{message && <p>{message}</p>}
+			</section>
+			<section className="panel" style={{ padding: 24 }}>
+				<h3 style={{ marginTop: 0 }}>Assign track</h3>
+				<div style={{ display: "flex", gap: 12, alignItems: "center", marginBottom: 12 }}>
+					<select value={track} onChange={(e) => setTrack(e.target.value as (typeof TRACKS)[number])}>
+						<option value="">Select track</option>
+						{TRACKS.map((t) => <option key={t} value={t}>{t}</option>)}
+					</select>
+					<button type="button" className="dash-primary" onClick={assignTrack} disabled={busy || !track}><Check /> Assign track</button>
+				</div>
+			</section>
+		</>;
+	}
+
 	return <>
 		<PageTitle eyebrow="ROUND ONE / REVIEW" title="Pitch submissions" />
 		<div className="submission-actions">
 			<label className="upload-card" style={{ cursor: "pointer" }}><input type="file" style={{ display: "none" }} onChange={importFile} disabled={importing} /><Upload /><span><strong>{importing ? "Importing..." : "Import Devnovate dataset"}</strong><small>Upload CSV, XLSX, or exported submission data</small></span><ArrowUpRight /></label>
-			<button type="button" className="upload-card" onClick={() => { /* TODO: bulk reviewer assignment */ }}><FilePlus2 /><span><strong>Assign faculty reviewers</strong><small>{items.filter((s) => s.status === "received").length} pitches unassigned</small></span><ArrowUpRight /></button>
 		</div>
 		<section className="panel table-panel"><div className="panel-title"><div><span>{items.length} SUBMISSIONS</span><h2>Latest pitches</h2></div><button type="button" className="secondary-button">Filter by track</button></div>
 			<div className="data-table submissions-table"><div className="table-row head"><span>TEAM</span><span>IDEA</span><span>PROPOSED TRACK</span><span>STATUS</span><span>REVIEW</span></div>
-				{items.map((row) => <div className="table-row" key={row.id}>
+				{items.map((row) => <button type="button" className="table-row" key={row.id} onClick={() => setSelected(row.id)} style={{ textAlign: "left", width: "100%" }}>
 					<span>{row.team_name}</span>
 					<span>{row.title}</span>
 					<span>{row.proposed_track}</span>
 					<span className={`table-status ${statusClass(row.status)}`}>{row.status}</span>
 					<span className={`table-status ${row.status === "assigned" ? "complete" : row.status === "scored" ? "in-review" : "unassigned"}`}>{row.status === "assigned" ? "Complete" : row.status === "scored" ? "Scored" : "In review"}</span>
-				</div>)}
+				</button>)}
 				{items.length === 0 && <div className="table-row"><span style={{ gridColumn: "1 / -1" }}>No submissions yet.</span></div>}
 			</div>
 		</section>
