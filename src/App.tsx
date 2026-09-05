@@ -13,6 +13,8 @@ import {
 	Sparkles,
 	X,
 } from "lucide-react";
+import logoDarkUrl from "./assets/logo-dark.png";
+import logoUrl from "./assets/logo.png";
 import { Dashboard } from "./Dashboard";
 import { Participant } from "./Participant";
 import { timeline, tracks } from "./data";
@@ -38,8 +40,7 @@ function Landing() {
 		<div className="site-shell">
 			<header className="nav-wrap">
 				<Link className="brand" to="/" aria-label="VMEDITHON home">
-					<span className="brand-mark"><span>V</span></span>
-					<span>VMEDITHON<small>2026</small></span>
+					<img className="nav-logo" src={logoDarkUrl} alt="VMEDITHON 2026" />
 				</Link>
 				<button type="button" className="mobile-menu" onClick={() => setMenuOpen((open) => !open)} aria-label="Toggle navigation">
 					{menuOpen ? <X /> : <Menu />}
@@ -63,6 +64,7 @@ function Landing() {
 					<div className="hero-orbit orbit-two" />
 					<div className="hero-grid" />
 					<div className="hero-copy">
+						<img className="hero-logo" src={logoUrl} alt="VMEDITHON" />
 						<div className="eyebrow"><span /> 36 HOURS. THREE PATHS. ONE DEFINING BUILD.</div>
 						<h1>Ideas, engineered<br />for <em>impact.</em></h1>
 						<p>
@@ -177,7 +179,7 @@ function Landing() {
 			</main>
 
 			<footer>
-				<Link className="brand footer-brand" to="/"><span className="brand-mark"><span>V</span></span><span>VMEDITHON<small>2026</small></span></Link>
+				<Link className="brand footer-brand" to="/"><img className="footer-logo" src={logoUrl} alt="VMEDITHON 2026" /></Link>
 				<p>Research · Industry · Project<br />Vellore Institute of Technology</p>
 				<div><a href="#tracks">Tracks</a><a href="#journey">Timeline</a><button type="button" onClick={() => navigate("/verify")}>Verify certificate</button></div>
 				<small>© 2026 VMEDITHON. Built for what comes next.</small>
@@ -298,6 +300,7 @@ function VerifyPage() {
 		<div className="modal-backdrop" role="presentation" style={{ position: "fixed", inset: 0 }}>
 			<div className="verify-modal" role="dialog" aria-modal="true" aria-label="Verify certificate">
 				<button type="button" className="icon-button close-modal" onClick={() => navigate("/")}><X /></button>
+				<div className="modal-brand"><img src={logoUrl} alt="VMEDITHON 2026" /></div>
 				<div className="verify-icon"><QrCode /></div>
 				<span className="kicker">PUBLIC VERIFICATION</span>
 				<h2>Verify a certificate</h2>
