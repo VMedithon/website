@@ -35,3 +35,12 @@ export function safeParseInt(value: unknown): number | null {
 export function formatRupees(paise: number): string {
 	return `₹${(paise / 100).toFixed(2)}`;
 }
+
+export function arrayBufferToBase64(buffer: ArrayBuffer): string {
+	const bytes = new Uint8Array(buffer);
+	let binary = "";
+	for (let i = 0; i < bytes.length; i++) {
+		binary += String.fromCharCode(bytes[i] as number);
+	}
+	return btoa(binary);
+}

@@ -12,7 +12,7 @@
 || GAP-IMPORT-01 | Devnovate import | Queue consumer exists but the CSV/XLSX mapping is a stub | Parse Devnovate export and create teams/submissions (EVT-IMPORT-01, RULE-SUB-06). **Blocker: need a sample export file to define the mapping.** | External submission data unusable | Phase 7 |
 || GAP-EMAIL-01 | Email | "Not connected" settings card | Deferred — Clerk covers invitation emails; transactional email is out of scope until a provider decision (new ADR) | Missed notifications | Post-event backlog |
 || GAP-TEST-02 | Integration tests | `tests/state.test.ts` only covers state machines | Worker integration tests with `@cloudflare/vitest-pool-workers` and Playwright E2E per `testing-strategy.md` | Regressions ship silently | Phase 1+ |
-|| GAP-RENDER-01 | Certificate render | SVG artifacts generated; public verification now returns an HMAC-SHA256 signature; PDF/PNG printable output not yet available | PDF/PNG render and signed verification payload honoring `COMP-VERIFY-01` | Printed certificates lack credibility | Phase 6 |
+|| GAP-RENDER-01 | Certificate render | SVG artifacts generated with embedded background images; public verification returns HMAC-SHA256 signature; certificate file available at `/api/public/certificates/:id/file`; PNG/PDF download from the browser is not yet implemented | PDF/PNG render and signed verification payload honoring `COMP-VERIFY-01` | Printed certificates lack credibility | Phase 6 |
 
 ## Recently closed (moved to `current-state.md`)
 

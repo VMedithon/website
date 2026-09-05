@@ -70,9 +70,11 @@ Keep this green before committing. For a faster local check:
 - `bun run test` runs `vitest` on `tests/**/*.test.ts` and `**/*.test.ts`.
   Unit tests for state machines exist in `tests/state.test.ts`. Worker integration
   tests and Playwright E2E tests are still to be added.
-- `src/Dashboard.tsx` and `src/Participant.tsx` now load live data from the
-  worker API. Some complex UI flows (form field builder, certificate background
-  replacement, reviewer assignment) are still partial.
+- `src/Dashboard.tsx` and `src/Participant.tsx` load live data from the worker
+  API. Core staff and participant flows (form builder, form filling, reviewer
+  assignment, certificate background upload, signed verification) are implemented.
+  Remaining gaps are PDF/PNG raster certificate output, Devnovate import mapping,
+  and Playwright/worker integration tests.
 - Never commit secrets. Clerk/Cloudflare secrets go in `.dev.vars` (local) or
   `wrangler secret put` (deployed). See `docs/operations/deployment.md`.
 - Workers code must follow Cloudflare best practices: no module-level request state,
