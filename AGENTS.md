@@ -10,16 +10,18 @@ The platform for **VMEDITHON 2026**, a 36-hour overnight hackathon at VIT Vellor
 staff platform ("Control Room") covering registration, pitch submission and review,
 dynamic forms, finance requests, and certificate issuance + public verification.
 
-## Project mode: MIXED
+## Project mode: MOSTLY IMPLEMENTED
 
 | Subsystem | Mode | Reality |
 |---|---|---|
-| Marketing landing site (`src/App.tsx`) | Brownfield | Implemented and working; now includes routing and Clerk provider |
-| Control Room dashboard (`src/Dashboard.tsx`) | Brownfield shell | **UI only — all data is hardcoded demo content**; accessible at `/platform` |
-| Backend, auth, persistence, platform API | Greenfield → implemented | Worker and D1 schema in place; frontend still needs to be wired |
+| Marketing landing site (`src/App.tsx`) | Brownfield | Implemented and working; includes `/`, `/platform`, `/participant`, and `/verify` |
+| Backend, auth, persistence, platform API | Implemented | Cloudflare Worker, D1, R2, Queues, Clerk; all routes live under `/api` |
+| Public certificate verification | Implemented | `worker/routes/public.ts` and `/verify` |
+| Control Room dashboard (`src/Dashboard.tsx`) | Implemented | Loads live data at `/platform`; create/edit flows exist for finance, forms, certificates, people, and settings |
+| Participant portal (`src/Participant.tsx`) | Implemented | `/participant` team create/invite, pitch upload, and forms list are wired to the API |
 
-**Never assume the dashboard UI implies implemented behavior.** The UI is a design
-preview; `docs/execution/current-state.md` is the source of truth for what exists.
+**Treat `docs/execution/current-state.md` and `docs/execution/gap-analysis.md`
+as the source of truth for what is and is not yet complete.**
 
 ## Authority hierarchy (what SHOULD be true)
 
@@ -68,8 +70,9 @@ Keep this green before committing. For a faster local check:
 - `bun run test` runs `vitest` on `tests/**/*.test.ts` and `**/*.test.ts`.
   Unit tests for state machines exist in `tests/state.test.ts`. Worker integration
   tests and Playwright E2E tests are still to be added.
-- All dashboard numbers, names, and records in `src/Dashboard.tsx` are demo content.
-  Do not treat them as real data or requirements.
+- `src/Dashboard.tsx` and `src/Participant.tsx` now load live data from the
+  worker API. Some complex UI flows (form field builder, certificate background
+  replacement, reviewer assignment) are still partial.
 - Never commit secrets. Clerk/Cloudflare secrets go in `.dev.vars` (local) or
   `wrangler secret put` (deployed). See `docs/operations/deployment.md`.
 - Workers code must follow Cloudflare best practices: no module-level request state,
