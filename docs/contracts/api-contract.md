@@ -28,7 +28,7 @@
 | ID | Method & path | Purpose |
 |---|---|---|
 | API-HEALTH-01 | `GET /api/health` | Liveness. `{ ok: true }`. |
-| API-VERIFY-01 | `GET /api/public/certificates/{certificate_id}` | Verify a printed certificate. Response whitelisted to: `{ status: 'issued'\|'revoked'\|'pending', recipient_name, track, event_name, issued_at }`. Unknown ID → 404 `{ code: 'not_found' }`. Rate-limited. **COMP-VERIFY-01 below.** |
+| API-VERIFY-01 | `GET /api/public/certificates/{certificate_id}` | Verify a printed certificate. Response includes: `{ status: 'issued'\|'revoked'\|'pending', recipient_name, track, event_name, issued_at, signature }`. The `signature` is an HMAC-SHA256 hex digest over the response payload, signed with `CERTIFICATE_SIGNING_SECRET`. Unknown ID → 404 `{ code: 'not_found' }`. Rate-limited. **COMP-VERIFY-01 below.** |
 
 ### COMP-VERIFY-01 — frozen public verification contract
 
