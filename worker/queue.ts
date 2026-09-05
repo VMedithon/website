@@ -1,5 +1,6 @@
 import { first, run } from "./lib/db";
-import { arrayBufferToBase64, now, parseJson } from "./lib/utils";
+import { isTrack } from "./lib/state";
+import { arrayBufferToBase64, newId, normalizeHeader, now, parseCsv, parseJson } from "./lib/utils";
 
 function getEnvBinding<T>(env: Env, name: keyof Env): T | undefined {
 	return (env as unknown as Record<string, T | undefined>)[name as string];
@@ -65,12 +66,162 @@ async function generateCertificate(env: Env, certificateId: string): Promise<voi
 	await run(db, "UPDATE certificates SET status = 'issued', file_key = ?, issued_at = ? WHERE id = ?", key, now(), cert.id);
 }
 
+const TEAM_NAME_SYNONYMS = ["team name", "team", "group", "teamname"];
+const TITLE_SYNONYMS = ["title", "idea", "project title", "pitch title", "idea title"];
+const TRACK_SYNONYMS = ["track", "category", "domain"];
+const MEMBERS_SYNONYMS = ["members", "emails", "teammates", "team members"];
+const NAMES_SYNONYMS = ["names", "member names", "team names"];
+
+function findColumn(headers: string[], synonyms: string[]): number {
+	for (const syn of synonyms) {
+		const idx = headers.findIndex((h) => normalizeHeader(h) === normalizeHeader(syn));
+		if (idx >= 0) return idx;
+	}
+	return -1;
+}
+
+function findMemberColumns(headers: string[]): number[] {
+	const indices: number[] = [];
+	for (let i = 0; i < headers.length; i++) {
+		const h = normalizeHeader(headers[i] as string);
+		if (/^(member|email|teammate)\s*\d+$/.test(h) || /^(member|email)\d+$/.test(h)) {
+			indices.push(i);
+		}
+	}
+	return indices.sort((a, b) => a - b);
+}
+
+function splitMembers(value: string): string[] {
+	return value.split(/[,;]/).map((s) => s.trim()).filter((s) => s.length > 0);
+}
+
 async function processImport(env: Env, importId: string): Promise<void> {
 	const db = getEnvBinding<D1Database>(env, "DB");
-	if (!db) return;
+	const uploads = getEnvBinding<R2Bucket>(env, "UPLOADS");
+	if (!db || !uploads) return;
+
+	const importRow = await first<{ file_key: string; created_by: string }>(
+		db,
+		"SELECT file_key, created_by FROM imports WHERE id = ?",
+		importId,
+	);
+	if (!importRow) return;
+
 	await run(db, "UPDATE imports SET status = 'processing' WHERE id = ?", importId);
-	// Devnovate import logic left as a concrete follow-up once the CSV contract is final.
-	await run(db, "UPDATE imports SET status = 'done', stats = ? WHERE id = ?", JSON.stringify({ processed: 0 }), importId);
+
+	const object = await uploads.get(importRow.file_key);
+	if (!object) {
+		await run(db, "UPDATE imports SET status = 'failed', stats = ? WHERE id = ?", JSON.stringify({ error: "file not found" }), importId);
+		return;
+	}
+
+	const text = await object.text();
+	const { headers, rows } = parseCsv(text);
+	const teamNameIdx = findColumn(headers, TEAM_NAME_SYNONYMS);
+	const titleIdx = findColumn(headers, TITLE_SYNONYMS);
+	const trackIdx = findColumn(headers, TRACK_SYNONYMS);
+	const membersIdx = findColumn(headers, MEMBERS_SYNONYMS);
+	const namesIdx = findColumn(headers, NAMES_SYNONYMS);
+	const memberCols = findMemberColumns(headers);
+
+	if (teamNameIdx < 0 || (membersIdx < 0 && memberCols.length === 0)) {
+		await run(
+			db,
+			"UPDATE imports SET status = 'failed', stats = ? WHERE id = ?",
+			JSON.stringify({ error: "missing team name or member columns" }),
+			importId,
+		);
+		return;
+	}
+
+	let teamsCreated = 0;
+	let submissionsCreated = 0;
+	let usersCreated = 0;
+	const errors: string[] = [];
+
+	for (let i = 0; i < rows.length; i++) {
+		const row = rows[i] as string[];
+		const teamName = row[teamNameIdx]?.trim();
+		if (!teamName) continue;
+
+		const title = titleIdx >= 0 ? (row[titleIdx] as string).trim() : teamName;
+		const rawTrack = trackIdx >= 0 ? (row[trackIdx] as string).trim().toUpperCase() : "";
+		const track = isTrack(rawTrack) ? rawTrack : "RESEARCH";
+
+		let emails: string[] = [];
+		if (membersIdx >= 0) {
+			emails = splitMembers(row[membersIdx] as string);
+		} else {
+			emails = memberCols.map((idx) => (row[idx] as string).trim()).filter(Boolean);
+		}
+		if (emails.length === 0) {
+			errors.push(`row ${i + 1}: no members`);
+			continue;
+		}
+
+		const names: string[] = namesIdx >= 0 ? splitMembers(row[namesIdx] as string) : [];
+
+		const teamId = newId();
+		const createdAt = now();
+		const userIds: string[] = [];
+		for (let j = 0; j < emails.length; j++) {
+			const email = emails[j] as string;
+			const existing = await first<{ id: string }>(db, "SELECT id FROM users WHERE email = ?", email);
+			if (existing) {
+				userIds.push(existing.id);
+			} else {
+				const userId = newId();
+				const fullName = names[j]?.trim() || null;
+				await run(db, "INSERT INTO users (id, email, full_name, created_at, updated_at) VALUES (?, ?, ?, ?, ?)", userId, email, fullName, createdAt, createdAt);
+				userIds.push(userId);
+				usersCreated++;
+			}
+		}
+
+		const leadId = userIds[0] as string;
+		await run(
+			db,
+			"INSERT INTO teams (id, name, lead_user_id, state, proposed_track, created_at, updated_at) VALUES (?, ?, ?, 'registered', ?, ?, ?)",
+			teamId,
+			teamName,
+			leadId,
+			track,
+			createdAt,
+			createdAt,
+		);
+		teamsCreated++;
+
+		for (let j = 0; j < userIds.length; j++) {
+			const userId = userIds[j] as string;
+			const email = emails[j] as string;
+			const displayName = names[j]?.trim() || null;
+			await run(
+				db,
+				"INSERT INTO team_members (id, team_id, user_id, email, display_name) VALUES (?, ?, ?, ?, ?)",
+				newId(),
+				teamId,
+				userId,
+				email,
+				displayName,
+			);
+		}
+
+		await run(
+			db,
+			"INSERT INTO submissions (id, team_id, round, kind, title, proposed_track, status, import_id, created_at) VALUES (?, ?, ?, 'pitch', ?, ?, 'received', ?, ?)",
+			newId(),
+			teamId,
+			1,
+			title,
+			track,
+			importId,
+			createdAt,
+		);
+		submissionsCreated++;
+	}
+
+	const stats = { teams: teamsCreated, submissions: submissionsCreated, users: usersCreated, errors };
+	await run(db, "UPDATE imports SET status = 'done', stats = ? WHERE id = ?", JSON.stringify(stats), importId);
 }
 
 export async function queueHandler(batch: MessageBatch, env: Env): Promise<void> {

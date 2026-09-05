@@ -44,3 +44,45 @@ export function arrayBufferToBase64(buffer: ArrayBuffer): string {
 	}
 	return btoa(binary);
 }
+
+function parseCsvLine(line: string): string[] {
+	const result: string[] = [];
+	let current = "";
+	let inQuotes = false;
+	for (let i = 0; i < line.length; i++) {
+		const char = line[i] as string;
+		if (inQuotes) {
+			if (char === '"') {
+				if ((line[i + 1] as string) === '"') {
+					current += '"';
+					i++;
+				} else {
+					inQuotes = false;
+				}
+			} else {
+				current += char;
+			}
+		} else if (char === '"') {
+			inQuotes = true;
+		} else if (char === ',') {
+			result.push(current.trim());
+			current = "";
+		} else {
+			current += char;
+		}
+	}
+	result.push(current.trim());
+	return result;
+}
+
+export function parseCsv(text: string): { headers: string[]; rows: string[][] } {
+	const lines = text.split(/\r?\n/).filter((line) => line.trim() !== "");
+	if (lines.length === 0) return { headers: [], rows: [] };
+	const headers = parseCsvLine(lines[0] as string);
+	const rows = lines.slice(1).map((line) => parseCsvLine(line));
+	return { headers: headers.map((h) => h.toLowerCase().trim()), rows };
+}
+
+export function normalizeHeader(header: string): string {
+	return header.toLowerCase().replace(/[^a-z0-9]+/g, " ").trim().replace(/\s+/g, " ");
+}
