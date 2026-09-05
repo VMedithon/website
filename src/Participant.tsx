@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react";
 import { useAuth, useUser, SignInButton } from "@clerk/react";
-import { FileUp, Plus, Send, Users, X } from "lucide-react";
+import { ArrowLeft, FileUp, Plus, Send, Users, X } from "lucide-react";
 import { useApi } from "./lib/api";
 
 type Tab = "team" | "submissions" | "forms";
@@ -234,8 +234,13 @@ function Submissions() {
 	</>;
 }
 
+type FormField = { id: string; type: string; label: string; required: boolean; config?: { options?: string[] } };
+
 function Forms() {
-	const { data, loading, error } = useFetch<{ items: { id: string; title: string; status: string; audience: string; closes_at: string | null }[] }>("/forms");
+	const [selected, setSelected] = useState<string | null>(null);
+	const { data, loading, error, refetch } = useFetch<{ items: { id: string; title: string; status: string; audience: string; closes_at: string | null }[] }>("/forms");
+
+	if (selected) return <FormFill formId={selected} onClose={() => setSelected(null)} onSubmit={() => { setSelected(null); void refetch(); }} />;
 
 	if (loading) return <Empty message="Loading forms..." />;
 	if (error) return <Empty message={error} />;
@@ -246,9 +251,89 @@ function Forms() {
 		<div className="page-title"><div><span>FORMS</span><h1>Assigned forms</h1></div></div>
 		<section className="panel table-panel">
 			<div className="data-table"><div className="table-row head"><span>FORM</span><span>AUDIENCE</span><span>STATUS</span></div>
-				{items.map((f) => <div className="table-row" key={f.id}><span>{f.title}</span><span>{f.audience}</span><span className={`table-status ${f.status}`}>{f.status}</span></div>)}
+				{items.map((f) => <button type="button" className="table-row" key={f.id} onClick={() => setSelected(f.id)} style={{ textAlign: "left", width: "100%" }}><span>{f.title}</span><span>{f.audience}</span><span className={`table-status ${f.status}`}>{f.status}</span></button>)}
 				{items.length === 0 && <div className="table-row"><span style={{ gridColumn: "1 / -1" }}>No forms assigned to you yet.</span></div>}
 			</div>
 		</section>
+	</>;
+}
+
+function FormFill({ formId, onClose, onSubmit }: { readonly formId: string; readonly onClose: () => void; readonly onSubmit: () => void }) {
+	const api = useApi();
+	const [data, setData] = useState<{ id: string; title: string; description: string | null; fields: FormField[] } | null>(null);
+	const [answers, setAnswers] = useState<Record<string, string | string[]>>({});
+	const [loading, setLoading] = useState(true);
+	const [saving, setSaving] = useState(false);
+	const [error, setError] = useState<string | null>(null);
+
+	useEffect(() => {
+		setLoading(true);
+		api(`/forms/${formId}`)
+			.then((res) => setData(res as typeof data))
+			.catch((err) => setError(err instanceof Error ? err.message : "Failed to load form"))
+			.finally(() => setLoading(false));
+	}, [api, formId]);
+
+	async function submit(event: React.FormEvent) {
+		event.preventDefault();
+		setSaving(true);
+		setError(null);
+		try {
+			await api(`/forms/${formId}/responses`, { method: "POST", body: JSON.stringify({ answers }) });
+			onSubmit();
+		} catch (err) {
+			setError(err instanceof Error ? err.message : "Failed to submit");
+		} finally {
+			setSaving(false);
+		}
+	}
+
+	if (loading) return <Empty message="Loading form..." />;
+	if (error) return <Empty message={error} />;
+	if (!data) return <Empty message="Form not found." />;
+
+	return <>
+		<div className="page-title"><div><span><button type="button" className="icon-button" onClick={onClose}><ArrowLeft size={18} /></button> {data.title}</span><h1>{data.title}</h1></div></div>
+		{data.description && <section className="panel" style={{ padding: 16, marginBottom: 24 }}><p>{data.description}</p></section>}
+		<form onSubmit={submit} className="panel invite-form" style={{ display: "flex", flexDirection: "column", gap: 16 }}>
+			{data.fields.map((field) => {
+				const value = answers[field.id] ?? "";
+				const options = field.config?.options ?? [];
+				const inputId = `field-${field.id}`;
+				return <div key={field.id} style={{ display: "flex", flexDirection: "column", gap: 6 }}>
+					<p style={{ fontWeight: 600, margin: 0 }}>{field.label}{field.required && <span style={{ color: "red" }}> *</span>}</p>
+					{field.type === "short_answer" && <input id={inputId} value={value as string} onChange={(e) => setAnswers((a) => ({ ...a, [field.id]: e.target.value }))} required={field.required} />}
+					{field.type === "paragraph" && <textarea id={inputId} rows={4} value={value as string} onChange={(e) => setAnswers((a) => ({ ...a, [field.id]: e.target.value }))} required={field.required} />}
+					{field.type === "number" && <input id={inputId} type="number" value={value as string} onChange={(e) => setAnswers((a) => ({ ...a, [field.id]: e.target.value }))} required={field.required} />}
+					{field.type === "multiple_choice" && (
+						<select id={inputId} value={value as string} onChange={(e) => setAnswers((a) => ({ ...a, [field.id]: e.target.value }))} required={field.required}>
+							<option value="">Select an option</option>
+							{options.map((opt) => <option key={opt} value={opt}>{opt}</option>)}
+						</select>
+					)}
+					{field.type === "checkboxes" && (
+						<div style={{ display: "flex", flexDirection: "column", gap: 4 }}>
+							{options.map((opt) => {
+								const values = (Array.isArray(value) ? value : [value]).filter(Boolean) as string[];
+								return <label key={opt} style={{ display: "flex", alignItems: "center", gap: 8 }}>
+									<input type="checkbox" checked={values.includes(opt)} onChange={(e) => setAnswers((a) => {
+										const list = (Array.isArray(a[field.id]) ? a[field.id] as string[] : a[field.id] ? [a[field.id] as string] : []);
+										return { ...a, [field.id]: e.target.checked ? [...list, opt] : list.filter((v) => v !== opt) };
+									})} />
+									{opt}
+								</label>;
+							})}
+						</div>
+					)}
+
+				</div>;
+			})}
+			{data.fields.length === 0 && <p>This form has no questions yet.</p>}
+			<div style={{ display: "flex", gap: 8 }}>
+				<button type="submit" className="dash-primary" disabled={saving}><Send /> {saving ? "Submitting..." : "Submit"}</button>
+				<button type="button" className="secondary-button" onClick={onClose}>Back</button>
+			</div>
+			{error && <p>{error}</p>}
+		</form>
 	</>;
 }

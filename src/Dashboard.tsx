@@ -208,9 +208,13 @@ function Overview({ navigate }: { readonly navigate: (view: DashboardView) => vo
 	</>;
 }
 
+type FieldConfig = { options?: string[] };
+type FormField = { id?: string; position: number; type: string; label: string; required: boolean; config?: FieldConfig };
+
+const FIELD_TYPES = ["short_answer", "paragraph", "number", "multiple_choice", "checkboxes"] as const;
+
 function FormStudio() {
 	const api = useApi();
-	const [fieldCount, setFieldCount] = useState(4);
 	const [selected, setSelected] = useState(0);
 	const [open, setOpen] = useState(false);
 	const [newTitle, setNewTitle] = useState("");
@@ -218,18 +222,25 @@ function FormStudio() {
 	const [newDesc, setNewDesc] = useState("");
 	const [busy, setBusy] = useState(false);
 	const [message, setMessage] = useState<string | null>(null);
-	const { data: forms, loading, error, refetch } = useFetch<{ items: { id: string; title: string; status: string; audience: string; fieldCount?: number }[] }>("/staff/forms");
+	const { data: forms, loading, error, refetch } = useFetch<{ items: { id: string; title: string; status: string; audience: string }[] }>("/staff/forms");
+	const [detail, setDetail] = useState<{ id: string; title: string; status: string; audience: string; description: string | null; fields: FormField[] } | null>(null);
+	const [detailLoading, setDetailLoading] = useState(false);
+	const [fieldType, setFieldType] = useState<(typeof FIELD_TYPES)[number]>("short_answer");
+	const [fieldLabel, setFieldLabel] = useState("");
+	const [fieldRequired, setFieldRequired] = useState(false);
+	const [fieldOptions, setFieldOptions] = useState("");
 
-	const fields = [
-		{ id: "team-id", label: "Team ID · Short answer" },
-		{ id: "overnight", label: "Will your team stay overnight? · Multiple choice" },
-		{ id: "member-count", label: "Number of members staying · Number" },
-		{ id: "dietary", label: "Dietary requirements · Checkboxes" },
-		...Array.from({ length: Math.max(0, fieldCount - 4) }, (_, order) => ({
-			id: `new-field-${order + 1}`,
-			label: "New question · Short answer",
-		})),
-	];
+	useEffect(() => {
+		const id = forms?.items[selected]?.id;
+		if (!id) { setDetail(null); return; }
+		let cancelled = false;
+		setDetailLoading(true);
+		api(`/staff/forms/${id}`)
+			.then((res) => { if (!cancelled) setDetail(res as typeof detail); })
+			.catch(() => { /* ignore */ })
+			.finally(() => { if (!cancelled) setDetailLoading(false); });
+		return () => { cancelled = true; };
+	}, [api, forms, selected]);
 
 	async function create(event: React.FormEvent) {
 		event.preventDefault();
@@ -255,11 +266,45 @@ function FormStudio() {
 		}
 	}
 
+	async function saveFields() {
+		if (detail?.status !== "draft") return;
+		try {
+			await api(`/staff/forms/${detail.id}`, { method: "PATCH", body: JSON.stringify({ fields: detail.fields.map((f, i) => ({ position: i, type: f.type, label: f.label, required: f.required, config: f.config ?? {} })) }) });
+			setMessage("Fields saved.");
+		} catch (err) {
+			setMessage(err instanceof Error ? err.message : "Failed to save fields");
+		}
+	}
+
+	function addField() {
+		if (detail?.status !== "draft" || !fieldLabel.trim()) return;
+		const config: FieldConfig = {};
+		if (fieldType === "multiple_choice" || fieldType === "checkboxes") {
+			config.options = fieldOptions.split(",").map((s) => s.trim()).filter(Boolean);
+		}
+		setDetail({
+			...detail,
+			fields: [...detail.fields, { position: detail.fields.length, type: fieldType, label: fieldLabel, required: fieldRequired, config }],
+		});
+		setFieldLabel("");
+		setFieldRequired(false);
+		setFieldOptions("");
+		setFieldType("short_answer");
+	}
+
+	function removeField(index: number) {
+		if (!detail) return;
+		setDetail({
+			...detail,
+			fields: detail.fields.filter((_, i) => i !== index).map((f, i) => ({ ...f, position: i })),
+		});
+	}
+
 	if (loading) return <Empty message="Loading forms..." />;
 	if (error) return <Empty message={error} />;
 
 	const list = forms?.items ?? [];
-	const current = list[selected] ?? { id: "", title: "New form", status: "draft", audience: "team" };
+	const current: { id: string; title: string; status: string; audience: string; description: string | null; fields: FormField[] } = detail ?? { ...(list[selected] ?? { id: "", title: "New form", status: "draft", audience: "team" }), description: null as string | null, fields: [] as FormField[] };
 
 	return <>
 		<PageTitle eyebrow="OPERATIONS / FORMS" title="Form studio" action="New form" onAction={() => setOpen(true)} />
@@ -278,10 +323,30 @@ function FormStudio() {
 				{list.map((form, index) => <button type="button" className={index === selected ? "selected" : ""} key={form.id} onClick={() => setSelected(index)}><span><strong>{form.title}</strong><small>{form.status} · {form.audience}</small></span><MoreHorizontal /></button>)}
 			</section>
 			<section className="panel builder"><div className="builder-head"><div><span className={`status-chip ${current.status === "published" ? "green" : ""}`}>{current.status}</span><h2>{current.title}</h2><p>{current.audience === "team" ? "Collect team-level responses." : "Collect individual participant responses."}</p></div><div>{current.status === "draft" && current.id && <button type="button" className="dash-primary" onClick={() => publishForm(current.id)}><Check /> Publish</button>}</div></div>
-				<div className="field-stack">
-					{fields.map((field, index) => <div className="form-field" key={field.id}><GripVertical /><span><small>FIELD {index + 1}</small><strong>{field.label}</strong></span><MoreHorizontal /></div>)}
-					<button type="button" className="add-field" onClick={() => setFieldCount((count) => count + 1)}><Plus /> Add field</button>
-				</div>
+				{detailLoading ? <p style={{ padding: 16 }}>Loading form...</p> : (
+					<div className="field-stack">
+						{current.fields.map((field, index) => <div className="form-field" key={field.id ?? `${field.label}-${index}`}>
+							<GripVertical />
+							<span><small>FIELD {index + 1} · {field.type}</small><strong>{field.label}</strong>{field.required && <small> · Required</small>}</span>
+							{current.status === "draft" && <button type="button" className="icon-button" onClick={() => removeField(index)} aria-label={`Remove ${field.label}`}><X /></button>}
+						</div>)}
+						{current.status === "draft" && current.id && (
+							<div style={{ display: "flex", flexDirection: "column", gap: 12, padding: "12px 0", borderTop: "1px solid #eee" }}>
+								<label style={{ display: "flex", flexDirection: "column", gap: 4 }}>New question<input value={fieldLabel} onChange={(e) => setFieldLabel(e.target.value)} placeholder="Question label" /></label>
+								<div style={{ display: "flex", gap: 12, alignItems: "center" }}>
+									<label style={{ display: "flex", alignItems: "center", gap: 4 }}>Type<select value={fieldType} onChange={(e) => setFieldType(e.target.value as (typeof FIELD_TYPES)[number])}>{FIELD_TYPES.map((t) => <option key={t} value={t}>{t.replace(/_/g, " ")}</option>)}</select></label>
+									<label style={{ display: "flex", alignItems: "center", gap: 4 }}><input type="checkbox" checked={fieldRequired} onChange={(e) => setFieldRequired(e.target.checked)} /> Required</label>
+								</div>
+								{(fieldType === "multiple_choice" || fieldType === "checkboxes") && <label style={{ display: "flex", flexDirection: "column", gap: 4 }}>Options (comma-separated)<input value={fieldOptions} onChange={(e) => setFieldOptions(e.target.value)} placeholder="Yes, No, Maybe" /></label>}
+								<div style={{ display: "flex", gap: 8 }}>
+									<button type="button" className="add-field" onClick={addField}><Plus /> Add field</button>
+									<button type="button" className="secondary-button" onClick={saveFields}>Save fields</button>
+								</div>
+								{message && <p>{message}</p>}
+							</div>
+						)}
+					</div>
+				)}
 			</section>
 		</div>
 	</>;
