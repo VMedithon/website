@@ -7,7 +7,9 @@ export type AppVariables = {
 	userName: string | null;
 };
 
+type AssetManifest = { fetch: (request: Request) => Promise<Response> };
+
 export type AppEnv = {
-	Bindings: Cloudflare.Env & { CERTIFICATE_SIGNING_SECRET?: string };
+	Bindings: Cloudflare.Env & { ASSETS?: AssetManifest; CERTIFICATE_SIGNING_SECRET?: string };
 	Variables: AppVariables;
 };
