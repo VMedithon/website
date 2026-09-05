@@ -18,6 +18,7 @@ import {
 	Users,
 	X,
 } from "lucide-react";
+import logoUrl from "./assets/logo.png";
 import { dashboardNav, type DashboardView } from "./data";
 import { useApi } from "./lib/api";
 
@@ -46,6 +47,7 @@ export function Dashboard({ onClose }: DashboardProps) {
 		return (
 			<div className="modal-backdrop" role="presentation">
 				<div className="verify-modal" role="dialog" aria-modal="true" aria-label="Sign in required" style={{ textAlign: "center" }}>
+					<div className="modal-brand"><img src={logoUrl} alt="VMEDITHON 2026" /></div>
 					<h2>Control Room</h2>
 					<p>Sign in with your Clerk account to access the platform.</p>
 					<SignInButton mode="modal" />
@@ -58,7 +60,7 @@ export function Dashboard({ onClose }: DashboardProps) {
 	return (
 		<div className="dashboard-overlay">
 			<aside className="dash-sidebar">
-				<div className="dash-brand"><span className="brand-mark"><span>V</span></span><span>CONTROL ROOM<small>VMEDITHON 2026</small></span></div>
+				<div className="dash-brand"><img className="dash-logo" src={logoUrl} alt="VMEDITHON 2026" /><span>CONTROL ROOM<small>VMEDITHON 2026</small></span></div>
 				<nav>
 					{dashboardNav.map((item) => {
 						const Icon = item.icon;

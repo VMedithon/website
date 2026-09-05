@@ -1,6 +1,7 @@
 import { useEffect, useState } from "react";
 import { useAuth, useUser, SignInButton } from "@clerk/react";
 import { ArrowLeft, FileUp, Plus, Send, Users, X } from "lucide-react";
+import logoUrl from "./assets/logo.png";
 import { useApi } from "./lib/api";
 
 type Tab = "team" | "submissions" | "forms";
@@ -55,6 +56,7 @@ export function Participant({ onClose }: { readonly onClose: () => void }) {
 		return (
 			<div className="modal-backdrop" role="presentation">
 				<div className="verify-modal" role="dialog" aria-modal="true" aria-label="Sign in required" style={{ textAlign: "center" }}>
+					<div className="modal-brand"><img src={logoUrl} alt="VMEDITHON 2026" /></div>
 					<h2>Participant portal</h2>
 					<p>Sign in with your Clerk account to register your team and submit your pitch.</p>
 					<SignInButton mode="modal" />
@@ -67,7 +69,7 @@ export function Participant({ onClose }: { readonly onClose: () => void }) {
 	return (
 		<div className="dashboard-overlay">
 			<aside className="dash-sidebar">
-				<div className="dash-brand"><span className="brand-mark"><span>V</span></span><span>PORTAL<small>VMEDITHON 2026</small></span></div>
+				<div className="dash-brand"><img className="dash-logo" src={logoUrl} alt="VMEDITHON 2026" /><span>PORTAL<small>VMEDITHON 2026</small></span></div>
 				<nav>
 					<button type="button" className={tab === "team" ? "active" : ""} onClick={() => setTab("team")}><Users /> My team</button>
 					<button type="button" className={tab === "submissions" ? "active" : ""} onClick={() => setTab("submissions")}><FileUp /> Submissions</button>
