@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { useNavigate, Routes, Route, Link } from "react-router-dom";
 import {
 	ArrowRight,
@@ -199,6 +199,8 @@ function VerifyPage() {
 	const navigate = useNavigate();
 	const [code, setCode] = useState("");
 	const [result, setResult] = useState<null | { status: string; recipient_name: string; track: string | null; event_name: string; issued_at: string | null }>(null);
+	const [fileUrl, setFileUrl] = useState<string | null>(null);
+	const [fileType, setFileType] = useState<string | null>(null);
 	const [loading, setLoading] = useState(false);
 	const [error, setError] = useState<string | null>(null);
 
@@ -206,6 +208,8 @@ function VerifyPage() {
 		setLoading(true);
 		setError(null);
 		setResult(null);
+		setFileUrl(null);
+		setFileType(null);
 		try {
 			const response = await fetch(`/api/public/certificates/${encodeURIComponent(code)}`);
 			const data = (await response.json()) as { status?: string; recipient_name?: string; track?: string | null; event_name?: string; issued_at?: string | null; error?: { message?: string } };
@@ -226,6 +230,31 @@ function VerifyPage() {
 		setLoading(false);
 	}
 
+	useEffect(() => {
+		if (result?.status !== "issued") { setFileUrl(null); return; }
+		let objectUrl = "";
+		fetch(`/api/public/certificates/${encodeURIComponent(code)}/file`)
+			.then(async (response) => {
+				if (!response.ok) return;
+				const blob = await response.blob();
+				objectUrl = URL.createObjectURL(blob);
+				setFileUrl(objectUrl);
+				setFileType(blob.type);
+			})
+			.catch(() => { /* ignore */ });
+		return () => { if (objectUrl) URL.revokeObjectURL(objectUrl); };
+	}, [result, code]);
+
+	function download() {
+		if (!fileUrl) return;
+		const link = document.createElement("a");
+		link.href = fileUrl;
+		link.download = `${code}.${fileType?.includes("svg") ? "svg" : "png"}`;
+		document.body.appendChild(link);
+		link.click();
+		document.body.removeChild(link);
+	}
+
 	return (
 		<div className="modal-backdrop" role="presentation" style={{ position: "fixed", inset: 0 }}>
 			<div className="verify-modal" role="dialog" aria-modal="true" aria-label="Verify certificate">
@@ -236,7 +265,7 @@ function VerifyPage() {
 				<p>Enter the unique ID printed in the lower corner of any VMEDITHON certificate.</p>
 				<label>
 					Certificate ID
-					<input value={code} onChange={(event) => { setCode(event.target.value); setError(null); setResult(null); }} placeholder="e.g. VMT26-P-0184" />
+					<input value={code} onChange={(event) => { setCode(event.target.value); setError(null); setResult(null); setFileUrl(null); }} placeholder="e.g. VMT26-P-0184" />
 				</label>
 				<button type="button" className="button primary full" onClick={verify} disabled={loading}><Search /> {loading ? "Verifying..." : "Verify certificate"}</button>
 				{error && <div className="demo-result" style={{ background: "#fff0f0" }}><FileUp /><span><strong>Not found</strong>{error}</span></div>}
@@ -249,6 +278,12 @@ function VerifyPage() {
 							{result.track && <span><br />Track: {result.track}</span>}
 							{result.issued_at && <span><br />Issued: {new Date(result.issued_at).toLocaleDateString()}</span>}
 						</span>
+					</div>
+				)}
+				{fileUrl && (
+					<div style={{ marginTop: 16, textAlign: "center" }}>
+						<img src={fileUrl} alt="Certificate" style={{ maxWidth: "100%", border: "1px solid #eee", borderRadius: 8 }} />
+						<button type="button" className="button primary full" onClick={download} style={{ marginTop: 12 }}><FileUp /> Download certificate</button>
 					</div>
 				)}
 			</div>

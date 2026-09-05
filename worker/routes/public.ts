@@ -24,6 +24,29 @@ async function signPayload(secret: string, payload: string): Promise<string> {
 		.join("");
 }
 
+publicApp.get("/public/certificates/:certificate_id/file", async (c) => {
+	const certificateId = c.req.param("certificate_id");
+	const db = getDb(c);
+	const artifacts = c.env.ARTIFACTS;
+	if (!artifacts) {
+		return c.json({ error: { code: "service_unavailable", message: "Artifact storage not configured" } }, 500);
+	}
+	const cert = await first<{ file_key: string | null; status: string }>(
+		db,
+		"SELECT file_key, status FROM certificates WHERE certificate_id = ?",
+		certificateId,
+	);
+	if (cert?.status !== "issued" || !cert.file_key) {
+		return c.json({ error: { code: "not_found", message: "Certificate file not found" } }, 404);
+	}
+	const object = await artifacts.get(cert.file_key);
+	if (!object) {
+		return c.json({ error: { code: "not_found", message: "Certificate file not found" } }, 404);
+	}
+	const body = await object.arrayBuffer();
+	return c.body(body, 200, { "Content-Type": object.httpMetadata?.contentType ?? "image/svg+xml" });
+});
+
 publicApp.get("/public/certificates/:certificate_id", async (c) => {
 	const certificateId = c.req.param("certificate_id");
 	const db = getDb(c);

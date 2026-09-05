@@ -63,8 +63,9 @@ pre-existing absences.
 
 ## Missing capabilities
 
-- Certificate PDF/PNG rendering for printed output. Public verification now
-  returns an HMAC-SHA256 signature over the certificate payload.
+- Certificate PDF/PNG raster rendering. Queue now embeds uploaded backgrounds
+  into the SVG artifact and `/api/public/certificates/:id/file` serves the file.
+  Public verification returns an HMAC-SHA256 signature over the payload.
 - Real Devnovate import CSV mapping and queue processing.
 - Playwright E2E tests and worker integration tests.
 - Production D1 / R2 / Queue provisioning and `wrangler deploy`.
