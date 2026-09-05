@@ -17,7 +17,17 @@ app.route("/api", participantApp);
 app.route("/api/staff", staffApp);
 app.route("/api/webhooks", webhookApp);
 
-app.notFound((c) => c.json({ error: { code: "not_found", message: "Not found" } }, 404));
+app.notFound(async (c) => {
+	if (c.req.method === "GET" && !c.req.path.startsWith("/api")) {
+		const assets = c.env.ASSETS as { fetch: (request: Request) => Promise<Response> } | undefined;
+		if (assets) {
+			const url = new URL(c.req.url);
+			url.pathname = "/";
+			return assets.fetch(new Request(url, c.req.raw));
+		}
+	}
+	return c.json({ error: { code: "not_found", message: "Not found" } }, 404);
+});
 
 app.onError((err, c) => {
 	if (err instanceof HTTPException) {

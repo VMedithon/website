@@ -18,9 +18,10 @@ portal are wired to the worker API for core read and create operations.
 || `bun install` (deps present) | OK — bun.lock committed |
 || `bun run typecheck` (`tsc -b`) | PASS (app + worker) |
 || `bun run lint` (`biome check .`) | PASS |
-|| `bun run build` (`tsc -b && vite build`) | PASS → `dist/` (~227 kB JS, ~21 kB CSS) |
-|| `bun run test` | PASS — `tests/state.test.ts` (unit tests for state machines) |
+|| `bun run build` (`tsc -b && vite build`) | PASS → `dist/` (~391 kB JS, ~21 kB CSS) |
+|| `bun run test` | PASS — `tests/state.test.ts`, `tests/utils.test.ts`, `tests/validation.test.ts` (13 tests) |
 || `./scripts/verify` | PASS — typecheck, lint, test, build, `wrangler types --check` |
+||| `bunx playwright test` | PASS — `e2e/landing.spec.ts` (3 tests, Brave browser) |
 || Deploy config | `wrangler.jsonc`, `migrations/`, `worker/` in place; secrets need real values. |
 
 Treat these as the green baseline — distinguish future regressions from
@@ -44,8 +45,8 @@ pre-existing absences.
   - Staff routes: overview, teams, submissions, reviews, imports, forms studio,
     finance, certificate templates and issuance, people/invitations, settings.
   - Clerk webhooks (`/api/webhooks/clerk`) for user and invitation sync.
-  - Queue consumer (`worker/queue.ts`) for certificate SVG generation and
-    Devnovate import stubs.
+  - Queue consumer (`worker/queue.ts`) for certificate SVG/PDF generation and
+    Devnovate import processing.
 - **Tooling**: Biome lint (formatter and assist **disabled** — style is manual),
   strict TypeScript (`noUncheckedIndexedAccess`,
   `exactOptionalPropertyTypes`), Vite 7, React 19, lucide-react, Bun, wrangler,
@@ -55,15 +56,14 @@ pre-existing absences.
 
 - **Control Room dashboard** (`src/Dashboard.tsx`) loads live data and supports
   create/edit mutations for finance requests, forms (with field builder),
-  certificate templates/issuance (with background upload), people/invitations,
-  submissions/reviewer assignment, and settings. Printed certificate rendering
-  remains a future gap.
+  certificate templates/issuance (with background upload and browser-side PNG
+  download), people/invitations, submissions/reviewer assignment, and settings.
 - Dashboard sidebar "Invitations" and "People & access" both render the same
   `People` view (intentional or unfinished — UNKNOWN INTENT).
 
 ## Missing capabilities
 
-- Playwright E2E tests and worker integration tests.
+- Worker integration tests using the `@cloudflare/vitest-pool-workers` pool.
 - Production D1 / R2 / Queue provisioning and `wrangler deploy`.
 
 ## Architecture currently in use
@@ -86,8 +86,8 @@ D1 (`staff_members`).
 ## Known limitations / debt
 
 - `src/Dashboard.tsx` and `src/Participant.tsx` now load live data and support
-  core create/edit; remaining partial flows are certificate PDF/PNG rendering
-  and Devnovate import mapping.
+  core create/edit; Devnovate import mapping is implemented but needs validation
+  against a real export.
 - `src/styles.css` is compacted: large diffs are hard to review; edits should be
   targeted string replacements.
 - `index.html` title/description are set; no favicon or social meta.
@@ -98,7 +98,7 @@ D1 (`staff_members`).
 || Observation | Question |
 |---|---|---|
 || Dashboard greets "Srijan G. — Master admin" | Placeholder identity; real staff list sourced from `staff_members` table. |
-|| "Import Devnovate dataset" | Devnovate's export format is unspecified — obtain a sample file before Phase 7 import work. |
+|| "Import Devnovate dataset" | Generic CSV mapping is in place; obtain a real Devnovate export to validate and refine column detection. |
 || "Registration payment confirmed" pipeline stat | Round one is stated free; whether later rounds charge a fee is undecided (product-spec assumes none — DECISION REQUIRED if wrong). |
 || Event date in hero: "21—22 September 2026" | Treated as authoritative product fact. |
 || Participants: account vs accountless registration | Spec assumes Clerk participant accounts (submission tracking, certificates). Reasonable default — flag if organizers prefer accountless. |

@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import { useNavigate, Routes, Route, Link } from "react-router-dom";
+import { useNavigate, Routes, Route, Link, useParams } from "react-router-dom";
 import {
 	ArrowRight,
 	Check,
@@ -24,6 +24,7 @@ export function App() {
 			<Route path="/platform" element={<Platform />} />
 			<Route path="/participant" element={<ParticipantPage />} />
 			<Route path="/verify" element={<VerifyPage />} />
+			<Route path="/verify/:certificate_id" element={<VerifyPage />} />
 			<Route path="*" element={<Landing />} />
 		</Routes>
 	);
@@ -197,12 +198,21 @@ function ParticipantPage() {
 
 function VerifyPage() {
 	const navigate = useNavigate();
-	const [code, setCode] = useState("");
+	const { certificate_id } = useParams<{ certificate_id?: string }>();
+	const [code, setCode] = useState(certificate_id ?? "");
 	const [result, setResult] = useState<null | { status: string; recipient_name: string; track: string | null; event_name: string; issued_at: string | null }>(null);
 	const [fileUrl, setFileUrl] = useState<string | null>(null);
 	const [fileType, setFileType] = useState<string | null>(null);
 	const [loading, setLoading] = useState(false);
 	const [error, setError] = useState<string | null>(null);
+
+	// biome-ignore lint/correctness/useExhaustiveDependencies: auto-verify only when the route certificate_id is present
+	useEffect(() => {
+		if (certificate_id) {
+			setCode(certificate_id);
+			void verify();
+		}
+	}, [certificate_id]);
 
 	async function verify() {
 		setLoading(true);
@@ -210,8 +220,9 @@ function VerifyPage() {
 		setResult(null);
 		setFileUrl(null);
 		setFileType(null);
+		const id = certificate_id ?? code;
 		try {
-			const response = await fetch(`/api/public/certificates/${encodeURIComponent(code)}`);
+			const response = await fetch(`/api/public/certificates/${encodeURIComponent(id)}`);
 			const data = (await response.json()) as { status?: string; recipient_name?: string; track?: string | null; event_name?: string; issued_at?: string | null; error?: { message?: string } };
 			if (!response.ok) {
 				setError(data.error?.message ?? "Certificate not found");
@@ -232,8 +243,9 @@ function VerifyPage() {
 
 	useEffect(() => {
 		if (result?.status !== "issued") { setFileUrl(null); return; }
+		const id = certificate_id ?? code;
 		let objectUrl = "";
-		fetch(`/api/public/certificates/${encodeURIComponent(code)}/file`)
+		fetch(`/api/public/certificates/${encodeURIComponent(id)}/file`)
 			.then(async (response) => {
 				if (!response.ok) return;
 				const blob = await response.blob();
@@ -243,7 +255,7 @@ function VerifyPage() {
 			})
 			.catch(() => { /* ignore */ });
 		return () => { if (objectUrl) URL.revokeObjectURL(objectUrl); };
-	}, [result, code]);
+	}, [result, code, certificate_id]);
 
 	function download() {
 		if (!fileUrl) return;
