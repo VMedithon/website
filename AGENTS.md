@@ -59,6 +59,16 @@ Target verification:
 Keep this green before committing. For a faster local check:
 `bun run typecheck && bun run lint && bun run build`.
 
+## Contribution policy
+
+- **All changes land via pull request.** Never push directly to `main`. Open a
+  PR for every change — even small fixes — and let CI (`./scripts/verify`) go
+  green before merge.
+- **Prefer stacked PRs** for multi-step work: each branch targets the previous
+  PR's branch as its base, keeping every diff small and independently
+  reviewable. Merge in order from the bottom of the stack.
+- Keep PRs scoped to one concern (e.g. branding vs. docs vs. a feature).
+
 ## Engineering rules
 
 - TypeScript strict mode is on (`noUncheckedIndexedAccess`, `exactOptionalPropertyTypes`).
