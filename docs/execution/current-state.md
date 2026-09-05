@@ -63,8 +63,8 @@ pre-existing absences.
 
 ## Missing capabilities
 
-- Certificate background replacement, PDF/PNG rendering and signed verification
-  payload (`COMP-VERIFY-01` is partially met by SVG artifacts; payload not yet signed).
+- Certificate PDF/PNG rendering for printed output. Public verification now
+  returns an HMAC-SHA256 signature over the certificate payload.
 - Real Devnovate import CSV mapping and queue processing.
 - Playwright E2E tests and worker integration tests.
 - Production D1 / R2 / Queue provisioning and `wrangler deploy`.

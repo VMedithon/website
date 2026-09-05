@@ -64,6 +64,7 @@ locally. Do not commit `.dev.vars`.
 | `VITE_CLERK_PUBLISHABLE_KEY` | frontend build | `.env` / CI env at build time (publishable = non-secret) |
 | `CLERK_SECRET_KEY` | Worker | `wrangler secret put` (never CLI args, never in config) |
 | `CLERK_WEBHOOK_SIGNING_SECRET` | Worker | `wrangler secret put` — from the Clerk dashboard webhook endpoint |
+| `CERTIFICATE_SIGNING_SECRET` | Worker | `wrangler secret put` — HMAC-signs public certificate verification responses |
 | `CLERK_ORG_ID` | Worker | `vars` (non-secret identifier) |
 | Local dev secrets | `.dev.vars` | gitignored; mirror the Worker secret names |
 

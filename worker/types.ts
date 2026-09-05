@@ -8,6 +8,6 @@ export type AppVariables = {
 };
 
 export type AppEnv = {
-	Bindings: Cloudflare.Env;
+	Bindings: Cloudflare.Env & { CERTIFICATE_SIGNING_SECRET?: string };
 	Variables: AppVariables;
 };
