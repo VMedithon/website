@@ -422,7 +422,7 @@ function Finance() {
 
 function Certificates() {
 	const api = useApi();
-	const { data: templates, loading, error, refetch: refetchTemplates } = useFetch<{ items: { id: string; name: string; track: string | null; kind: string; id_prefix: string; status: string }[] }>("/staff/certificates/templates");
+	const { data: templates, loading, error, refetch: refetchTemplates } = useFetch<{ items: { id: string; name: string; track: string | null; kind: string; id_prefix: string; status: string; background_key: string | null }[] }>("/staff/certificates/templates");
 	const { data: certs, refetch: refetchCerts } = useFetch<{ items: { id: string; certificate_id: string; recipient_name: string; track: string | null; status: string; issued_at: string | null }[] }>("/staff/certificates");
 	const { data: teams } = useFetch<{ items: { id: string; name: string }[] }>("/staff/teams");
 	const [templateOpen, setTemplateOpen] = useState(false);
@@ -432,6 +432,7 @@ function Certificates() {
 	const [newKind, setNewKind] = useState("participant");
 	const [newPrefix, setNewPrefix] = useState("");
 	const [newNameField, setNewNameField] = useState("full_name");
+	const [newBackground, setNewBackground] = useState<File | null>(null);
 	const [selectedTeams, setSelectedTeams] = useState<string[]>([]);
 	const [selectedTemplate, setSelectedTemplate] = useState("");
 	const [busy, setBusy] = useState(false);
@@ -440,7 +441,7 @@ function Certificates() {
 	if (loading) return <Empty message="Loading certificates..." />;
 	if (error) return <Empty message={error} />;
 
-	const current = templates?.items[0] ?? { id: "", name: "Participant · Research", track: null as string | null, kind: "participant", id_prefix: "VMT26-R-", status: "draft" };
+	const current = templates?.items[0] ?? { id: "", name: "Participant · Research", track: null as string | null, kind: "participant", id_prefix: "VMT26-R-", status: "draft", background_key: null };
 
 	async function createTemplate(event: React.FormEvent) {
 		event.preventDefault();
@@ -452,9 +453,10 @@ function Certificates() {
 		formData.append("id_prefix", newPrefix);
 		formData.append("name_field", newNameField);
 		formData.append("track", newTrack || "");
+		if (newBackground) formData.append("file", newBackground);
 		try {
 			await api("/staff/certificates/templates", { method: "POST", body: formData });
-			setNewName(""); setNewTrack(""); setNewKind("participant"); setNewPrefix(""); setNewNameField("full_name"); setTemplateOpen(false);
+			setNewName(""); setNewTrack(""); setNewKind("participant"); setNewPrefix(""); setNewNameField("full_name"); setNewBackground(null); setTemplateOpen(false);
 			void refetchTemplates();
 		} catch (err) {
 			setMessage(err instanceof Error ? err.message : "Failed to create template");
@@ -497,6 +499,7 @@ function Certificates() {
 				<label>Track (optional)<select value={newTrack} onChange={(e) => setNewTrack(e.target.value)}><option value="">Any</option>{TRACKS.map((t) => <option key={t} value={t}>{t}</option>)}</select></label>
 				<label>ID prefix<input value={newPrefix} onChange={(e) => setNewPrefix(e.target.value)} placeholder="VMT26-R-" required /></label>
 				<label>Name field<select value={newNameField} onChange={(e) => setNewNameField(e.target.value)}><option value="full_name">Full name</option><option value="team_name">Team name</option></select></label>
+				<label style={{ display: "flex", flexDirection: "column", gap: 4 }}>Background image (PNG/JPG, optional)<input type="file" accept=".png,.jpg,.jpeg" onChange={(e) => setNewBackground(e.target.files?.[0] ?? null)} /></label>
 				<button type="submit" className="dash-primary" disabled={busy}>Create template</button>
 				{message && <p>{message}</p>}
 			</form>
