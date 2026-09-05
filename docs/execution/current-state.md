@@ -7,9 +7,9 @@
 
 ## Project status
 
-**MIXED**: the marketing site, a backend worker, and a routed frontend shell are
-in place. The Control Room dashboard is still a UI preview with hardcoded data
-until the frontend is wired to the API.
+**MOSTLY IMPLEMENTED**: the marketing site, backend worker, D1/R2/Queue bindings,
+auth, and frontend routes are in place. The Control Room dashboard and participant
+portal are wired to the worker API for core read and create operations.
 
 ## Baseline verification (2026-09-04)
 
@@ -53,23 +53,19 @@ pre-existing absences.
 
 ## Partially implemented
 
-- **Control Room dashboard** (`src/Dashboard.tsx`) now loads live data from the
-  worker API for overview, people/invitations, settings, submissions, forms,
-  finance, and certificates. The form builder and certificate designer are still
-  cosmetic previews; all create/edit mutations must be done through the staff API
-  endpoints for now.
-- Form studio "Add field" button increments a counter and renders placeholder
-  rows — cosmetic only, no persisted schema edits in the UI (the API supports
-  full field CRUD).
+- **Control Room dashboard** (`src/Dashboard.tsx`) loads live data and supports
+  create/edit mutations for finance requests, forms, certificate templates, people
+  invitations, and settings. The form field builder, certificate background
+  replacement, reviewer assignment, and background file upload are still partial
+  or cosmetic.
 - Dashboard sidebar "Invitations" and "People & access" both render the same
   `People` view (intentional or unfinished — UNKNOWN INTENT).
 
 ## Missing capabilities
 
-- Frontend data layer: Clerk `SignedIn`/`SignedOut` guards, API client, and
-  dashboard modules wired to the worker endpoints.
-- Certificate PDF/PNG rendering and signed verification payload
-  (`COMP-VERIFY-01` is partially met by SVG artifacts; payload not yet signed).
+- Form field builder and participant form-filling UI.
+- Certificate background replacement, PDF/PNG rendering and signed verification
+  payload (`COMP-VERIFY-01` is partially met by SVG artifacts; payload not yet signed).
 - Real Devnovate import CSV mapping and queue processing.
 - Playwright E2E tests and worker integration tests.
 - Production D1 / R2 / Queue provisioning and `wrangler deploy`.
@@ -93,12 +89,13 @@ D1 (`staff_members`).
 
 ## Known limitations / debt
 
-- All dashboard numbers, names, and records in `src/Dashboard.tsx` are demo
-  content until the frontend is wired to the API.
+- `src/Dashboard.tsx` and `src/Participant.tsx` now load live data, but some
+  complex UI flows (form field builder, certificate background replacement,
+  reviewer assignment, participant form filling) are still partial.
 - `src/styles.css` is compacted: large diffs are hard to review; edits should be
   targeted string replacements.
 - `index.html` title/description are set; no favicon or social meta.
-- Two commits total; single contributor history.
+- Several commits on `feat/frontend-event-platform`.
 
 ## UNKNOWN INTENT markers
 

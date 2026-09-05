@@ -7,7 +7,7 @@
 
 || ID | Area | Current state | Desired state | Risk if unaddressed | Resolution (phase) |
 |---|---|---|---|---|---|---|
-|| GAP-UI-01 | Dashboard mutations | `Dashboard.tsx` displays live data but form builder and certificate designer are cosmetic only; create/edit actions must call the API | Full CRUD UI for forms, certificates, finance, submissions, and reviewer assignment | Staff cannot complete workflows in the browser | Phase 2 |
+|| GAP-UI-01 | Dashboard mutations | `Dashboard.tsx` supports core create/edit for finance, forms, certificates, people, and settings; the form field builder, certificate background upload, and reviewer assignment are still cosmetic or partial | Full CRUD UI for forms, certificates, finance, submissions, and reviewer assignment | Staff cannot complete workflows in the browser | Phase 2 |
 || GAP-UI-02 | Participant portal | Basic `/participant` UI with team create/invite, pitch upload, and form list; form filling UI not yet implemented | Team create/invite, pitch upload, form fill flows in the frontend | Participants cannot complete form responses in the browser | Phase 2 |
 || GAP-IMPORT-01 | Devnovate import | Queue consumer exists but the CSV/XLSX mapping is a stub | Parse Devnovate export and create teams/submissions (EVT-IMPORT-01, RULE-SUB-06). **Blocker: need a sample export file to define the mapping.** | External submission data unusable | Phase 7 |
 || GAP-EMAIL-01 | Email | "Not connected" settings card | Deferred — Clerk covers invitation emails; transactional email is out of scope until a provider decision (new ADR) | Missed notifications | Post-event backlog |

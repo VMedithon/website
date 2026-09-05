@@ -23,6 +23,7 @@ import { useApi } from "./lib/api";
 
 const ROLES = ["master_admin", "faculty_coordinator", "organizing_committee", "judge", "mentor"] as const;
 const MODULES = ["forms", "finance", "submissions", "certificates"] as const;
+const TRACKS = ["RESEARCH", "INDUSTRY", "PROJECT"] as const;
 
 function formatRupees(paise: number): string {
 	return `₹${(paise / 100).toLocaleString("en-IN", { minimumFractionDigits: 0, maximumFractionDigits: 2 })}`;
@@ -131,6 +132,21 @@ function Empty({ message }: { readonly message: string }) {
 	return <div className="panel" style={{ padding: 24 }}><p>{message}</p></div>;
 }
 
+function Modal({ open, onClose, title, children }: { readonly open: boolean; readonly onClose: () => void; readonly title: string; readonly children: React.ReactNode }) {
+	if (!open) return null;
+	return (
+		<div className="modal-backdrop" role="presentation">
+			<div className="verify-modal" role="dialog" aria-modal="true" style={{ width: 560, maxWidth: "90vw" }}>
+				<div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginBottom: 16 }}>
+					<h2 style={{ margin: 0 }}>{title}</h2>
+					<button type="button" className="icon-button close-modal" onClick={onClose}><X /></button>
+				</div>
+				{children}
+			</div>
+		</div>
+	);
+}
+
 function Overview({ navigate }: { readonly navigate: (view: DashboardView) => void }) {
 	const api = useApi();
 	const [counts, setCounts] = useState<{ teams: number; submissions: number; pending_reviews: number; pending_finance: number; issued_certificates: number; selected_teams: number } | null>(null);
@@ -193,9 +209,16 @@ function Overview({ navigate }: { readonly navigate: (view: DashboardView) => vo
 }
 
 function FormStudio() {
+	const api = useApi();
 	const [fieldCount, setFieldCount] = useState(4);
 	const [selected, setSelected] = useState(0);
-	const { data: forms, loading, error } = useFetch<{ items: { id: string; title: string; status: string; audience: string; fieldCount?: number }[] }>("/staff/forms");
+	const [open, setOpen] = useState(false);
+	const [newTitle, setNewTitle] = useState("");
+	const [newAudience, setNewAudience] = useState("team");
+	const [newDesc, setNewDesc] = useState("");
+	const [busy, setBusy] = useState(false);
+	const [message, setMessage] = useState<string | null>(null);
+	const { data: forms, loading, error, refetch } = useFetch<{ items: { id: string; title: string; status: string; audience: string; fieldCount?: number }[] }>("/staff/forms");
 
 	const fields = [
 		{ id: "team-id", label: "Team ID · Short answer" },
@@ -208,20 +231,53 @@ function FormStudio() {
 		})),
 	];
 
+	async function create(event: React.FormEvent) {
+		event.preventDefault();
+		setBusy(true);
+		setMessage(null);
+		try {
+			await api("/staff/forms", { method: "POST", body: JSON.stringify({ title: newTitle, audience: newAudience, description: newDesc || null, fields: [] }) });
+			setNewTitle(""); setNewDesc(""); setNewAudience("team"); setOpen(false);
+			void refetch();
+		} catch (err) {
+			setMessage(err instanceof Error ? err.message : "Failed to create form");
+		} finally {
+			setBusy(false);
+		}
+	}
+
+	async function publishForm(id: string) {
+		try {
+			await api(`/staff/forms/${id}/publish`, { method: "POST" });
+			void refetch();
+		} catch (err) {
+			alert(err instanceof Error ? err.message : "Failed to publish");
+		}
+	}
+
 	if (loading) return <Empty message="Loading forms..." />;
 	if (error) return <Empty message={error} />;
 
 	const list = forms?.items ?? [];
-	const current = list[selected] ?? { title: "Overnight stay preference", status: "published", audience: "team" };
+	const current = list[selected] ?? { id: "", title: "New form", status: "draft", audience: "team" };
 
 	return <>
-		<PageTitle eyebrow="OPERATIONS / FORMS" title="Form studio" action="New form" onAction={() => { /* TODO: open create form modal */ }} />
+		<PageTitle eyebrow="OPERATIONS / FORMS" title="Form studio" action="New form" onAction={() => setOpen(true)} />
+		<Modal open={open} onClose={() => setOpen(false)} title="New form">
+			<form onSubmit={create} className="invite-form" style={{ display: "flex", flexDirection: "column", gap: 12 }}>
+				<label>Title<input value={newTitle} onChange={(e) => setNewTitle(e.target.value)} placeholder="Overnight stay preference" required /></label>
+				<label>Audience<select value={newAudience} onChange={(e) => setNewAudience(e.target.value)}><option value="team">Team</option><option value="participant">Participant</option></select></label>
+				<label>Description<input value={newDesc} onChange={(e) => setNewDesc(e.target.value)} placeholder="Optional description" /></label>
+				<button type="submit" className="dash-primary" disabled={busy}>Create draft</button>
+				{message && <p>{message}</p>}
+			</form>
+		</Modal>
 		<div className="studio-layout">
 			<section className="panel form-list"><div className="panel-title"><div><span>{list.length} FORMS</span><h2>Event forms</h2></div></div>
 				{list.length === 0 && <p style={{ padding: 16 }}>No forms yet.</p>}
 				{list.map((form, index) => <button type="button" className={index === selected ? "selected" : ""} key={form.id} onClick={() => setSelected(index)}><span><strong>{form.title}</strong><small>{form.status} · {form.audience}</small></span><MoreHorizontal /></button>)}
 			</section>
-			<section className="panel builder"><div className="builder-head"><div><span className={`status-chip ${current.status === "published" ? "green" : ""}`}>{current.status}</span><h2>{current.title}</h2><p>{current.audience === "team" ? "Collect team-level responses." : "Collect individual participant responses."}</p></div><button type="button" className="secondary-button">Preview</button></div>
+			<section className="panel builder"><div className="builder-head"><div><span className={`status-chip ${current.status === "published" ? "green" : ""}`}>{current.status}</span><h2>{current.title}</h2><p>{current.audience === "team" ? "Collect team-level responses." : "Collect individual participant responses."}</p></div><div>{current.status === "draft" && current.id && <button type="button" className="dash-primary" onClick={() => publishForm(current.id)}><Check /> Publish</button>}</div></div>
 				<div className="field-stack">
 					{fields.map((field, index) => <div className="form-field" key={field.id}><GripVertical /><span><small>FIELD {index + 1}</small><strong>{field.label}</strong></span><MoreHorizontal /></div>)}
 					<button type="button" className="add-field" onClick={() => setFieldCount((count) => count + 1)}><Plus /> Add field</button>
@@ -232,7 +288,17 @@ function FormStudio() {
 }
 
 function Finance() {
-	const { data, loading, error } = useFetch<{ items: { id: string; title: string; raised_by: string; payee_name: string; upi_id: string; amount_paise: number; category: string | null; status: string; created_at: string }[]; summary: { approved_paise: number; paid_paise: number } }>("/staff/finance");
+	const api = useApi();
+	const { data, loading, error, refetch } = useFetch<{ items: { id: string; title: string; raised_by: string; payee_name: string; upi_id: string; amount_paise: number; category: string | null; status: string; created_at: string }[]; summary: { approved_paise: number; paid_paise: number } }>("/staff/finance");
+	const [open, setOpen] = useState(false);
+	const [title, setTitle] = useState("");
+	const [payee, setPayee] = useState("");
+	const [upi, setUpi] = useState("");
+	const [amount, setAmount] = useState("");
+	const [category, setCategory] = useState("");
+	const [notes, setNotes] = useState("");
+	const [busy, setBusy] = useState(false);
+	const [message, setMessage] = useState<string | null>(null);
 
 	if (loading) return <Empty message="Loading finance..." />;
 	if (error) return <Empty message={error} />;
@@ -241,8 +307,38 @@ function Finance() {
 	const paid = data?.summary.paid_paise ?? 0;
 	const requests = data?.items ?? [];
 
+	async function submit(event: React.FormEvent) {
+		event.preventDefault();
+		setBusy(true);
+		setMessage(null);
+		const rupees = Number.parseFloat(amount);
+		const paise = Number.isFinite(rupees) ? Math.round(rupees * 100) : 0;
+		try {
+			await api("/staff/finance", { method: "POST", body: JSON.stringify({ title, payee_name: payee, upi_id: upi, amount_paise: paise, category: category || null, notes: notes || null }) });
+			setTitle(""); setPayee(""); setUpi(""); setAmount(""); setCategory(""); setNotes("");
+			setOpen(false);
+			void refetch();
+		} catch (err) {
+			setMessage(err instanceof Error ? err.message : "Failed to create request");
+		} finally {
+			setBusy(false);
+		}
+	}
+
 	return <>
-		<PageTitle eyebrow="OPERATIONS / FINANCE" title="Finance desk" action="New request" />
+		<PageTitle eyebrow="OPERATIONS / FINANCE" title="Finance desk" action="New request" onAction={() => setOpen(true)} />
+		<Modal open={open} onClose={() => setOpen(false)} title="New finance request">
+			<form onSubmit={submit} className="invite-form" style={{ display: "flex", flexDirection: "column", gap: 12 }}>
+				<label>Request title<input value={title} onChange={(e) => setTitle(e.target.value)} placeholder="Participant dinner advance" required /></label>
+				<label>Payee name<input value={payee} onChange={(e) => setPayee(e.target.value)} placeholder="Aarav Mehta" required /></label>
+				<label>UPI ID<input value={upi} onChange={(e) => setUpi(e.target.value)} placeholder="aarav@okaxis" required /></label>
+				<label>Amount (INR)<input type="number" step="0.01" value={amount} onChange={(e) => setAmount(e.target.value)} placeholder="8500" required /></label>
+				<label>Category<input value={category} onChange={(e) => setCategory(e.target.value)} placeholder="Food" /></label>
+				<label>Notes<input value={notes} onChange={(e) => setNotes(e.target.value)} placeholder="Optional details" /></label>
+				<button type="submit" className="dash-primary" disabled={busy}>Create request</button>
+				{message && <p>{message}</p>}
+			</form>
+		</Modal>
 		<div className="finance-summary"><div><span>Total approved</span><strong>{formatRupees(approved)}</strong></div><div><span>Total paid</span><strong>{formatRupees(paid)}</strong></div><div><span>Open requests</span><strong>{requests.filter((r) => r.status === "pending" || r.status === "review").length}</strong></div></div>
 		<section className="panel table-panel"><div className="panel-title"><div><span>PAYMENT QUEUE</span><h2>Recent requests</h2></div><button type="button" className="secondary-button"><Upload /> Export report</button></div>
 			<div className="data-table"><div className="table-row head"><span>REQUEST</span><span>RAISED BY</span><span>UPI ID</span><span>AMOUNT</span><span>STATUS</span></div>
@@ -260,23 +356,111 @@ function Finance() {
 }
 
 function Certificates() {
-	const { data: templates, loading, error } = useFetch<{ items: { id: string; name: string; track: string | null; kind: string; id_prefix: string; status: string }[] }>("/staff/certificates/templates");
-	const { data: certs } = useFetch<{ items: { id: string; certificate_id: string; recipient_name: string; track: string | null; status: string; issued_at: string | null }[] }>("/staff/certificates");
+	const api = useApi();
+	const { data: templates, loading, error, refetch: refetchTemplates } = useFetch<{ items: { id: string; name: string; track: string | null; kind: string; id_prefix: string; status: string }[] }>("/staff/certificates/templates");
+	const { data: certs, refetch: refetchCerts } = useFetch<{ items: { id: string; certificate_id: string; recipient_name: string; track: string | null; status: string; issued_at: string | null }[] }>("/staff/certificates");
+	const { data: teams } = useFetch<{ items: { id: string; name: string }[] }>("/staff/teams");
+	const [templateOpen, setTemplateOpen] = useState(false);
+	const [issueOpen, setIssueOpen] = useState(false);
+	const [newName, setNewName] = useState("");
+	const [newTrack, setNewTrack] = useState<string>("");
+	const [newKind, setNewKind] = useState("participant");
+	const [newPrefix, setNewPrefix] = useState("");
+	const [newNameField, setNewNameField] = useState("full_name");
+	const [selectedTeams, setSelectedTeams] = useState<string[]>([]);
+	const [selectedTemplate, setSelectedTemplate] = useState("");
+	const [busy, setBusy] = useState(false);
+	const [message, setMessage] = useState<string | null>(null);
 
 	if (loading) return <Empty message="Loading certificates..." />;
 	if (error) return <Empty message={error} />;
 
-	const current = templates?.items[0] ?? { name: "Participant · Research", track: null as string | null, kind: "participant", id_prefix: "VMT26-R-", status: "draft" };
+	const current = templates?.items[0] ?? { id: "", name: "Participant · Research", track: null as string | null, kind: "participant", id_prefix: "VMT26-R-", status: "draft" };
+
+	async function createTemplate(event: React.FormEvent) {
+		event.preventDefault();
+		setBusy(true);
+		setMessage(null);
+		const formData = new FormData();
+		formData.append("name", newName);
+		formData.append("kind", newKind);
+		formData.append("id_prefix", newPrefix);
+		formData.append("name_field", newNameField);
+		formData.append("track", newTrack || "");
+		try {
+			await api("/staff/certificates/templates", { method: "POST", body: formData });
+			setNewName(""); setNewTrack(""); setNewKind("participant"); setNewPrefix(""); setNewNameField("full_name"); setTemplateOpen(false);
+			void refetchTemplates();
+		} catch (err) {
+			setMessage(err instanceof Error ? err.message : "Failed to create template");
+		} finally {
+			setBusy(false);
+		}
+	}
+
+	async function publishTemplate(id: string) {
+		try {
+			await api(`/staff/certificates/templates/${id}/publish`, { method: "POST" });
+			void refetchTemplates();
+		} catch (err) {
+			alert(err instanceof Error ? err.message : "Failed to publish");
+		}
+	}
+
+	async function issue(event: React.FormEvent) {
+		event.preventDefault();
+		setBusy(true);
+		setMessage(null);
+		try {
+			await api("/staff/certificates/issue", { method: "POST", body: JSON.stringify({ template_id: selectedTemplate, recipient_ids: selectedTeams, recipient_type: "team" }) });
+			setIssueOpen(false);
+			setSelectedTeams([]);
+			void refetchCerts();
+		} catch (err) {
+			setMessage(err instanceof Error ? err.message : "Failed to issue certificates");
+		} finally {
+			setBusy(false);
+		}
+	}
 
 	return <>
-		<PageTitle eyebrow="AUTOMATION / CERTIFICATES" title="Certificate studio" action="New template" />
+		<PageTitle eyebrow="AUTOMATION / CERTIFICATES" title="Certificate studio" action="New template" onAction={() => setTemplateOpen(true)} />
+		<Modal open={templateOpen} onClose={() => setTemplateOpen(false)} title="New certificate template">
+			<form onSubmit={createTemplate} className="invite-form" style={{ display: "flex", flexDirection: "column", gap: 12 }}>
+				<label>Template name<input value={newName} onChange={(e) => setNewName(e.target.value)} placeholder="Participant · Research" required /></label>
+				<label>Kind<select value={newKind} onChange={(e) => setNewKind(e.target.value)}><option value="participant">Participant</option><option value="winner">Winner</option><option value="mentor">Mentor</option><option value="judge">Judge</option><option value="organizer">Organizer</option></select></label>
+				<label>Track (optional)<select value={newTrack} onChange={(e) => setNewTrack(e.target.value)}><option value="">Any</option>{TRACKS.map((t) => <option key={t} value={t}>{t}</option>)}</select></label>
+				<label>ID prefix<input value={newPrefix} onChange={(e) => setNewPrefix(e.target.value)} placeholder="VMT26-R-" required /></label>
+				<label>Name field<select value={newNameField} onChange={(e) => setNewNameField(e.target.value)}><option value="full_name">Full name</option><option value="team_name">Team name</option></select></label>
+				<button type="submit" className="dash-primary" disabled={busy}>Create template</button>
+				{message && <p>{message}</p>}
+			</form>
+		</Modal>
+		<Modal open={issueOpen} onClose={() => setIssueOpen(false)} title="Issue certificates">
+			<form onSubmit={issue} className="invite-form" style={{ display: "flex", flexDirection: "column", gap: 12 }}>
+				<label>Template<select value={selectedTemplate} onChange={(e) => setSelectedTemplate(e.target.value)} required>
+					<option value="">Select a published template</option>
+					{templates?.items.filter((t) => t.status === "published").map((t) => <option key={t.id} value={t.id}>{t.name}</option>)}
+				</select></label>
+				<p><strong>Teams</strong></p>
+				<div style={{ maxHeight: 160, overflow: "auto", border: "1px solid #eee", padding: 8, borderRadius: 8 }}>
+					{teams?.items.map((team) => <label key={team.id} style={{ display: "flex", alignItems: "center", gap: 8, padding: "4px 0" }}>
+						<input type="checkbox" checked={selectedTeams.includes(team.id)} onChange={(e) => setSelectedTeams((ids) => e.target.checked ? [...ids, team.id] : ids.filter((id) => id !== team.id))} />
+						{team.name}
+					</label>)}
+					{(teams?.items.length ?? 0) === 0 && <p>No teams yet.</p>}
+				</div>
+				<button type="submit" className="dash-primary" disabled={busy || selectedTeams.length === 0 || !selectedTemplate}>Issue {selectedTeams.length} certificate{selectedTeams.length === 1 ? "" : "s"}</button>
+				{message && <p>{message}</p>}
+			</form>
+		</Modal>
 		<div className="certificate-layout">
 			<section className="panel cert-preview"><div className="certificate-canvas"><div className="cert-emblem">V</div><small>CERTIFICATE OF ACHIEVEMENT</small><p>This certificate is proudly presented to</p><h2>PARTICIPANT NAME</h2><p>for exceptional work in the {current.track ?? current.kind} Track at</p><strong>VMEDITHON 2026</strong><span>{current.id_prefix}0001</span></div></section>
 			<section className="panel cert-controls"><div className="panel-title"><div><span>TEMPLATES</span><h2>{current.name}</h2></div></div>
 				{templates?.items.length === 0 && <p>No templates yet.</p>}
-				{templates?.items.map((t) => <div key={t.id} style={{ padding: "8px 0", borderBottom: "1px solid #eee" }}><strong>{t.name}</strong><small> · {t.status}</small></div>)}
+				{templates?.items.map((t) => <div key={t.id} style={{ padding: "8px 0", borderBottom: "1px solid #eee" }}><strong>{t.name}</strong><small> · {t.status}</small>{t.status === "draft" && <button type="button" className="secondary-button" style={{ marginLeft: 8 }} onClick={() => publishTemplate(t.id)}><Check /> Publish</button>}</div>)}
 				<button type="button" className="upload-box"><ImagePlus /><strong>Replace background</strong><small>PNG or JPG · 1600 × 1131 recommended</small></button>
-				<div className="control-actions"><button type="button" className="secondary-button">Save draft</button><button type="button" className="dash-primary"><Check /> Publish template</button></div>
+				<div className="control-actions"><button type="button" className="secondary-button">Save draft</button><button type="button" className="dash-primary" onClick={() => setIssueOpen(true)}><Check /> Issue certificates</button></div>
 			</section>
 		</div>
 		<section className="panel table-panel" style={{ marginTop: 24 }}><div className="panel-title"><div><span>ISSUED CERTIFICATES</span><h2>Recent certificates</h2></div></div>
