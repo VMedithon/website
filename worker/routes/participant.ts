@@ -312,6 +312,18 @@ participantApp.get("/me/submissions", async (c) => {
 	return c.json({ items: rows });
 });
 
+participantApp.get("/forms", async (c) => {
+	const db = getDb(c);
+	const userId = await requireUser(c);
+	const membership = await first<{ team_id: string }>(db, "SELECT team_id FROM team_members WHERE user_id = ?", userId);
+	const rows = await all<{ id: string; title: string; audience: string; status: string; closes_at: string | null }>(
+		db,
+		"SELECT id, title, audience, status, closes_at FROM forms WHERE status = 'published' AND (closes_at IS NULL OR closes_at > ?) ORDER BY created_at DESC",
+		now(),
+	);
+	return c.json({ items: rows.map((f) => ({ ...f, audience: membership ? f.audience : "participant" })) });
+});
+
 participantApp.get("/forms/:id", async (c) => {
 	const db = getDb(c);
 	const formId = c.req.param("id");

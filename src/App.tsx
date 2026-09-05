@@ -14,6 +14,7 @@ import {
 	X,
 } from "lucide-react";
 import { Dashboard } from "./Dashboard";
+import { Participant } from "./Participant";
 import { timeline, tracks } from "./data";
 
 export function App() {
@@ -21,6 +22,7 @@ export function App() {
 		<Routes>
 			<Route path="/" element={<Landing />} />
 			<Route path="/platform" element={<Platform />} />
+			<Route path="/participant" element={<ParticipantPage />} />
 			<Route path="/verify" element={<VerifyPage />} />
 			<Route path="*" element={<Landing />} />
 		</Routes>
@@ -46,6 +48,7 @@ function Landing() {
 					<a href="#journey">Journey</a>
 					<a href="#experience">Experience</a>
 					<a href="#partners">Partners</a>
+					<button type="button" className="text-button" onClick={() => navigate("/participant")}>Participant portal</button>
 					<button type="button" className="text-button" onClick={() => navigate("/verify")}>Verify certificate</button>
 				</nav>
 				<button type="button" className="nav-cta" onClick={() => navigate("/platform")}>
@@ -185,6 +188,11 @@ function Landing() {
 function Platform() {
 	const navigate = useNavigate();
 	return <Dashboard onClose={() => navigate("/")} />;
+}
+
+function ParticipantPage() {
+	const navigate = useNavigate();
+	return <Participant onClose={() => navigate("/")} />;
 }
 
 function VerifyPage() {

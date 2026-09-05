@@ -32,8 +32,8 @@ pre-existing absences.
   mobile menu, hero, proof strip, tracks, journey, experience, partners, closing
   CTA, footer.
 - **Frontend routing** (`src/main.tsx`, `src/App.tsx`): `BrowserRouter` with `/`,
-  `/platform`, and `/verify`; `ClerkProvider` wraps the app when
-  `VITE_CLERK_PUBLISHABLE_KEY` is configured.
+  `/platform` (staff), `/participant` (team portal), and `/verify`;
+  `ClerkProvider` wraps the app when `VITE_CLERK_PUBLISHABLE_KEY` is configured.
 - **Public certificate verification** (`/verify` route, `worker/routes/public.ts`):
   calls `GET /api/public/certificates/:certificate_id` and displays real result.
 - **Cloudflare Worker backend** (`worker/`):
@@ -53,10 +53,11 @@ pre-existing absences.
 
 ## Partially implemented
 
-- **Control Room dashboard** (`src/Dashboard.tsx`) is still a UI preview with
-  hardcoded demo data. It is rendered at `/platform` but does not yet fetch from
-  the worker. The nav switcher and forms studio fields are cosmetic; real data
-  and mutations are available through the staff API.
+- **Control Room dashboard** (`src/Dashboard.tsx`) now loads live data from the
+  worker API for overview, people/invitations, settings, submissions, forms,
+  finance, and certificates. The form builder and certificate designer are still
+  cosmetic previews; all create/edit mutations must be done through the staff API
+  endpoints for now.
 - Form studio "Add field" button increments a counter and renders placeholder
   rows — cosmetic only, no persisted schema edits in the UI (the API supports
   full field CRUD).
