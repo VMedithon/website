@@ -54,16 +54,15 @@ pre-existing absences.
 ## Partially implemented
 
 - **Control Room dashboard** (`src/Dashboard.tsx`) loads live data and supports
-  create/edit mutations for finance requests, forms, certificate templates, people
-  invitations, and settings. The form field builder, certificate background
-  replacement, reviewer assignment, and background file upload are still partial
-  or cosmetic.
+  create/edit mutations for finance requests, forms (with field builder),
+  certificate templates/issuance, people/invitations, and settings. The certificate
+  background file replacement, printed certificate rendering, and reviewer
+  assignment are still partial or cosmetic.
 - Dashboard sidebar "Invitations" and "People & access" both render the same
   `People` view (intentional or unfinished — UNKNOWN INTENT).
 
 ## Missing capabilities
 
-- Form field builder and participant form-filling UI.
 - Certificate background replacement, PDF/PNG rendering and signed verification
   payload (`COMP-VERIFY-01` is partially met by SVG artifacts; payload not yet signed).
 - Real Devnovate import CSV mapping and queue processing.
@@ -89,9 +88,9 @@ D1 (`staff_members`).
 
 ## Known limitations / debt
 
-- `src/Dashboard.tsx` and `src/Participant.tsx` now load live data, but some
-  complex UI flows (form field builder, certificate background replacement,
-  reviewer assignment, participant form filling) are still partial.
+- `src/Dashboard.tsx` and `src/Participant.tsx` now load live data and support
+  core create/edit; remaining partial flows are certificate background
+  replacement, reviewer assignment, and Devnovate import mapping.
 - `src/styles.css` is compacted: large diffs are hard to review; edits should be
   targeted string replacements.
 - `index.html` title/description are set; no favicon or social meta.
