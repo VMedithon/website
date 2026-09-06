@@ -1,8 +1,0 @@
-#!/usr/bin/env bash
-set -euo pipefail
-
-bun run typecheck
-bun run lint
-bun run test
-bun run build
-bunx wrangler types --check --config wrangler.jsonc

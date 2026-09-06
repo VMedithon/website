@@ -1,5 +1,11 @@
 # Business Logic — domain rules and workflows
 
+> **Scope update (2026-09-06):** With the backend removed, rules below are
+> informational. The frontend does not enforce staff/participant permissions,
+> does not store money, and does not issue or verify certificates. Any future
+> backend will re-implement the invariants explicitly.
+
+
 > Normative. Each rule has a stable ID (RULE-*) for cross-reference. Related
 > invariants live in `invariants.md`; endpoints in `../contracts/api-contract.md`.
 > For whether a rule is currently enforced, see `../execution/gap-analysis.md`.
