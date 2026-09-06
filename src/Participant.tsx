@@ -1,7 +1,8 @@
 import { useEffect, useState } from "react";
 import { useAuth, useUser, SignInButton } from "@clerk/react";
-import { ArrowLeft, FileUp, Plus, Send, Users, X } from "lucide-react";
+import { ArrowLeft, FileUp, Moon, Plus, Send, Sun, Users, X } from "lucide-react";
 import logoUrl from "./assets/logo.png";
+import { useTheme } from "./hooks/useTheme";
 import { useApi } from "./lib/api";
 
 type Tab = "team" | "submissions" | "forms";
@@ -49,6 +50,7 @@ function Empty({ message }: { readonly message: string }) {
 export function Participant({ onClose }: { readonly onClose: () => void }) {
 	const { isSignedIn } = useAuth();
 	const { user } = useUser();
+	const { theme, toggle } = useTheme();
 	const name = user?.fullName ?? user?.firstName ?? "Participant";
 	const [tab, setTab] = useState<Tab>("team");
 
@@ -80,6 +82,7 @@ export function Participant({ onClose }: { readonly onClose: () => void }) {
 			<section className="dash-main">
 				<header className="dash-topbar">
 					<div><span className="status-chip"><i /> Participant portal</span><span>Manage your team and round-one pitch</span></div>
+					<button type="button" className="theme-toggle" onClick={toggle} aria-label="Toggle color theme">{theme === "dark" ? <Sun /> : <Moon />}</button>
 					<button type="button" className="icon-button" onClick={onClose} aria-label="Close portal"><X /></button>
 				</header>
 				<div className="dash-content">
