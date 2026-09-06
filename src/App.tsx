@@ -8,9 +8,11 @@ import {
 	Clock3,
 	FileUp,
 	Menu,
+	Moon,
 	QrCode,
 	Search,
 	Sparkles,
+	Sun,
 	X,
 } from "lucide-react";
 import logoDarkUrl from "./assets/logo-dark.png";
@@ -18,6 +20,7 @@ import logoUrl from "./assets/logo.png";
 import { Dashboard } from "./Dashboard";
 import { Participant } from "./Participant";
 import { timeline, tracks } from "./data";
+import { useTheme } from "./hooks/useTheme";
 
 export function App() {
 	return (
@@ -35,12 +38,14 @@ export function App() {
 function Landing() {
 	const navigate = useNavigate();
 	const [menuOpen, setMenuOpen] = useState(false);
+	const { theme, toggle } = useTheme();
+	const wordmark = theme === "dark" ? logoUrl : logoDarkUrl;
 
 	return (
 		<div className="site-shell">
 			<header className="nav-wrap">
 				<Link className="brand" to="/" aria-label="VMEDITHON home">
-					<img className="nav-logo" src={logoDarkUrl} alt="VMEDITHON 2026" />
+					<img className="nav-logo" src={wordmark} alt="VMEDITHON 2026" />
 				</Link>
 				<button type="button" className="mobile-menu" onClick={() => setMenuOpen((open) => !open)} aria-label="Toggle navigation">
 					{menuOpen ? <X /> : <Menu />}
@@ -53,6 +58,9 @@ function Landing() {
 					<button type="button" className="text-button" onClick={() => navigate("/participant")}>Participant portal</button>
 					<button type="button" className="text-button" onClick={() => navigate("/verify")}>Verify certificate</button>
 				</nav>
+				<button type="button" className="theme-toggle" onClick={toggle} aria-label="Toggle color theme">
+					{theme === "dark" ? <Sun /> : <Moon />}
+				</button>
 				<button type="button" className="nav-cta" onClick={() => navigate("/platform")}>
 					Open platform <ArrowRight size={16} />
 				</button>
@@ -64,7 +72,7 @@ function Landing() {
 					<div className="hero-orbit orbit-two" />
 					<div className="hero-grid" />
 					<div className="hero-copy">
-						<img className="hero-logo" src={logoUrl} alt="VMEDITHON" />
+						<img className="hero-logo" src={wordmark} alt="VMEDITHON" />
 						<div className="eyebrow"><span /> 36 HOURS. THREE PATHS. ONE DEFINING BUILD.</div>
 						<h1>Ideas, engineered<br />for <em>impact.</em></h1>
 						<p>
@@ -100,7 +108,7 @@ function Landing() {
 				</section>
 
 				<section className="section tracks-section" id="tracks">
-					<div className="section-heading">
+					<div className="section-heading" data-reveal>
 						<div><span className="kicker">CHOOSE YOUR OUTCOME</span><h2>Three tracks.<br />No throwaway builds.</h2></div>
 						<p>Every team begins with one idea. Our reviewers help place it on the path that gives it the strongest future.</p>
 					</div>
@@ -166,7 +174,7 @@ function Landing() {
 					</div>
 				</section>
 
-				<section className="closing">
+				<section className="closing" data-reveal>
 					<div>
 						<span className="kicker light">READY WHEN YOU ARE</span>
 						<h2>Your idea deserves<br />a stronger ending.</h2>
@@ -179,7 +187,7 @@ function Landing() {
 			</main>
 
 			<footer>
-				<Link className="brand footer-brand" to="/"><img className="footer-logo" src={logoUrl} alt="VMEDITHON 2026" /></Link>
+				<Link className="brand footer-brand" to="/"><img className="footer-logo" src={wordmark} alt="VMEDITHON 2026" /></Link>
 				<p>Research · Industry · Project<br />Vellore Institute of Technology</p>
 				<div><a href="#tracks">Tracks</a><a href="#journey">Timeline</a><button type="button" onClick={() => navigate("/verify")}>Verify certificate</button></div>
 				<small>© 2026 VMEDITHON. Built for what comes next.</small>
