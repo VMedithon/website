@@ -10,16 +10,19 @@ import {
 	FilePlus2,
 	GripVertical,
 	ImagePlus,
+	Moon,
 	MoreHorizontal,
 	Plus,
 	Send,
 	ShieldCheck,
+	Sun,
 	Upload,
 	Users,
 	X,
 } from "lucide-react";
 import logoUrl from "./assets/logo.png";
 import { dashboardNav, type DashboardView } from "./data";
+import { useTheme } from "./hooks/useTheme";
 import { useApi } from "./lib/api";
 
 const ROLES = ["master_admin", "faculty_coordinator", "organizing_committee", "judge", "mentor"] as const;
@@ -40,6 +43,7 @@ export function Dashboard({ onClose }: DashboardProps) {
 	const [active, setActive] = useState<DashboardView>("overview");
 	const { isSignedIn } = useAuth();
 	const { user } = useUser();
+	const { theme, toggle } = useTheme();
 	const name = user?.fullName ?? user?.firstName ?? "User";
 	const initials = name.split(" ").map((n) => n[0]).join("").slice(0, 2).toUpperCase();
 
@@ -72,6 +76,7 @@ export function Dashboard({ onClose }: DashboardProps) {
 			<section className="dash-main">
 				<header className="dash-topbar">
 					<div><span className="status-chip"><i /> Live data</span><span>Connected to the worker API</span></div>
+					<button type="button" className="theme-toggle" onClick={toggle} aria-label="Toggle color theme">{theme === "dark" ? <Sun /> : <Moon />}</button>
 					<button type="button" className="icon-button" onClick={onClose} aria-label="Close platform"><X /></button>
 				</header>
 				<div className="dash-content">
