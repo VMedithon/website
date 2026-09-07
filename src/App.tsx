@@ -245,7 +245,6 @@ function TrackSplit() {
 					<span className="kicker green">Two Tracks</span>
 					<h2>Hackathon × Buildathon</h2>
 				</div>
-				<p>One event, two energy systems. Software velocity meets engineered hardware.</p>
 			</div>
 			<div className="track-split" data-reveal>
 				<div className="track-half hack">
@@ -364,7 +363,6 @@ function Themes() {
 					<span className="kicker blue">Themes</span>
 					<h2>Open Innovation · Bio × Engineering</h2>
 				</div>
-				<p>Two confirmed public themes. Choose your domain, bring your research, and build toward real impact.</p>
 			</div>
 			<div className="themes-grid" data-reveal>
 				{themes.map((t) => (
@@ -400,7 +398,6 @@ function JourneySpine() {
 			<div className="journey-intro" data-reveal>
 				<span className="kicker green">Participant Journey</span>
 				<h2>From registration to final deliverable.</h2>
-				<p>A clear spine of checkpoints. Each stage has a defined output, so teams always know what comes next.</p>
 			</div>
 			<div className="journey-spine" ref={containerRef} data-reveal>
 				<div className="journey-line" />
@@ -428,7 +425,6 @@ function Rounds() {
 					<span className="kicker">Format</span>
 					<h2>Round 1 & Round 2</h2>
 				</div>
-				<p>Ideas first. Then the lab. Research and ideation online, followed by the 24-hour onsite buildathon.</p>
 			</div>
 			<div className="rounds-grid" data-reveal>
 				<div className="round-card one" data-reveal>
@@ -505,7 +501,6 @@ function Schedule() {
 					<span className="kicker blue">Schedule</span>
 					<h2>24-Hour Timeline</h2>
 				</div>
-				<p>One continuous arc from opening to judging. Click any block to see what happens inside.</p>
 			</div>
 			<div className="schedule-timeline" data-reveal>
 				<div className="schedule-days">
@@ -588,7 +583,6 @@ function Resources() {
 					<span className="kicker">Resources</span>
 					<h2>Resource Tray</h2>
 				</div>
-				<p>Templates, brochure, and participant material. Download what you need in one tray.</p>
 			</div>
 			<div className="resources-grid" data-reveal>
 				{resources.map((r) => (
@@ -639,7 +633,6 @@ function FAQ() {
 					<span className="kicker">FAQ</span>
 					<h2>Participant Information</h2>
 				</div>
-				<p>Answers marked pending confirmation will be updated once the operational plan is finalised.</p>
 			</div>
 			<div className="faq-list">
 				{faq.map((item, i) => (
@@ -732,7 +725,6 @@ function Contact() {
 					<span className="kicker">Contact</span>
 					<h2>Coordinators</h2>
 				</div>
-				<p>Reach out for sponsorships, partnerships, and participant support.</p>
 			</div>
 			<div className="dash-two-col" data-reveal style={{ maxWidth: 900, margin: "0 auto" }}>
 				<div className="panel">
