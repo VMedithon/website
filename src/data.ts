@@ -163,7 +163,7 @@ export const problemStatements = [
 ] as const;
 
 export const resources = [
-	{ title: "PPT Template", type: "PPTX", desc: "Round 1 submission format." },
+	{ title: "PPT Template", type: "PPTX", desc: "Round 1 submission format.", file: "/VMEDITHON_3.0_Participant_Submission_template.pptx" },
 	{ title: "Brochure", type: "PDF", desc: "Branding, schedule, and overview.", file: "/vmed-brochure.pdf" },
 ];
 
