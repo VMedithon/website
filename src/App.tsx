@@ -434,7 +434,7 @@ function Prize() {
 		<section className="prize-section" id="prizes" ref={ref}>
 			<Anchor id="prizes" />
 			<h2>PRIZE POOL</h2>
-			<div className="prize-amount">₹{value}<span>K+</span></div>
+			<div className="prize-amount">UPTO ₹{value}K+</div>
 		</section>
 	);
 }
