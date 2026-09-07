@@ -5,10 +5,10 @@ import dnaUrl from "./assets/dna.glb?url";
 
 const clamp01 = (t: number) => Math.min(1, Math.max(0, t));
 
-// VMEDITHON palette: top -> bottom brand gradient matching the old journey line
-const BRAND_TOP = new THREE.Color(0x13e27c); // green
-const BRAND_MID = new THREE.Color(0x2e9cff); // blue
-const BRAND_BOT = new THREE.Color(0xf6c80c); // gold
+// VMEDITHON blues: bright -> brand -> deep, top to bottom
+const BRAND_TOP = new THREE.Color(0x7cc4ff); // light blue
+const BRAND_MID = new THREE.Color(0x2e9cff); // brand blue
+const BRAND_BOT = new THREE.Color(0x126faf); // deep blue
 const DIM_DARK = new THREE.Color(0x33506b); // muted steel-blue, visible on the dark bg
 const DIM_LIGHT = new THREE.Color(0x54687e); // darker slate so it reads on light bg
 
@@ -40,6 +40,7 @@ export function DnaScene() {
 
 		const uniforms = {
 			uProgress: { value: 0 },
+			uGlow: { value: 0 },
 			uMinY: { value: -1 },
 			uMaxY: { value: 1 },
 			uDim: { value: DIM_DARK.clone() },
@@ -68,7 +69,7 @@ export function DnaScene() {
 			shader.fragmentShader = shader.fragmentShader
 				.replace(
 					"#include <common>",
-					"#include <common>\nuniform float uProgress;\nuniform vec3 uDim;\nuniform vec3 uTop;\nuniform vec3 uMid;\nuniform vec3 uBot;\nvarying float vNy;",
+					"#include <common>\nuniform float uProgress;\nuniform float uGlow;\nuniform vec3 uDim;\nuniform vec3 uTop;\nuniform vec3 uMid;\nuniform vec3 uBot;\nvarying float vNy;",
 				)
 				.replace(
 					"#include <color_fragment>",
@@ -77,6 +78,11 @@ export function DnaScene() {
 	vec3 dnaBrand = dnaT < 0.5 ? mix(uBot, uMid, dnaT * 2.0) : mix(uMid, uTop, (dnaT - 0.5) * 2.0);
 	float dnaLit = smoothstep(1.0 - uProgress - 0.06, 1.0 - uProgress + 0.02, dnaT);
 	diffuseColor.rgb = mix(uDim, dnaBrand, dnaLit);`,
+				)
+				.replace(
+					"#include <emissivemap_fragment>",
+					`#include <emissivemap_fragment>
+	totalEmissiveRadiance += dnaBrand * dnaLit * uGlow;`,
 				);
 		};
 
@@ -148,6 +154,8 @@ export function DnaScene() {
 			const p = clamp01((vh * 0.7 - pr.top) / Math.max(1, pr.height - vh * 0.3));
 
 			uniforms.uProgress.value = p;
+			uniforms.uGlow.value = p * 1.8; // the lit region glows harder as you scroll
+			rim.intensity = 8 + p * 24;
 			uniforms.uDim.value.copy(
 				document.documentElement.dataset.theme === "light" ? DIM_LIGHT : DIM_DARK,
 			);
