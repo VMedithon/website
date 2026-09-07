@@ -97,8 +97,7 @@
 .hero .button:active{transform:scale(.97)}
 .hero .button.primary{background:var(--brand-green);color:var(--brand-ink);box-shadow:0 6px 22px color-mix(in srgb,var(--brand-green) 35%,transparent)}
 .hero .button.primary:hover{background:color-mix(in srgb,var(--brand-green) 78%,black);transform:translateY(-2px)}
-.hero .button.portal{background:transparent;color:var(--ink);border:1px solid var(--line-strong)}
-.hero .button.portal:hover{border-color:var(--brand-blue);color:var(--brand-blue);transform:translateY(-2px)}
+
 .hero-orbit{position:absolute;border:1px solid color-mix(in srgb,var(--brand-green) 18%,transparent);border-radius:50%;pointer-events:none;animation:spin 60s linear infinite}
 .orbit-one{width:760px;height:760px;right:-220px;top:-180px}
 .orbit-two{width:560px;height:560px;right:-80px;top:100px;border-color:color-mix(in srgb,var(--brand-blue) 18%,transparent);animation-direction:reverse;animation-duration:80s}

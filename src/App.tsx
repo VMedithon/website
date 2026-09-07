@@ -159,10 +159,6 @@ function Hero() {
 						Register on Devnovate
 						<ArrowRight style={{ width: 16, height: 16 }} />
 					</Link>
-					<Link to="/dashboard" className="button portal">
-						Participant Portal
-						<ExternalLink style={{ width: 16, height: 16 }} />
-					</Link>
 				</div>
 			</div>
 		</section>
