@@ -71,9 +71,10 @@
 .nav-cta,.dash-primary{border:0;background:var(--accent);color:var(--accent-ink);height:42px;padding:0 20px;border-radius:var(--r-pill);display:flex;align-items:center;gap:9px;font-size:12px;font-weight:700;transition:transform .2s var(--ease),background .25s var(--ease);box-shadow:0 4px 14px color-mix(in srgb,var(--accent) 35%,transparent)}
 .nav-cta:hover,.dash-primary:hover{background:var(--brand-green);color:var(--on-accent);transform:translateY(-1px)}
 .nav-cta:active,.dash-primary:active{transform:scale(.97)}
-.theme-toggle{width:40px;height:40px;border-radius:50%;border:1px solid var(--line);background:var(--bg-elev);color:var(--ink-2);display:grid;place-items:center;transition:.25s var(--ease);flex:none}
-.theme-toggle:hover{color:var(--brand-blue);border-color:var(--brand-blue);transform:rotate(15deg)}
-.theme-toggle svg{width:17px;height:17px}
+.theme-toggle{height:34px;border-radius:var(--r-pill);border:1px solid var(--line);background:var(--bg-elev);color:var(--ink-2);display:flex;align-items:center;gap:4px;padding:4px 10px;font:600 10px Inter;letter-spacing:.08em;transition:.25s var(--ease);flex:none}
+.theme-toggle span{opacity:.5;transition:opacity .2s,color .2s}
+.theme-toggle span.active{opacity:1;color:var(--brand-blue)}
+.theme-toggle:hover{border-color:var(--brand-blue)}
 .mobile-menu{display:none;background:none;border:0;color:var(--ink)}
 
 /* ============ HERO ============ */
@@ -234,8 +235,9 @@
 .resources-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:20px}
 .resource-card{position:relative;background:var(--bg-elev);border:1px solid var(--line);border-radius:var(--r-card);padding:28px;display:flex;flex-direction:column;gap:16px;transition:transform .25s var(--ease),box-shadow .25s var(--ease),border-color .25s var(--ease)}
 .resource-card:hover{transform:translateY(-3px);box-shadow:var(--shadow-2);border-color:var(--brand-blue)}
-.resource-card strong{font:700 20px "Space Grotesk",sans-serif;color:var(--ink)}
+.resource-card strong{font:700 20px "Space Grotesk",sans-serif;color:var(--ink);display:block}
 .resource-card small{font:500 10px Inter;letter-spacing:1.2px;color:var(--ink-3);text-transform:uppercase}
+.resource-card-text{display:flex;flex-direction:column;gap:6px}
 .resource-card .file-type{font:500 11px Inter;letter-spacing:.08em;color:var(--brand-blue);background:color-mix(in srgb,var(--brand-blue) 10%,transparent);padding:5px 10px;border-radius:var(--r-pill);width:fit-content}
 .resource-card .download-row{display:flex;align-items:center;justify-content:space-between;margin-top:auto;padding-top:18px;border-top:1px solid var(--line)}
 .resource-card .download-row span{font-weight:600;font-size:13px;color:var(--ink-2)}
@@ -253,6 +255,7 @@
 .faq-item{background:var(--bg-elev);border:1px solid var(--line);border-radius:var(--r-card);padding:0;overflow:hidden}
 .faq-question{width:100%;display:flex;justify-content:space-between;align-items:center;gap:16px;background:none;border:0;padding:22px 24px;font:600 16px Inter;color:var(--ink);text-align:left;cursor:pointer}
 .faq-question span{flex:1}
+.faq-meta{display:flex;align-items:center;gap:10px;flex-shrink:0}
 .faq-toggle{width:28px;height:28px;display:grid;place-items:center;color:var(--ink-2);transition:transform .3s var(--ease),color .2s}
 .faq-item.open .faq-toggle{transform:rotate(45deg);color:var(--brand-green)}
 .faq-answer{padding:0 24px 24px;font-size:14px;line-height:1.7;color:var(--ink-2);margin:0;max-width:760px}

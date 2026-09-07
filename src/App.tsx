@@ -3,8 +3,6 @@ import { useLocation, Routes, Route, Link } from "react-router-dom";
 import {
 	ArrowRight,
 	Menu,
-	Moon,
-	Sun,
 	Check,
 	Code2,
 	Wrench,
@@ -128,8 +126,9 @@ function Nav() {
 					<ArrowRight style={{ width: 14, height: 14 }} />
 				</Link>
 			</div>
-			<button className="theme-toggle" aria-label="Toggle theme" onClick={toggle} type="button">
-				{theme === "dark" ? <Sun /> : <Moon />}
+			<button className="theme-toggle" aria-label={`Switch to ${theme === "dark" ? "light" : "dark"} mode`} onClick={toggle} type="button">
+				<span className={theme === "light" ? "active" : ""}>LAB</span>
+				<span className={theme === "dark" ? "active" : ""}>NIGHT</span>
 			</button>
 			<button className="mobile-menu" aria-label="Open menu" onClick={() => setOpen((s) => !s)} type="button">
 				<Menu />
@@ -618,7 +617,7 @@ function Resources() {
 				{resources.map((r) => (
 					<div key={r.title} className="resource-card">
 						<FileText style={{ width: 26, color: "var(--brand-blue)" }} />
-						<div>
+						<div className="resource-card-text">
 							<strong>{r.title}</strong>
 							<small>{r.desc}</small>
 						</div>
@@ -661,23 +660,25 @@ function FAQ() {
 				</div>
 				<p>Answers marked pending confirmation will be updated once the operational plan is finalised.</p>
 			</div>
-			<div className="faq-list" data-reveal>
+			<div className="faq-list">
 				{faq.map((item, i) => (
-					<div key={item.q} className={`faq-item ${open === i ? "open" : ""}`} data-reveal>
-						<button
-							type="button"
-							className="faq-question"
-							onClick={() => setOpen(open === i ? null : i)}
-							aria-expanded={open === i}
-						>
-							<span>{item.q}</span>
-							<div style={{ display: "flex", alignItems: "center", gap: 10 }}>
-								{!item.confirmed && <span className="pending-badge">Pending confirmation</span>}
-								<FaqToggle />
-							</div>
-						</button>
-						{open === i && <p className="faq-answer">{item.a}</p>}
-						<div className="faq-progress" />
+					<div key={item.q} data-reveal>
+						<div className={`faq-item ${open === i ? "open" : ""}`}>
+							<button
+								type="button"
+								className="faq-question"
+								onClick={() => setOpen(open === i ? null : i)}
+								aria-expanded={open === i}
+							>
+								<span>{item.q}</span>
+								<div className="faq-meta">
+									{!item.confirmed && <span className="pending-badge">Pending confirmation</span>}
+									<FaqToggle />
+								</div>
+							</button>
+							{open === i && <p className="faq-answer">{item.a}</p>}
+							<div className="faq-progress" />
+						</div>
 					</div>
 				))}
 			</div>
