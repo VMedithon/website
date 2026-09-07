@@ -10,9 +10,6 @@ const REST_OPACITY = 0.32;
 
 const easeOutCubic = (t: number) => 1 - (1 - t) ** 3;
 const clamp01 = (t: number) => Math.min(1, Math.max(0, t));
-// lub-dub: two quick pulses per 1.6s cycle, like the hero heartbeat
-const heartbeat = (phase: number) =>
-	Math.exp(-((phase - 0.1) ** 2) / 0.0018) + 0.55 * Math.exp(-((phase - 0.28) ** 2) / 0.0035);
 
 export function CaduceusScene() {
 	const hostRef = useRef<HTMLDivElement>(null);
@@ -36,7 +33,7 @@ export function CaduceusScene() {
 		const key = new THREE.DirectionalLight(0xfff3d0, 2.4);
 		key.position.set(2.5, 4, 3);
 		scene.add(key);
-		const rim = new THREE.PointLight(GOLD, 10, 20);
+		const rim = new THREE.PointLight(GOLD, 32, 20);
 		rim.position.set(-3, -1, 2);
 		scene.add(rim);
 
@@ -120,11 +117,9 @@ export function CaduceusScene() {
 			model.rotation.y = y * ROTATE_PER_PX;
 			model.rotation.x = 0.08 + p * 0.15;
 
-			const beat = heartbeat(((performance.now() / 1000) % 1.6) / 1.6);
-			rim.intensity = 10 + beat * 22;
-			material.emissiveIntensity = 0.25 + pop * 0.9 + beat * 2.0;
+			material.emissiveIntensity = 2.25 + pop * 0.9;
 			material.opacity =
-				clamp01(p * 4) * (1 - (1 - REST_OPACITY) * clamp01((p - 0.45) / 0.55)) + beat * 0.3 * p;
+				clamp01(p * 4) * (1 - (1 - REST_OPACITY) * clamp01((p - 0.45) / 0.55)) + 0.3 * p;
 
 			renderer.render(scene, camera);
 		};
