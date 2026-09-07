@@ -40,6 +40,7 @@
 
 /* ============ BIO-CIRCUIT BACKGROUND LANGUAGE ============ */
 .bio-bg{position:fixed;inset:0;pointer-events:none;z-index:0;overflow:hidden}
+.caduceus-scene{position:fixed;inset:0;pointer-events:none;z-index:1}
 .bio-grid{position:absolute;inset:-10%;background-image:linear-gradient(color-mix(in srgb,var(--brand-blue) 7%,transparent) 1px,transparent 1px),linear-gradient(90deg,color-mix(in srgb,var(--brand-blue) 7%,transparent) 1px,transparent 1px);background-size:80px 80px;mask-image:radial-gradient(circle at 50% 50%,black 20%,transparent 75%);-webkit-mask-image:radial-gradient(circle at 50% 50%,black 20%,transparent 75%);transition:opacity .6s var(--ease)}
 .bio-ecg{position:absolute;inset:0;opacity:.06;transition:opacity .6s var(--ease)}
 .bio-ecg svg{width:100%;height:100%;stroke:var(--brand-green);stroke-width:1.2;fill:none}
@@ -145,7 +146,7 @@
 .theme-keywords span{font:500 11px Inter;letter-spacing:.06em;padding:7px 13px;background:var(--bg-subtle);border-radius:var(--r-pill);color:var(--ink-2)}
 
 /* ============ JOURNEY SPINE ============ */
-.journey-section{background:var(--bg-subtle);padding:120px 7vw;position:relative;z-index:2;overflow:hidden}
+.journey-section{background:color-mix(in srgb,var(--bg-subtle) 82%,transparent);padding:120px 7vw;position:relative;z-index:2;overflow:hidden}
 .journey-intro{display:grid;grid-template-columns:1fr;margin-bottom:70px}
 .journey-spine{position:relative;max-width:720px;margin:0 auto}
 .journey-line{position:absolute;left:50%;top:0;bottom:0;width:2px;background:var(--line);transform:translateX(-50%)}
@@ -178,7 +179,7 @@
 .round-timeline-fill{position:absolute;left:-2px;top:0;bottom:0;width:2px;background:var(--brand-blue);height:0;transition:height .1s linear}
 
 /* ============ PRIZE ============ */
-.prize-section{padding:140px 7vw;background:var(--brand-ink);color:var(--ink);position:relative;z-index:2;overflow:hidden;text-align:center}
+.prize-section{padding:140px 7vw;background:color-mix(in srgb,var(--brand-ink) 85%,transparent);color:var(--ink);position:relative;z-index:2;overflow:hidden;text-align:center}
 .prize-section::before{content:"";position:absolute;inset:0;background:radial-gradient(circle at 50% 50%,color-mix(in srgb,var(--brand-gold) 12%,transparent),transparent 60%);pointer-events:none}
 .prize-section h2{font:700 clamp(52px,8vw,120px)/.9 "Space Grotesk",sans-serif;letter-spacing:-.04em;margin:0 0 10px;color:#f5f7f8}
 .prize-amount{font:800 clamp(64px,12vw,180px)/.85 "Space Grotesk",sans-serif;letter-spacing:-.04em;color:var(--brand-gold);margin:0}
@@ -197,7 +198,7 @@
 .resource-card:hover .download-row svg{transform:translateY(3px);color:var(--brand-blue)}
 
 /* ============ SPONSORS / PARTNERS ============ */
-.partners-section{padding:100px 7vw;background:var(--bg-subtle);border-top:1px solid var(--line);border-bottom:1px solid var(--line);text-align:center;position:relative;z-index:2}
+.partners-section{padding:100px 7vw;background:color-mix(in srgb,var(--bg-subtle) 82%,transparent);border-top:1px solid var(--line);border-bottom:1px solid var(--line);text-align:center;position:relative;z-index:2}
 .partner-logos{display:flex;flex-wrap:wrap;justify-content:center;gap:28px 48px;margin-top:50px;align-items:center}
 .partner-logo{display:grid;place-items:center;padding:10px 14px;border-radius:14px;opacity:.85;transition:opacity .3s var(--ease),transform .3s var(--ease);cursor:default}
 .partner-logo img{display:block;max-width:190px;max-height:72px;width:auto;height:auto}

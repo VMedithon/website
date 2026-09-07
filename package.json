@@ -15,6 +15,7 @@
     "lucide-react": "^0.542.0",
     "react": "^19.1.1",
     "react-dom": "^19.1.1",
+    "three": "^0.185.1",
     "typescript": "~5.8.3",
     "vite": "^7.1.3"
   },
@@ -22,6 +23,7 @@
     "@biomejs/biome": "^2.2.2",
     "@types/react": "^19.1.10",
     "@types/react-dom": "^19.1.7",
+    "@types/three": "^0.185.4",
     "wrangler": "4.127.1"
   }
 }

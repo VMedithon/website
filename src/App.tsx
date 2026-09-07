@@ -11,6 +11,7 @@ import {
 	Sun,
 	Moon,
 } from "lucide-react";
+import { lazy, Suspense } from "react";
 import logoOnDark from "./assets/logo.png";
 import logoOnLight from "./assets/logo-dark.png";
 import { useTheme } from "./hooks/useTheme";
@@ -24,6 +25,8 @@ import {
 	faq,
 	contact,
 } from "./data";
+
+const CaduceusScene = lazy(() => import("./CaduceusScene").then((m) => ({ default: m.CaduceusScene })));
 
 function Anchor({ id }: { id: string }) {
 	return <span id={id} className="anchor" />;
@@ -493,7 +496,7 @@ function Partners() {
 function FAQ() {
 	const [open, setOpen] = useState<number | null>(null);
 	return (
-		<section className="section" id="faq" style={{ background: "var(--bg-subtle)" }}>
+		<section className="section" id="faq" style={{ background: "color-mix(in srgb, var(--bg-subtle) 82%, transparent)" }}>
 			<Anchor id="faq" />
 			<div className="section-heading" data-reveal>
 				<div>
@@ -631,6 +634,9 @@ export function App() {
 	return (
 		<div className="site-shell">
 			<BioCircuitBackground />
+			<Suspense fallback={null}>
+				<CaduceusScene />
+			</Suspense>
 			<ScrollProgress />
 			<Nav />
 			<HomePage />
