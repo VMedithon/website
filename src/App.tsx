@@ -210,48 +210,24 @@ function Hero() {
 }
 
 function EventTelemetry() {
-	const graphBars = [
-		{ id: "a", h: 30 }, { id: "b", h: 55 }, { id: "c", h: 40 }, { id: "d", h: 70 },
-		{ id: "e", h: 45 }, { id: "f", h: 80 }, { id: "g", h: 60 }, { id: "h", h: 90 },
-		{ id: "i", h: 50 }, { id: "j", h: 75 }, { id: "k", h: 65 }, { id: "l", h: 85 },
-	];
 	return (
 		<section className="telemetry" id="telemetry">
 			<div className="telemetry-grid" data-reveal>
 				<div className="tele-card" data-reveal>
 					<div className="tele-label">Duration</div>
 					<div className="tele-value">24<span>HR</span></div>
-					<div className="tele-graph">
-						{graphBars.map((b) => (
-							<i key={b.id} style={{ height: `${b.h}%` }} />
-						))}
-					</div>
 				</div>
 				<div className="tele-card" data-reveal>
 					<div className="tele-label">Prize Pool</div>
 					<CountUp target={75} suffix="K+" />
-					<div className="tele-graph gold">
-						{graphBars.map((b) => (
-							<i key={b.id} style={{ height: `${b.h}%` }} />
-						))}
-					</div>
 				</div>
 				<div className="tele-card" data-reveal>
 					<div className="tele-label">Themes</div>
 					<div className="tele-value">2</div>
-					<div className="tele-nodes">
-						<i className="on" />
-						<i className="on blue" />
-					</div>
 				</div>
 				<div className="tele-card" data-reveal>
 					<div className="tele-label">Venue</div>
 					<div className="tele-value" style={{ fontSize: 28 }}>VIT Chennai</div>
-					<div className="tele-graph blue">
-						{graphBars.slice(0, 6).map((b) => (
-							<i key={b.id} style={{ height: `${b.h}%` }} />
-						))}
-					</div>
 				</div>
 			</div>
 		</section>
