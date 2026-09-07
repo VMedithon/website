@@ -115,8 +115,8 @@
 .section-heading h2,.journey-intro h2,.closing h2{font:700 clamp(34px,4.4vw,56px)/.98 "Space Grotesk",sans-serif;letter-spacing:-.03em;margin:18px 0 0}
 
 /* ============ HACKATHON × BUILDATHON ============ */
-.track-split{display:grid;grid-template-columns:1fr 1fr;min-height:560px;border:1px solid var(--line);border-radius:var(--r-card);overflow:hidden;background:var(--bg-elev)}
-.track-half{position:relative;padding:50px;display:flex;flex-direction:column;justify-content:space-between;transition:flex .5s var(--ease);overflow:hidden}
+.track-split{display:grid;grid-template-columns:1fr 1fr;min-height:360px;border:1px solid var(--line);border-radius:var(--r-card);overflow:hidden;background:var(--bg-elev)}
+.track-half{position:relative;padding:36px;display:flex;flex-direction:column;justify-content:space-between;transition:flex .5s var(--ease);overflow:hidden}
 .track-half+.track-half{border-left:1px solid var(--line)}
 .track-half.hack{flex:1;color:var(--brand-green)}
 .track-half.build{flex:1;color:var(--brand-blue)}
@@ -125,12 +125,12 @@
 .track-half:hover{flex:1.25}
 .track-half:hover::before{opacity:1}
 .track-half .track-content{position:relative;z-index:1}
-.track-half .track-icon{width:64px;height:64px;border-radius:var(--r-inner);display:grid;place-items:center;margin-bottom:24px;background:color-mix(in srgb,var(--bg-subtle) 60%,transparent);border:1px solid var(--line)}
+.track-half .track-icon{width:56px;height:56px;border-radius:var(--r-inner);display:grid;place-items:center;margin-bottom:20px;background:color-mix(in srgb,var(--bg-subtle) 60%,transparent);border:1px solid var(--line)}
 .track-half.hack .track-icon{color:var(--brand-green);box-shadow:0 0 24px color-mix(in srgb,var(--brand-green) 20%,transparent)}
 .track-half.build .track-icon{color:var(--brand-blue);box-shadow:0 0 24px color-mix(in srgb,var(--brand-blue) 20%,transparent)}
-.track-half h3{font:700 clamp(34px,4vw,56px)/.95 "Space Grotesk",sans-serif;letter-spacing:-.03em;margin:0 0 16px;color:var(--ink)}
+.track-half h3{font:700 clamp(28px,3.2vw,44px)/.95 "Space Grotesk",sans-serif;letter-spacing:-.03em;margin:0 0 14px;color:var(--ink)}
 .track-half p{font-size:15px;line-height:1.7;color:var(--ink-2);max-width:340px}
-.track-half .track-keywords{display:flex;flex-wrap:wrap;gap:10px;margin-top:auto;padding-top:34px}
+.track-half .track-keywords{display:flex;flex-wrap:wrap;gap:10px;margin-top:auto;padding-top:24px}
 .track-half .track-keywords span{font:500 11px Inter;letter-spacing:.08em;padding:7px 13px;border:1px solid var(--line);border-radius:var(--r-pill);color:var(--ink-2);transition:color .2s,border-color .2s,background .2s}
 .track-half.hack .track-keywords span:hover{color:var(--brand-green);border-color:var(--brand-green);background:color-mix(in srgb,var(--brand-green) 8%,transparent)}
 .track-half.build .track-keywords span:hover{color:var(--brand-blue);border-color:var(--brand-blue);background:color-mix(in srgb,var(--brand-blue) 8%,transparent)}
