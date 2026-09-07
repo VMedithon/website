@@ -1,5 +1,4 @@
 import { useEffect, useMemo, useRef, useState } from "react";
-import { useLocation, Routes, Route, Link } from "react-router-dom";
 import {
 	ArrowRight,
 	Menu,
@@ -12,7 +11,6 @@ import {
 	Sun,
 	Moon,
 } from "lucide-react";
-import { ParticipantDashboard } from "./ParticipantDashboard";
 import logoOnDark from "./assets/logo.png";
 import logoOnLight from "./assets/logo-dark.png";
 import { useTheme } from "./hooks/useTheme";
@@ -98,26 +96,22 @@ function ScrollProgress() {
 function Nav() {
 	const { theme, toggle } = useTheme();
 	const [open, setOpen] = useState(false);
-	const { pathname } = useLocation();
 
 	return (
 		<nav className="nav-wrap" aria-label="Main">
-			<Link to="/" className="brand" onClick={() => window.scrollTo({ top: 0, behavior: "smooth" })}>
+			<a href="#hero" className="brand" onClick={() => window.scrollTo({ top: 0, behavior: "smooth" })}>
 				<img src={theme === "dark" ? logoOnDark : logoOnLight} alt="VMEDITHON 3.0" className="nav-logo" />
-			</Link>
+			</a>
 			<div className={`nav-links ${open ? "open" : ""}`}>
 				{navLinks.map((l) => (
-					<Link
+					<a
 						key={l.id}
-						to={pathname === "/" ? l.path : `/${l.path.replace(/^\//, "")}`}
+						href={l.path.replace(/^\//, "")}
 						onClick={() => setOpen(false)}
 					>
 						{l.label}
-					</Link>
+					</a>
 				))}
-				<Link to="/dashboard" className="text-button" onClick={() => setOpen(false)}>
-					Portal
-				</Link>
 			</div>
 			<button className="theme-toggle" aria-label={`Switch to ${theme === "dark" ? "light" : "dark"} mode`} onClick={toggle} type="button">
 				<Sun className={theme === "light" ? "active" : ""} style={{ width: 14, height: 14 }} />
@@ -585,9 +579,8 @@ function Footer() {
 			</div>
 			<div>
 				<strong style={{ color: "#f5f7f8" }}>Quick Links</strong>
-				<Link to="/#journey">Journey</Link>
-				<Link to="/#themes">Themes</Link>
-				<Link to="/dashboard">Participant Portal</Link>
+				<a href="#journey">Journey</a>
+				<a href="#themes">Themes</a>
 			</div>
 			<small>© 2026 Team VMEDITHON. Operational details subject to confirmation.</small>
 		</footer>
@@ -596,17 +589,6 @@ function Footer() {
 
 function HomePage() {
 	useReveal();
-	const { hash } = useLocation();
-
-	useEffect(() => {
-		if (hash) {
-			const id = hash.replace("#", "");
-			const el = document.getElementById(id);
-			if (el) setTimeout(() => el.scrollIntoView({ behavior: "smooth" }), 50);
-		} else {
-			window.scrollTo({ top: 0, behavior: "smooth" });
-		}
-	}, [hash]);
 
 	return (
 		<>
@@ -631,11 +613,7 @@ export function App() {
 			<BioCircuitBackground />
 			<ScrollProgress />
 			<Nav />
-			<Routes>
-				<Route path="/" element={<HomePage />} />
-				<Route path="/dashboard" element={<ParticipantDashboard />} />
-				<Route path="*" element={<HomePage />} />
-			</Routes>
+			<HomePage />
 		</div>
 	);
 }
