@@ -1,43 +1,99 @@
-import { useEffect, useState } from "react";
-import { useLocation, Routes, Route, Link, useNavigate } from "react-router-dom";
+import { useEffect, useMemo, useRef, useState } from "react";
+import { useLocation, Routes, Route, Link } from "react-router-dom";
 import {
 	ArrowRight,
-	MapPin,
-	Calendar,
-	Clock,
 	Menu,
 	Moon,
 	Sun,
 	Check,
-	Award,
+	Code2,
+	Wrench,
 	FileText,
-	AlertCircle,
+	Download,
 	ExternalLink,
+	Award,
+	Activity,
 } from "lucide-react";
-import logoDarkUrl from "./assets/logo-dark.png";
-import logoUrl from "./assets/logo.png";
 import { ParticipantDashboard } from "./ParticipantDashboard";
 import { useTheme } from "./hooks/useTheme";
+import { useReveal } from "./hooks/useReveal";
 import {
 	navLinks,
-	journeyStages,
-	roundOne,
-	roundTwo,
-	problemStatements,
-	roundOneCriteria,
-	schedule,
-	mentorGroups,
-	industryRefinementAreas,
-	innovationHighlights,
-	finalJudgingCriteria,
+	journeySteps,
+	themes,
+	scheduleEvents,
+	resources,
+	sponsors,
 	faq,
-	venue,
 	contact,
 } from "./data";
-import { useReveal } from "./hooks/useReveal";
 
 function Anchor({ id }: { id: string }) {
 	return <span id={id} className="anchor" />;
+}
+
+function BioCircuitBackground() {
+	const nodes = useMemo(
+		() =>
+			Array.from({ length: 24 }).map((_, i) => ({
+				id: i,
+				x: `${Math.random() * 100}%`,
+				y: `${Math.random() * 100}%`,
+				delay: `${Math.random() * 4}s`,
+				blue: Math.random() > 0.5,
+			})),
+		[],
+	);
+	return (
+		<div className="bio-bg" aria-hidden="true">
+			<div className="bio-grid" />
+			<div className="bio-ecg">
+				<svg viewBox="0 0 1440 900" preserveAspectRatio="none" role="img" aria-label="ECG circuit trace">
+					<path
+						d="M0,450 L200,450 L240,350 L280,550 L320,450 L480,450 L520,200 L560,700 L600,450 L800,450 L840,380 L880,520 L920,450 L1100,450 L1140,300 L1180,600 L1220,450 L1440,450"
+						strokeDasharray="2000"
+						strokeDashoffset="0"
+					>
+						<animate attributeName="stroke-dashoffset" from="2000" to="0" dur="12s" repeatCount="indefinite" />
+					</path>
+					<path
+						d="M0,300 L1440,300"
+						strokeOpacity="0.4"
+					/>
+				</svg>
+			</div>
+			<div className="bio-nodes">
+				{nodes.map((n) => (
+					<div
+						key={n.id}
+						className="bio-node"
+						style={{
+							left: n.x,
+							top: n.y,
+							animationDelay: n.delay,
+							background: n.blue ? "var(--brand-blue)" : "var(--brand-green)",
+						}}
+					/>
+				))}
+			</div>
+		</div>
+	);
+}
+
+function ScrollProgress() {
+	const ref = useRef<HTMLDivElement>(null);
+	useEffect(() => {
+		const handler = () => {
+			if (!ref.current) return;
+			const h = document.documentElement;
+			const progress = h.scrollTop / (h.scrollHeight - h.clientHeight);
+			ref.current.style.transform = `scaleX(${Math.max(0, Math.min(1, progress))})`;
+		};
+		handler();
+		window.addEventListener("scroll", handler, { passive: true });
+		return () => window.removeEventListener("scroll", handler);
+	}, []);
+	return <div ref={ref} className="scroll-ecg" aria-hidden="true" />;
 }
 
 function Nav() {
@@ -48,7 +104,11 @@ function Nav() {
 	return (
 		<nav className="nav-wrap" aria-label="Main">
 			<Link to="/" className="brand" onClick={() => window.scrollTo({ top: 0, behavior: "smooth" })}>
-				<img src={theme === "dark" ? logoDarkUrl : logoUrl} alt="VMedition" className="nav-logo" />
+				<div className="brand-mark"><span>V</span></div>
+				<div>
+					VMEDITHON
+					<small>3.0 · BIOELECTRIC LAB</small>
+				</div>
 			</Link>
 			<div className={`nav-links ${open ? "open" : ""}`}>
 				{navLinks.map((l) => (
@@ -60,300 +120,377 @@ function Nav() {
 						{l.label}
 					</Link>
 				))}
-				<Link to="/dashboard" className="nav-cta">
+				<Link to="/dashboard" className="text-button" onClick={() => setOpen(false)}>
+					Portal
+				</Link>
+				<Link to="/dashboard" className="nav-cta" onClick={() => setOpen(false)}>
 					Register
 					<ArrowRight style={{ width: 14, height: 14 }} />
 				</Link>
 			</div>
-			<button
-				className="theme-toggle"
-				aria-label="Toggle theme"
-				onClick={toggle}
-				type="button"
-			>
+			<button className="theme-toggle" aria-label="Toggle theme" onClick={toggle} type="button">
 				{theme === "dark" ? <Sun /> : <Moon />}
 			</button>
-			<button
-				className="mobile-menu"
-				aria-label="Open menu"
-				onClick={() => setOpen((s) => !s)}
-				type="button"
-			>
+			<button className="mobile-menu" aria-label="Open menu" onClick={() => setOpen((s) => !s)} type="button">
 				<Menu />
 			</button>
 		</nav>
 	);
 }
 
-function Footer() {
+function CountUp({ target, suffix = "" }: { target: number; suffix?: string }) {
+	const [value, setValue] = useState(0);
+	const ref = useRef<HTMLSpanElement>(null);
+
+	useEffect(() => {
+		if (!ref.current) return;
+		const observer = new IntersectionObserver(
+			(entries) => {
+				if (entries[0]?.isIntersecting) {
+					let start: number | null = null;
+					const duration = 1200;
+					const step = (ts: number) => {
+						if (!start) start = ts;
+						const p = Math.min((ts - start) / duration, 1);
+						setValue(Math.floor(p * target));
+						if (p < 1) requestAnimationFrame(step);
+					};
+					requestAnimationFrame(step);
+					observer.disconnect();
+				}
+			},
+			{ threshold: 0.5 },
+		);
+		observer.observe(ref.current);
+		return () => observer.disconnect();
+	}, [target]);
+
 	return (
-		<footer>
-			<div>
-				<strong className="brand" style={{ color: "#fff" }}>VMedition 2026</strong>
-				<small style={{ display: "block", marginTop: 8, color: "#748b80" }}>
-					Student-driven research and buildathon at VIT Chennai.
-				</small>
-			</div>
-			<div>
-				<strong style={{ color: "#fff" }}>Contact</strong>
-				<a href={`mailto:${contact.email}`}>{contact.email}</a>
-				<span>{contact.institution}</span>
-				<span>{contact.team}</span>
-			</div>
-			<div>
-				<strong style={{ color: "#fff" }}>Quick links</strong>
-				<Link to="/#event-flow">Event flow</Link>
-				<Link to="/#schedule">Schedule</Link>
-				<Link to="/#challenges">Challenges</Link>
-				<Link to="/dashboard">Participant dashboard</Link>
-			</div>
-			<small>© 2026 Team VMedition. Operational details are subject to confirmation.</small>
-		</footer>
+		<span ref={ref} className="tele-value">
+			{value.toLocaleString()}
+			{suffix && <span>{suffix}</span>}
+		</span>
 	);
 }
 
 function Hero() {
-	const { theme } = useTheme();
-	const nav = useNavigate();
 	return (
 		<section className="hero" id="hero">
-			<div className="hero-grid" />
 			<div className="hero-orbit orbit-one" />
 			<div className="hero-orbit orbit-two" />
-			<div className="hero-copy">
-				<span className="eyebrow" data-reveal>
-					<span />
-					24-HOUR BUILDATHON
-				</span>
-				<img
-					src={theme === "dark" ? logoDarkUrl : logoUrl}
-					alt="VMedition"
-					className="hero-logo"
-					data-reveal
-				/>
-				<h1 data-reveal data-reveal-delay="1">
-					VMedition <em>2026</em>
-				</h1>
-				<p data-reveal data-reveal-delay="2">
-					15–16 September 2026 · MG Auditorium, VIT Chennai
-				</p>
-				<p data-reveal data-reveal-delay="2" style={{ marginTop: 10, maxWidth: 540, fontSize: 14, color: "var(--ink-3)" }}>
-					Ideate. Build. Refine. Innovate. Research-driven prototypes, industry mentors, and real impact.
-				</p>
-				<div className="hero-actions" data-reveal data-reveal-delay="3">
+			<div className="hero-center">
+				<div className="hero-tagline">Technology for a Healthier Tomorrow</div>
+				<h1 className="hero-title">VMEDITHON <em>3.0</em></h1>
+				<p className="hero-subtitle">HACKATHON × BUILDATHON</p>
+				<div className="hero-split">
+					<div className="hero-track hack">
+						<Code2 style={{ width: 18 }} />
+						HACKATHON
+					</div>
+					<div className="hero-caduceus">
+						<Activity style={{ width: 28 }} />
+					</div>
+					<div className="hero-track build">
+						<Wrench style={{ width: 18 }} />
+						BUILDATHON
+					</div>
+				</div>
+				<p className="hero-meta">SEP 15 — 16 · 24 HOURS · VIT CHENNAI</p>
+				<div className="hero-actions">
 					<Link to="/dashboard" className="button primary">
-						Register / Participate
+						Register / Devnovate
 						<ArrowRight style={{ width: 16, height: 16 }} />
 					</Link>
-					<button
-						type="button"
-						className="button ghost"
-						onClick={() => nav("/#event-flow")}
-					>
-						Explore Event
-						<ArrowRight style={{ width: 16, height: 16 }} />
-					</button>
+					<Link to="/dashboard" className="button portal">
+						Participant Portal
+						<ExternalLink style={{ width: 16, height: 16 }} />
+					</Link>
 				</div>
-			</div>
-			<div className="hero-card" data-reveal data-reveal-delay="4">
-				<div className="hero-card-top">
-					<span>LIVE PREVIEW</span>
-					<span className="live-dot">Registrations opening soon</span>
-				</div>
-				<div className="date-block">
-					<strong>15–16</strong>
-					<span>
-						SEP
-						<br />
-						2026
-					</span>
-				</div>
-				<div className="event-meta">
-					<div>
-						<MapPin />
-						<div>
-							<small>VENUE</small>
-							<span>MG Auditorium, VIT Chennai</span>
-						</div>
-						</div>
-					<div>
-						<Clock />
-						<div>
-							<small>DURATION</small>
-							<span>24-hour buildathon</span>
-						</div>
-						</div>
-					<div>
-						<Calendar />
-						<div>
-							<small>FORMAT</small>
-							<span>Two rounds · Research to prototype</span>
-						</div>
-						</div>
-				</div>
-			</div>
-			<div className="hero-footnote">
-				<ArrowRight style={{ width: 14 }} />
-				Scroll to explore the event
 			</div>
 		</section>
 	);
 }
 
-function SectionHeading({
-	kicker,
-	title,
-	children,
-	light = false,
-}: {
-	kicker: string;
-	title: string;
-	children?: React.ReactNode;
-	light?: boolean;
-}) {
+function EventTelemetry() {
+	const graphBars = [
+		{ id: "a", h: 30 }, { id: "b", h: 55 }, { id: "c", h: 40 }, { id: "d", h: 70 },
+		{ id: "e", h: 45 }, { id: "f", h: 80 }, { id: "g", h: 60 }, { id: "h", h: 90 },
+		{ id: "i", h: 50 }, { id: "j", h: 75 }, { id: "k", h: 65 }, { id: "l", h: 85 },
+	];
 	return (
-		<div className="section-heading" data-reveal>
-			<div>
-				<span className={`kicker ${light ? "light" : ""}`}>{kicker}</span>
-				<h2>{title}</h2>
+		<section className="telemetry" id="telemetry">
+			<div className="telemetry-grid" data-reveal>
+				<div className="tele-card" data-reveal>
+					<div className="tele-label">Duration</div>
+					<div className="tele-value">24<span>HR</span></div>
+					<div className="tele-graph">
+						{graphBars.map((b) => (
+							<i key={b.id} style={{ height: `${b.h}%` }} />
+						))}
+					</div>
+				</div>
+				<div className="tele-card" data-reveal>
+					<div className="tele-label">Prize Pool</div>
+					<CountUp target={75} suffix="K+" />
+					<div className="tele-graph gold">
+						{graphBars.map((b) => (
+							<i key={b.id} style={{ height: `${b.h}%` }} />
+						))}
+					</div>
+				</div>
+				<div className="tele-card" data-reveal>
+					<div className="tele-label">Themes</div>
+					<div className="tele-value">2</div>
+					<div className="tele-nodes">
+						<i className="on" />
+						<i className="on blue" />
+					</div>
+				</div>
+				<div className="tele-card" data-reveal>
+					<div className="tele-label">Venue</div>
+					<div className="tele-value" style={{ fontSize: 28 }}>VIT Chennai</div>
+					<div className="tele-graph blue">
+						{graphBars.slice(0, 6).map((b) => (
+							<i key={b.id} style={{ height: `${b.h}%` }} />
+						))}
+					</div>
+				</div>
 			</div>
-			{children && <p>{children}</p>}
+		</section>
+	);
+}
+
+function TrackSplit() {
+	return (
+		<section className="section" id="tracks">
+			<Anchor id="tracks" />
+			<div className="section-heading" data-reveal>
+				<div>
+					<span className="kicker green">Two Tracks</span>
+					<h2>Hackathon × Buildathon</h2>
+				</div>
+				<p>One event, two energy systems. Software velocity meets engineered hardware.</p>
+			</div>
+			<div className="track-split" data-reveal>
+				<div className="track-half hack">
+					<div className="track-content">
+						<div className="track-icon"><Code2 style={{ width: 32, height: 32 }} /></div>
+						<h3>HACKATHON</h3>
+						<p>Build software solutions, data pipelines, AI models, and digital health interfaces over 24 hours.</p>
+					</div>
+					<div className="track-keywords">
+						<span>Software</span>
+						<span>AI / ML</span>
+						<span>Data</span>
+						<span>UI / UX</span>
+					</div>
+				</div>
+				<div className="track-half build">
+					<div className="track-content">
+						<div className="track-icon"><Wrench style={{ width: 32, height: 32 }} /></div>
+						<h3>BUILDATHON</h3>
+						<p>Engineer working prototypes, devices, and biomedical instrumentation. Design, fabricate, validate.</p>
+					</div>
+					<div className="track-keywords">
+						<span>Hardware</span>
+						<span>IoT</span>
+						<span>Signal</span>
+						<span>Prototyping</span>
+					</div>
+				</div>
+			</div>
+		</section>
+	);
+}
+
+function NetworkSVG({ accent }: { accent: "green" | "blue" }) {
+	const color = accent === "green" ? "var(--brand-green)" : "var(--brand-blue)";
+	return (
+		<svg className="theme-network" viewBox="0 0 400 400" preserveAspectRatio="xMidYMid slice" role="img" aria-label="Network nodes">
+			<circle cx="80" cy="80" r="4" fill={color} opacity="0.6" />
+			<circle cx="180" cy="120" r="5" fill={color} opacity="0.8" />
+			<circle cx="300" cy="90" r="4" fill={color} opacity="0.6" />
+			<circle cx="240" cy="220" r="6" fill={color} opacity="0.9" />
+			<circle cx="120" cy="260" r="4" fill={color} opacity="0.6" />
+			<circle cx="340" cy="280" r="5" fill={color} opacity="0.7" />
+			<circle cx="70" cy="320" r="4" fill={color} opacity="0.5" />
+			<line x1="80" y1="80" x2="180" y2="120" stroke={color} strokeWidth="1" opacity="0.3" />
+			<line x1="180" y1="120" x2="300" y2="90" stroke={color} strokeWidth="1" opacity="0.3" />
+			<line x1="180" y1="120" x2="240" y2="220" stroke={color} strokeWidth="1" opacity="0.4" />
+			<line x1="240" y1="220" x2="120" y2="260" stroke={color} strokeWidth="1" opacity="0.3" />
+			<line x1="240" y1="220" x2="340" y2="280" stroke={color} strokeWidth="1" opacity="0.3" />
+			<line x1="120" y1="260" x2="70" y2="320" stroke={color} strokeWidth="1" opacity="0.3" />
+		</svg>
+	);
+}
+
+function BioSVG() {
+	return (
+		<svg className="theme-bio" viewBox="0 0 400 400" preserveAspectRatio="xMidYMid slice" role="img" aria-label="Biological and engineering motifs">
+			<path
+				d="M180,60 Q220,120 180,180 T180,300"
+				stroke="var(--brand-blue)"
+				strokeWidth="1.5"
+				fill="none"
+				opacity="0.3"
+			/>
+			<path
+				d="M220,60 Q180,120 220,180 T220,300"
+				stroke="var(--brand-blue)"
+				strokeWidth="1.5"
+				fill="none"
+				opacity="0.3"
+			/>
+			<path
+				d="M140,180 Q200,120 260,180 Q200,240 140,180"
+				stroke="var(--brand-blue)"
+				strokeWidth="1"
+				fill="none"
+				opacity="0.25"
+			/>
+			<rect x="100" y="100" width="200" height="200" stroke="var(--brand-blue)" strokeWidth="0.5" fill="none" opacity="0.15" />
+			<line x1="100" y1="140" x2="300" y2="140" stroke="var(--brand-blue)" strokeWidth="0.5" opacity="0.15" />
+			<line x1="100" y1="180" x2="300" y2="180" stroke="var(--brand-blue)" strokeWidth="0.5" opacity="0.15" />
+			<line x1="100" y1="220" x2="300" y2="220" stroke="var(--brand-blue)" strokeWidth="0.5" opacity="0.15" />
+			<line x1="100" y1="260" x2="300" y2="260" stroke="var(--brand-blue)" strokeWidth="0.5" opacity="0.15" />
+		</svg>
+	);
+}
+
+function ThemeCard({ theme }: { theme: typeof themes[number] }) {
+	const Icon = theme.icon;
+	const isGreen = theme.accent === "green";
+	return (
+		<div className={`theme-card ${isGreen ? "green" : "blue"}`} data-reveal>
+			{isGreen ? <NetworkSVG accent="green" /> : <BioSVG />}
+			<div className="theme-content">
+				<div className="theme-icon">
+					<Icon style={{ width: 28, height: 28 }} />
+				</div>
+				<h3>{theme.title}</h3>
+				<p>{theme.description}</p>
+				<div className="theme-keywords">
+					{theme.keywords.map((k) => (
+						<span key={k}>{k}</span>
+					))}
+				</div>
+			</div>
 		</div>
 	);
 }
 
-function About() {
+function Themes() {
 	return (
-		<section className="section" id="about">
-			<Anchor id="about" />
+		<section className="section" id="themes">
+			<Anchor id="themes" />
 			<div className="section-heading" data-reveal>
 				<div>
-					<span className="kicker">ABOUT</span>
-					<h2>Student-driven innovation for real-world health.</h2>
+					<span className="kicker blue">Themes</span>
+					<h2>Open Innovation · Bio × Engineering</h2>
 				</div>
-				<p>
-					VMedition is a 24-hour buildathon where students move beyond idea pitching to research-backed, functional prototyping. Teams work on real problem statements, validate with mentors, and refine with industry experts.
-				</p>
+				<p>Two confirmed public themes. Choose your domain, bring your research, and build toward real impact.</p>
 			</div>
-			<div className="experience-section" data-reveal>
-				<div className="experience-visual">
-					<div className="visual-noise" />
-					<span className="vertical-label">RESEARCH · PROTOTYPE · IMPACT</span>
-					<div className="quote-card">
-						Functional prototypes. Industry validation. Potential patent-ready work.
-					</div>
-				</div>
-				<div className="experience-copy">
-					<p className="lead">
-						Most hackathons stop at the demo. VMedition expects teams to understand the problem, research existing work, find the gap, and build something that could actually work.
-					</p>
-					<div className="feature-list">
-						<div>
-							<strong>01</strong>
-							<div>
-								<b>Research + development</b>
-								<span>Not just pitching ideas — teams build and validate.</span>
-							</div>
-						</div>
-						<div>
-							<strong>02</strong>
-							<div>
-								<b>Real-world problem solving</b>
-								<span>Problem statements are grounded in clinical and operational needs.</span>
-							</div>
-						</div>
-						<div>
-							<strong>03</strong>
-							<div>
-								<b>Industry interaction</b>
-								<span>Experts review feasibility, architecture, and market fit.</span>
-							</div>
-						</div>
-						<div>
-							<strong>04</strong>
-							<div>
-								<b>Novel / patentable work</b>
-								<span>Strong projects can be steered toward publication or IP.</span>
-							</div>
-						</div>
-					</div>
-				</div>
+			<div className="themes-grid" data-reveal>
+				{themes.map((t) => (
+					<ThemeCard key={t.title} theme={t} />
+				))}
 			</div>
 		</section>
 	);
 }
 
-function Journey() {
+function JourneySpine() {
+	const containerRef = useRef<HTMLDivElement>(null);
+	const fillRef = useRef<HTMLDivElement>(null);
+
+	useEffect(() => {
+		const handler = () => {
+			if (!containerRef.current || !fillRef.current) return;
+			const rect = containerRef.current.getBoundingClientRect();
+			const viewportH = window.innerHeight;
+			const visibleTop = Math.max(0, viewportH - rect.top);
+			const total = rect.height + viewportH * 0.6;
+			const progress = Math.max(0, Math.min(1, visibleTop / total));
+			fillRef.current.style.height = `${progress * 100}%`;
+		};
+		handler();
+		window.addEventListener("scroll", handler, { passive: true });
+		return () => window.removeEventListener("scroll", handler);
+	}, []);
+
 	return (
 		<section className="journey-section" id="journey">
-			<Anchor id="event-flow" />
+			<Anchor id="journey" />
 			<div className="journey-intro" data-reveal>
-				<span className="kicker light">THE EVENT JOURNEY</span>
-				<h2>Research → Ideate → Learn → Build → Mentor → Refine → Demonstrate → Evaluate → Recognise</h2>
-				<p>
-					Nine stages take a team from first research to final recognition. Each stage has a clear output and checkpoint, so the 24-hour buildathon stays focused and measurable.
-				</p>
+				<span className="kicker green">Participant Journey</span>
+				<h2>From registration to final deliverable.</h2>
+				<p>A clear spine of checkpoints. Each stage has a defined output, so teams always know what comes next.</p>
 			</div>
-			<div className="timeline" style={{ gridTemplateColumns: "repeat(auto-fit, minmax(200px, 1fr))" }} data-reveal>
-				{journeyStages.map((s) => {
-					const Icon = s.icon;
-					return (
-						<article key={s.title} data-reveal >
-							<span className="timeline-number">{s.step}</span>
-							<div className="timeline-line" />
-							<span>{s.title.toUpperCase()}</span>
-							<h3>{s.title}</h3>
-							<div style={{ color: "var(--brand-green)", margin: "12px 0" }}>
-								<Icon />
-							</div>
+			<div className="journey-spine" ref={containerRef} data-reveal>
+				<div className="journey-line" />
+				<div className="journey-line-fill" ref={fillRef} />
+				{journeySteps.map((s) => (
+					<div key={s.step} className={`journey-step ${s.final ? "final" : ""}`} data-reveal>
+						<div className="journey-step-content">
+							<h4>{s.title}</h4>
 							<p>{s.desc}</p>
-						</article>
-					);
-				})}
+						</div>
+						<div className="journey-dot" />
+					</div>
+				))}
 			</div>
 		</section>
 	);
 }
 
-function TwoRoundFormat() {
+function Rounds() {
 	return (
 		<section className="section" id="rounds">
 			<Anchor id="rounds" />
-			<SectionHeading kicker="FORMAT" title="Two rounds. From idea to working prototype.">
-				Round 1 is research and ideation. Round 2 is a 24-hour buildathon for shortlisted teams.
-			</SectionHeading>
-			<div className="dash-two-col">
-				<div className="panel" data-reveal>
-					<div className="panel-title">
-						<div>
-							<span>ROUND 1</span>
-							<h2>{roundOne.title}</h2>
-						</div>
-					</div>
-					<p style={{ fontSize: 14, color: "var(--ink-2)", lineHeight: 1.7, marginBottom: 20 }}>{roundOne.description}</p>
-					<ul className="check-list">
-						{roundOne.items.map((item) => (
-							<li key={item}><Check style={{ width: 16 }} /> {item}</li>
-						))}
-					</ul>
-					<p style={{ marginTop: 20, fontSize: 11, color: "var(--ink-3)" }}>{roundOne.participants}</p>
+			<div className="section-heading" data-reveal>
+				<div>
+					<span className="kicker">Format</span>
+					<h2>Round 1 & Round 2</h2>
 				</div>
-				<div className="panel" data-reveal data-reveal-delay="1">
-					<div className="panel-title">
-						<div>
-							<span>ROUND 2</span>
-							<h2>{roundTwo.title}</h2>
-						</div>
+				<p>Ideas first. Then the lab. Research and ideation online, followed by the 24-hour onsite buildathon.</p>
+			</div>
+			<div className="rounds-grid" data-reveal>
+				<div className="round-card one" data-reveal>
+					<div className="round-number">01</div>
+					<div>
+						<div className="round-meta">ROUND ONE · PPT SUBMISSION</div>
+						<h3>Online · Free · Devnovate</h3>
+						<p>Submit your research, problem gap, proposed solution, and technical approach as a PPT through Devnovate.</p>
+						<a
+							href="https://devnovate.io"
+							target="_blank"
+							rel="noreferrer"
+							className="round-button"
+						>
+							Submit on Devnovate
+							<ExternalLink style={{ width: 14 }} />
+						</a>
 					</div>
-					<p style={{ fontSize: 14, color: "var(--ink-2)", lineHeight: 1.7, marginBottom: 20 }}>{roundTwo.description}</p>
-					<ul className="check-list">
-						{roundTwo.items.map((item) => (
-							<li key={item}><Check style={{ width: 16 }} /> {item}</li>
-						))}
-					</ul>
-					<div style={{ marginTop: 20 }}>
-						<Link to="/dashboard" className="secondary-button">
-							Submit your Round 1 idea
+				</div>
+				<div className="round-card two" data-reveal>
+					<div className="round-number">02</div>
+					<div>
+						<div className="round-meta">ROUND TWO · 24 HOURS</div>
+						<h3>September 15 — 16</h3>
+						<div className="round-timeline">
+							<div className="round-timeline-fill" />
+							<div className="round-timeline-item">
+								<strong>11:00 AM</strong> — Start at MG Auditorium, VIT Chennai
+							</div>
+							<div className="round-timeline-item">
+								<strong>24 hours</strong> — Build, validate, and refine
+							</div>
+							<div className="round-timeline-item">
+								<strong>11:00 AM</strong> — Final submissions and judging
+							</div>
+						</div>
+						<Link to="/dashboard" className="round-button">
+							Round 2 Readiness
 							<ArrowRight style={{ width: 14 }} />
 						</Link>
 					</div>
@@ -363,176 +500,133 @@ function TwoRoundFormat() {
 	);
 }
 
-function ProblemStatements() {
-	return (
-		<section className="section" id="challenges">
-			<Anchor id="challenges" />
-			<SectionHeading kicker="PROBLEM STATEMENTS" title="Choose a challenge and make a real dent.">
-				Cards below are sample problem statements for Round 1. Final domains, sponsors, and industry-provided statements will be confirmed before the event.
-			</SectionHeading>
-			<div className="ps-grid" data-reveal>
-				{problemStatements.map((ps) => (
-					<div key={ps.id} className="ps-card" data-reveal >
-						<div className="ps-head">
-							<span className="ps-domain">{ps.domain}</span>
-							{ps.industry && <span className="ps-badge">Industry-provided</span>}
-						</div>
-						<h3>{ps.title}</h3>
-						<p>{ps.description}</p>
-						<div className="ps-outcome">
-							<strong>Expected outcome</strong>
-							<span>{ps.outcome}</span>
-						</div>
-						<div className="ps-resources">
-							<ExternalLink style={{ width: 12 }} />
-							<span>Supporting resources will be linked after release.</span>
-						</div>
-					</div>
-				))}
-			</div>
-			<div className="note-banner" data-reveal>
-				<AlertCircle style={{ width: 18 }} />
-				<span>
-					Problem statements and resource links are provisional. Final list, sponsor badges, and supporting documents will be released when confirmed.
-				</span>
-			</div>
-		</section>
-	);
-}
-
-function RoundOneCriteria() {
-	return (
-		<section className="section" id="criteria">
-			<Anchor id="criteria" />
-			<SectionHeading kicker="ROUND 1 EVALUATION" title="How Round 1 submissions are judged.">
-				Reviewers score each submission against these six dimensions before shortlisting.
-			</SectionHeading>
-			<div className="criteria-grid" data-reveal>
-				{roundOneCriteria.map((c, i) => (
-					<div key={c.label} className="criterion-card" data-reveal >
-						<div className="criterion-number">0{i + 1}</div>
-						<h3>{c.label}</h3>
-						<p>{c.note}</p>
-					</div>
-				))}
-			</div>
-		</section>
-	);
-}
-
-function Shortlisting() {
-	return (
-		<section className="section" id="shortlist" style={{ background: "var(--bg-subtle)" }}>
-			<Anchor id="shortlist" />
-			<SectionHeading kicker="SHORTLISTING" title="Round 1 status and next steps.">
-				Teams will be notified after Round 1 review. Shortlisted teams receive Round 2 instructions, deadlines, and reporting details.
-			</SectionHeading>
-			<div className="dash-two-col">
-				<div className="panel" data-reveal>
-					<div className="panel-title">
-						<div>
-							<span>YOUR STATUS</span>
-							<h2>Shortlisting not yet started</h2>
-						</div>
-					</div>
-					<p style={{ fontSize: 14, color: "var(--ink-2)", lineHeight: 1.7 }}>
-						Submissions open after the problem statements are released. Once the review window closes, shortlisted teams will be shown here and notified through the dashboard.
-					</p>
-					<div className="status-pill" style={{ marginTop: 24 }}>
-						<i />
-						<span>Awaiting Round 1 deadlines</span>
-					</div>
-				</div>
-				<div className="panel" data-reveal data-reveal-delay="1">
-					<div className="panel-title">
-						<div>
-							<span>IF SHORTLISTED</span>
-							<h2>Round 2 instructions</h2>
-						</div>
-					</div>
-					<ul className="check-list">
-						<li><Check style={{ width: 16 }} /> Confirm team attendance at VIT Chennai</li>
-						<li><Check style={{ width: 16 }} /> Attend pre-buildathon workshops</li>
-						<li><Check style={{ width: 16 }} /> Prepare dev environment and hardware</li>
-						<li><Check style={{ width: 16 }} /> Review final schedule and reporting time</li>
-						<li><Check style={{ width: 16 }} /> Join mentor allocation briefing</li>
-					</ul>
-				</div>
-			</div>
-		</section>
-	);
-}
-
 function Schedule() {
+	const [active, setActive] = useState(0);
+	const railRef = useRef<HTMLDivElement>(null);
+
+	useEffect(() => {
+		const handler = () => {
+			if (!railRef.current) return;
+			const section = document.getElementById("schedule");
+			if (!section) return;
+			const rect = section.getBoundingClientRect();
+			const viewportH = window.innerHeight;
+			const visibleTop = Math.max(0, viewportH * 0.5 - rect.top);
+			const total = rect.height;
+			const progress = Math.max(0, Math.min(1, visibleTop / total));
+			railRef.current.style.width = `${progress * 100}%`;
+		};
+		handler();
+		window.addEventListener("scroll", handler, { passive: true });
+		return () => window.removeEventListener("scroll", handler);
+	}, []);
+
 	return (
-		<section className="section" id="schedule" style={{ paddingTop: 140 }}>
+		<section className="section" id="schedule">
 			<Anchor id="schedule" />
-			<SectionHeading kicker="SCHEDULE" title="Round 2 timeline. 24 hours, top to bottom.">
-				The buildathon is split into three arcs: setup and planning, overnight build, and final refinement.
-			</SectionHeading>
-			<div className="schedule-grid" data-reveal>
-				{schedule.map((block) => (
-					<div key={block.block} className="schedule-card" data-reveal >
-						<div className="schedule-time">{block.block}</div>
-						<ul>
-							{block.items.map((item) => (
-								<li key={item}><Check style={{ width: 14 }} /> {item}</li>
-							))}
-						</ul>
-					</div>
-				))}
+			<div className="section-heading" data-reveal>
+				<div>
+					<span className="kicker blue">Schedule</span>
+					<h2>24-Hour Timeline</h2>
+				</div>
+				<p>One continuous arc from opening to judging. Click any block to see what happens inside.</p>
 			</div>
-			<p className="note-text" data-reveal>
-				Schedule timings and session names are indicative. Final agenda will be published after the event programme is confirmed.
-			</p>
+			<div className="schedule-timeline" data-reveal>
+				<div className="schedule-days">
+					<div className="schedule-day">
+						<h3>Day 01</h3>
+						<p>15 September · 11:00 AM start</p>
+					</div>
+					<div className="schedule-day" style={{ textAlign: "right" }}>
+						<h3>Day 02</h3>
+						<p>16 September · 11:00 AM finish</p>
+					</div>
+				</div>
+				<div className="schedule-rail">
+					<div className="schedule-rail-fill" ref={railRef} />
+				</div>
+				<div className="schedule-events">
+					{scheduleEvents.map((e, i) => (
+						<button
+							type="button"
+							key={e.name}
+							className={`event-node ${active === i ? "active" : ""}`}
+							onClick={() => setActive(i)}
+						>
+							<div className="event-pulse" />
+							<div className="event-time">{e.time}</div>
+							<div className="event-name">{e.name}</div>
+							{active === i && <p className="event-detail">{e.detail}</p>}
+						</button>
+					))}
+				</div>
+			</div>
 		</section>
 	);
 }
 
-function Mentors() {
+function Prize() {
+	const ref = useRef<HTMLDivElement>(null);
+	const [value, setValue] = useState(0);
+
+	useEffect(() => {
+		if (!ref.current) return;
+		const observer = new IntersectionObserver(
+			(entries) => {
+				if (entries[0]?.isIntersecting) {
+					let start: number | null = null;
+					const duration = 1400;
+					const step = (ts: number) => {
+						if (!start) start = ts;
+						const p = Math.min((ts - start) / duration, 1);
+						setValue(Math.floor(p * 75));
+						if (p < 1) requestAnimationFrame(step);
+					};
+					requestAnimationFrame(step);
+					observer.disconnect();
+				}
+			},
+			{ threshold: 0.5 },
+		);
+		observer.observe(ref.current);
+		return () => observer.disconnect();
+	}, []);
+
 	return (
-		<section className="section" id="mentors" style={{ background: "var(--brand-ink)", color: "#eef7f2" }}>
-			<Anchor id="mentors" />
-			<div className="section-heading" style={{ color: "#eef7f2" }} data-reveal>
+		<section className="prize-section" id="prizes" ref={ref}>
+			<Anchor id="prizes" />
+			<div className="kicker">Prize Pool</div>
+			<h2>PRIZE POOL</h2>
+			<div className="prize-amount">₹{value}<span>K+</span></div>
+			<div className="prize-diamond" />
+		</section>
+	);
+}
+
+function Resources() {
+	return (
+		<section className="section" id="resources">
+			<Anchor id="resources" />
+			<div className="section-heading" data-reveal>
 				<div>
-					<span className="kicker light">MENTORSHIP</span>
-					<h2>Three support groups. One goal: a better build.</h2>
+					<span className="kicker">Resources</span>
+					<h2>Resource Tray</h2>
 				</div>
-				<p style={{ color: "#a9c4b8" }}>
-					Mentors are assigned by track and need, so teams get feedback at the right level at the right time.
-				</p>
+				<p>Templates, brochure, and participant material. Download what you need in one tray.</p>
 			</div>
-			<div className="mentor-grid" data-reveal>
-				{mentorGroups.map((m) => {
-					const Icon = m.icon;
-					return (
-						<div key={m.role} className="mentor-card" data-reveal >
-							<div className="mentor-icon"><Icon style={{ width: 28, height: 28 }} /></div>
-							<h3>{m.role}</h3>
-							<small>{m.focus}</small>
-							<p>{m.description}</p>
+			<div className="resources-grid" data-reveal>
+				{resources.map((r) => (
+					<div key={r.title} className="resource-card">
+						<FileText style={{ width: 26, color: "var(--brand-blue)" }} />
+						<div>
+							<strong>{r.title}</strong>
+							<small>{r.desc}</small>
 						</div>
-					);
-				})}
-			</div>
-		</section>
-	);
-}
-
-function Speakers() {
-	return (
-		<section className="section" id="speakers">
-			<Anchor id="speakers" />
-			<SectionHeading kicker="SPEAKERS / JUDGES" title="Guests, speakers, and judges.">
-				Names and sessions will be announced once the invitation plan is confirmed. No placeholder identities are invented.
-			</SectionHeading>
-			<div className="guest-grid" data-reveal>
-				{["Speaker", "Judge", "Mentor", "Chief Guest"].map((role) => (
-					<div key={role} className="guest-card tba" data-reveal >
-						<div className="guest-photo" />
-						<span className="guest-role">{role}</span>
-						<h3>To be announced</h3>
-						<p>Photo, name, organisation, position, and session details will be published after confirmation.</p>
+						<span className="file-type">{r.type}</span>
+						<div className="download-row">
+							<span>Download</span>
+							<Download style={{ width: 18 }} />
+						</div>
 					</div>
 				))}
 			</div>
@@ -540,137 +634,16 @@ function Speakers() {
 	);
 }
 
-function IndustryRefinement() {
+function Partners() {
 	return (
-		<section className="section" id="industry">
-			<Anchor id="industry" />
-			<SectionHeading kicker="INDUSTRY REFINEMENT" title="Expert review before the final demo.">
-				Industry experts will sit with teams and pressure-test the prototype across these dimensions.
-			</SectionHeading>
-			<div className="refinement-grid" data-reveal>
-				{industryRefinementAreas.map((area) => (
-					<div key={area} className="refinement-card" data-reveal >
-						<Check style={{ width: 18 }} />
-						<span>{area}</span>
-					</div>
+		<section className="partners-section" id="partners">
+			<Anchor id="partners" />
+			<div className="kicker">Supported By</div>
+			<h2 style={{ font: "700 40px 'Space Grotesk', sans-serif", margin: "16px 0 0", letterSpacing: "-.02em" }}>Organisations behind VMEDITHON</h2>
+			<div className="partner-logos" data-reveal>
+				{sponsors.map((s) => (
+					<div key={s} className="partner-logo">{s}</div>
 				))}
-			</div>
-		</section>
-	);
-}
-
-function Innovation() {
-	return (
-		<section className="section" id="innovation" style={{ background: "var(--bg-subtle)" }}>
-			<Anchor id="innovation" />
-			<SectionHeading kicker="INNOVATION" title="From novelty to patentable work.">
-				Teams are encouraged to pursue ideas that could lead to novel, original, and potentially protectable outcomes.
-			</SectionHeading>
-			<div className="innovation-list" data-reveal>
-				{innovationHighlights.map((item) => (
-					<div key={item} className="innovation-card" data-reveal >
-						<span className="innovation-number">01</span>
-						<h3>{item}</h3>
-					</div>
-				))}
-			</div>
-		</section>
-	);
-}
-
-function FinalJudging() {
-	return (
-		<section className="section" id="judging">
-			<Anchor id="judging" />
-			<SectionHeading kicker="FINAL JUDGING" title="What the final judging considers.">
-				Round 2 demos are scored across research, craft, and impact.
-			</SectionHeading>
-			<div className="judge-criteria" data-reveal>
-				{finalJudgingCriteria.map((c) => (
-					<div key={c} className="judge-item" data-reveal >
-						<span>"01"</span>
-						<p>{c}</p>
-					</div>
-				))}
-			</div>
-		</section>
-	);
-}
-
-function Sponsors() {
-	return (
-		<section className="section partners" id="sponsors">
-			<Anchor id="sponsors" />
-			<SectionHeading kicker="SPONSORS & PARTNERS" title="Powered by organisations that believe in student research.">
-				Sponsor and partner names, tiers, and logos will be displayed here once the sponsorship plan is confirmed.
-			</SectionHeading>
-			<div className="sponsor-tiers" data-reveal>
-				{["Title sponsor", "Technology partner", "Problem statement partner", "Prize partner"].map((tier) => (
-					<div key={tier} className="sponsor-tier tba">
-						<small>{tier}</small>
-						<strong>To be announced</strong>
-					</div>
-				))}
-			</div>
-		</section>
-	);
-}
-
-function BecomeSponsor() {
-	return (
-		<section className="section" id="sponsor-cta" style={{ background: "var(--brand-ink)", color: "#eef7f2" }}>
-			<div className="closing" style={{ padding: 0, background: "transparent" }} data-reveal>
-				<div>
-					<span className="kicker light">BECOME A SPONSOR / PARTNER</span>
-					<h2 style={{ color: "#fff" }}>Support the next generation of health-tech builders.</h2>
-					<div style={{ marginTop: 30 }} className="sponsor-options">
-						<div><Check style={{ width: 16 }} /> <span>Sponsor VMedition</span></div>
-						<div><Check style={{ width: 16 }} /> <span>Provide a problem statement</span></div>
-						<div><Check style={{ width: 16 }} /> <span>Provide mentors / judges</span></div>
-						<div><Check style={{ width: 16 }} /> <span>Technical collaboration</span></div>
-						<div><Check style={{ width: 16 }} /> <span>Prize-pool contribution</span></div>
-					</div>
-				</div>
-				<div className="closing-actions">
-					<a href={`mailto:${contact.email}?subject=Sponsorship / Partnership — VMedition 2026`} className="button light-button">
-						Contact Team VMedition
-						<ArrowRight style={{ width: 16 }} />
-					</a>
-					<p style={{ marginTop: 12 }}>We will respond with the sponsorship prospectus and next steps.</p>
-				</div>
-			</div>
-		</section>
-	);
-}
-
-function Venue() {
-	return (
-		<section className="section" id="venue">
-			<Anchor id="venue" />
-			<SectionHeading kicker="VENUE" title={`${venue.name}, ${venue.institution}`}>
-				Location, reporting time, and participant instructions will be updated after final on-site planning.
-			</SectionHeading>
-			<div className="dash-two-col">
-				<div className="panel" data-reveal>
-					<div className="event-meta">
-						<div><MapPin /><div><small>VENUE</small><span>{venue.name}, {venue.institution}</span></div></div>
-						<div><Calendar /><div><small>DATE</small><span>{venue.date}</span></div></div>
-						<div><Clock /><div><small>DURATION</small><span>{venue.duration}</span></div></div>
-					</div>
-					<div className="status-pill" style={{ marginTop: 24 }}>
-						<i />
-						<span>Reporting time: {venue.reporting}</span>
-					</div>
-				</div>
-				<div className="panel" data-reveal data-reveal-delay="1">
-					<h3 style={{ font: "700 22px Syne", marginBottom: 14 }}>Directions</h3>
-					<p style={{ fontSize: 14, color: "var(--ink-2)", lineHeight: 1.7 }}>
-						VIT Chennai is on the Chennai–Bengaluru highway. Detailed directions, ride-share notes, and public-transport options will be published once the venue plan is confirmed.
-					</p>
-					<p style={{ fontSize: 12, color: "var(--ink-3)", marginTop: 12 }}>
-						Interactive map will be embedded after confirmation.
-					</p>
-				</div>
 			</div>
 		</section>
 	);
@@ -681,12 +654,16 @@ function FAQ() {
 	return (
 		<section className="section" id="faq" style={{ background: "var(--bg-subtle)" }}>
 			<Anchor id="faq" />
-			<SectionHeading kicker="FAQ" title="Participant information.">
-				Answers marked “pending confirmation” will be updated once the operational plan is finalised.
-			</SectionHeading>
+			<div className="section-heading" data-reveal>
+				<div>
+					<span className="kicker">FAQ</span>
+					<h2>Participant Information</h2>
+				</div>
+				<p>Answers marked pending confirmation will be updated once the operational plan is finalised.</p>
+			</div>
 			<div className="faq-list" data-reveal>
 				{faq.map((item, i) => (
-					<div key={item.q} className={`faq-item ${open === i ? "open" : ""}`} data-reveal >
+					<div key={item.q} className={`faq-item ${open === i ? "open" : ""}`} data-reveal>
 						<button
 							type="button"
 							className="faq-question"
@@ -696,10 +673,11 @@ function FAQ() {
 							<span>{item.q}</span>
 							<div style={{ display: "flex", alignItems: "center", gap: 10 }}>
 								{!item.confirmed && <span className="pending-badge">Pending confirmation</span>}
-								<ChevronIcon open={open === i} />
+								<FaqToggle />
 							</div>
 						</button>
 						{open === i && <p className="faq-answer">{item.a}</p>}
+						<div className="faq-progress" />
 					</div>
 				))}
 			</div>
@@ -707,78 +685,125 @@ function FAQ() {
 	);
 }
 
-function ChevronIcon({ open }: { open: boolean }) {
+function FaqToggle() {
 	return (
 		<svg
+			className="faq-toggle"
 			width="14"
 			height="14"
 			viewBox="0 0 24 24"
 			fill="none"
 			stroke="currentColor"
 			strokeWidth="2.5"
-			style={{ transform: open ? "rotate(180deg)" : "rotate(0deg)", transition: "transform .25s" }}
 			aria-hidden="true"
 		>
-			<title>Chevron</title>
-			<polyline points="6 9 12 15 18 9" />
+			<title>Toggle</title>
+			<line x1="12" y1="5" x2="12" y2="19" />
+			<line x1="5" y1="12" x2="19" y2="12" />
 		</svg>
 	);
 }
 
-function Results() {
+function CertificateVerify() {
+	const [id, setId] = useState("");
+	const [checked, setChecked] = useState(false);
 	return (
-		<section className="section" id="results" style={{ background: "var(--brand-ink)", color: "#eef7f2" }}>
-			<Anchor id="results" />
-			<div className="section-heading" style={{ color: "#eef7f2" }} data-reveal>
-				<div>
-					<span className="kicker light">WINNERS / RESULTS</span>
-					<h2>Results will be announced after the buildathon.</h2>
+		<section className="section verify-section" id="certificates">
+			<Anchor id="certificates" />
+			<div className="verify-card" data-reveal>
+				<div className="verify-icon" style={{ width: 56, height: 56, borderRadius: "var(--r-inner)", background: "var(--accent-soft)", color: "var(--brand-gold)", display: "grid", placeItems: "center", margin: "0 auto 24px" }}>
+					<Award style={{ width: 26, height: 26 }} />
 				</div>
-				<p style={{ color: "#a9c4b8" }}>
-					Winner teams, prizes, problem statement/domain, project names, and special awards will be published here once the judging is complete.
-				</p>
-			</div>
-			<div className="result-placeholder" data-reveal>
-				<Award style={{ width: 44, color: "var(--brand-gold)" }} />
-				<p>Result announcement pending Round 2 completion.</p>
+				<h2>Verify a VMEDITHON Certificate</h2>
+				<p>Enter a certificate ID to check its status. Verification will be enabled after the event.</p>
+				<label>
+					Certificate ID
+					<input
+						type="text"
+						value={id}
+						onChange={(e) => { setId(e.target.value); setChecked(false); }}
+						placeholder="e.g. VMD-2026-XXXX"
+						className="full"
+					/>
+				</label>
+				<button type="button" onClick={() => setChecked(true)}>
+					Verify
+				</button>
+				{checked && (
+					<div className="verify-success">
+						<Check style={{ width: 28, height: 28 }} />
+						<strong>No certificate found for “{id || "—"}”.</strong>
+						<span>Certificates will be issued after the event.</span>
+					</div>
+				)}
 			</div>
 		</section>
 	);
 }
 
-function Certificates() {
-	const [id, setId] = useState("");
-	const [checked, setChecked] = useState(false);
+function Contact() {
 	return (
-		<section className="section" id="certificates">
-			<Anchor id="certificates" />
-			<SectionHeading kicker="CERTIFICATES" title="Certificate access and verification.">
-				Participant, winner, and organising-committee certificates will be issued after the event. Verification will be enabled when certificates are ready.
-			</SectionHeading>
-			<div className="verify-modal" style={{ margin: "0 auto", position: "relative" }} data-reveal>
-				<div className="verify-icon"><FileText style={{ width: 26 }} /></div>
-				<h2>Verify a certificate</h2>
-				<p>Enter a certificate code to check status. Certificates will be available after the event.</p>
-				<label>
-					Certificate code
-					<input
-						value={id}
-						onChange={(e) => { setId(e.target.value); setChecked(false); }}
-						placeholder="e.g. VMED-2026-XXXX"
-						className="full"
-					/>
-				</label>
-				<button type="button" className="button primary full" onClick={() => setChecked(true)} style={{ marginTop: 8 }}>
-					Verify
-				</button>
-				{checked && (
-					<div className="demo-result" style={{ background: "var(--accent-soft)", color: "var(--ink)" }}>
-						<AlertCircle style={{ width: 18 }} />
-						<strong>No certificate found for “{id || "—"}”.<br />Certificates will be issued after the event.</strong>
+		<section className="section" id="contact">
+			<Anchor id="contact" />
+			<div className="section-heading" data-reveal>
+				<div>
+					<span className="kicker">Contact</span>
+					<h2>Coordinators</h2>
+				</div>
+				<p>Reach out for sponsorships, partnerships, and participant support.</p>
+			</div>
+			<div className="dash-two-col" data-reveal style={{ maxWidth: 900, margin: "0 auto" }}>
+				<div className="panel">
+					<h3 style={{ font: "700 22px 'Space Grotesk', sans-serif", margin: "0 0 18px" }}>General Enquiries</h3>
+					<div style={{ display: "grid", gap: 14, fontSize: 14, color: "var(--ink-2)" }}>
+						<div><strong style={{ color: "var(--ink)", display: "block" }}>Email</strong>{contact.email}</div>
+						<div><strong style={{ color: "var(--ink)", display: "block" }}>Institution</strong>{contact.institution}</div>
+						<div><strong style={{ color: "var(--ink)", display: "block" }}>Organiser</strong>{contact.team}</div>
 					</div>
-				)}
+				</div>
+				<div className="panel">
+					<h3 style={{ font: "700 22px 'Space Grotesk', sans-serif", margin: "0 0 18px" }}>Sponsorship</h3>
+					<p style={{ fontSize: 14, lineHeight: 1.7, color: "var(--ink-2)", margin: 0 }}>
+						Interested in supporting the next generation of health-tech builders? Contact us for the sponsorship prospectus.
+					</p>
+					<a
+						href={`mailto:${contact.email}?subject=Sponsorship / Partnership — VMEDITHON 3.0`}
+						className="round-button"
+						style={{ marginTop: 22 }}
+					>
+						Contact Team VMEDITHON
+						<ArrowRight style={{ width: 14 }} />
+					</a>
+				</div>
 			</div>
 		</section>
+	);
+}
+
+function Footer() {
+	return (
+		<footer>
+			<div>
+				<strong className="brand" style={{ color: "#f5f7f8" }}>VMEDITHON 3.0</strong>
+				<small style={{ display: "block", marginTop: 8, color: "#98a8b4" }}>
+					Bioelectric Lab — a 24-hour hackathon and buildathon at VIT Chennai.
+				</small>
+			</div>
+			<div>
+				<strong style={{ color: "#f5f7f8" }}>Contact</strong>
+				<a href={`mailto:${contact.email}`}>{contact.email}</a>
+				<span>{contact.institution}</span>
+				<span>{contact.team}</span>
+			</div>
+			<div>
+				<strong style={{ color: "#f5f7f8" }}>Quick Links</strong>
+				<Link to="/#journey">Journey</Link>
+				<Link to="/#schedule">Schedule</Link>
+				<Link to="/#themes">Themes</Link>
+				<Link to="/dashboard">Participant Portal</Link>
+			</div>
+			<small>© 2026 Team VMEDITHON. Operational details subject to confirmation.</small>
+		</footer>
 	);
 }
 
@@ -799,24 +824,18 @@ function HomePage() {
 	return (
 		<>
 			<Hero />
-			<About />
-			<Journey />
-			<TwoRoundFormat />
-			<RoundOneCriteria />
-			<ProblemStatements />
-			<Shortlisting />
+			<EventTelemetry />
+			<TrackSplit />
+			<Themes />
+			<JourneySpine />
+			<Rounds />
 			<Schedule />
-			<Mentors />
-			<IndustryRefinement />
-			<Innovation />
-			<Speakers />
-			<FinalJudging />
-			<Sponsors />
-			<BecomeSponsor />
-			<Venue />
+			<Prize />
+			<Resources />
+			<Partners />
 			<FAQ />
-			<Certificates />
-			<Results />
+			<CertificateVerify />
+			<Contact />
 			<Footer />
 		</>
 	);
@@ -824,13 +843,15 @@ function HomePage() {
 
 export function App() {
 	return (
-		<>
+		<div className="site-shell">
+			<BioCircuitBackground />
+			<ScrollProgress />
 			<Nav />
 			<Routes>
 				<Route path="/" element={<HomePage />} />
 				<Route path="/dashboard" element={<ParticipantDashboard />} />
 				<Route path="*" element={<HomePage />} />
 			</Routes>
-		</>
+		</div>
 	);
 }

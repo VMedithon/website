@@ -11,7 +11,7 @@ export function useTheme() {
 
 	useEffect(() => {
 		const meta = document.querySelector('meta[name="theme-color"]');
-		if (meta) meta.setAttribute("content", theme === "dark" ? "#0a1410" : "#f5f6f4");
+		if (meta) meta.setAttribute("content", theme === "dark" ? "#071018" : "#f5f8f7");
 	}, [theme]);
 
 	const toggle = useCallback(() => {
