@@ -386,10 +386,6 @@ function Rounds() {
 								<strong>11:00 AM</strong> — Final submissions and judging
 							</div>
 						</div>
-						<Link to="/dashboard" className="round-button">
-							Round 2 Readiness
-							<ArrowRight style={{ width: 14 }} />
-						</Link>
 					</div>
 				</div>
 			</div>
