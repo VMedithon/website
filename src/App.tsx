@@ -383,7 +383,7 @@ function Rounds() {
 								<strong>11:00 AM</strong> — Final submissions and judging for Hackathon track participants
 							</div>
 							<div className="round-timeline-item">
-								<strong>3:30 — 4:00 PM</strong> — Event concludes (next day)
+								<strong>3:30 — 4:00 PM</strong> — Event concludes for Buildathon track participants (next day)
 							</div>
 						</div>
 					</div>
