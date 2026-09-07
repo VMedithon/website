@@ -11,6 +11,8 @@ import {
 	ExternalLink,
 	Award,
 	Activity,
+	Sun,
+	Moon,
 } from "lucide-react";
 import { ParticipantDashboard } from "./ParticipantDashboard";
 import logoOnDark from "./assets/logo.png";
@@ -125,8 +127,8 @@ function Nav() {
 				</Link>
 			</div>
 			<button className="theme-toggle" aria-label={`Switch to ${theme === "dark" ? "light" : "dark"} mode`} onClick={toggle} type="button">
-				<span className={theme === "light" ? "active" : ""}>LAB</span>
-				<span className={theme === "dark" ? "active" : ""}>NIGHT</span>
+				<Sun className={theme === "light" ? "active" : ""} style={{ width: 14, height: 14 }} />
+				<Moon className={theme === "dark" ? "active" : ""} style={{ width: 14, height: 14 }} />
 			</button>
 			<button className="mobile-menu" aria-label="Open menu" onClick={() => setOpen((s) => !s)} type="button">
 				<Menu />
