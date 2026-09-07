@@ -110,8 +110,6 @@
 /* ============ SECTIONS ============ */
 .section{padding:120px 7vw;position:relative;z-index:2}
 .section-heading{display:grid;grid-template-columns:1fr;align-items:end;margin-bottom:60px;gap:20px}
-.kicker{font:500 11px Inter;letter-spacing:2.4px;text-transform:uppercase;color:var(--brand-gold)}
-.kicker.green{color:var(--brand-green)}.kicker.blue{color:var(--brand-blue)}
 .section-heading h2,.journey-intro h2,.closing h2{font:700 clamp(34px,4.4vw,56px)/.98 "Space Grotesk",sans-serif;letter-spacing:-.03em;margin:18px 0 0}
 
 /* ============ HACKATHON × BUILDATHON ============ */
@@ -155,7 +153,6 @@
 /* ============ JOURNEY SPINE ============ */
 .journey-section{background:var(--bg-subtle);padding:120px 7vw;position:relative;z-index:2;overflow:hidden}
 .journey-intro{display:grid;grid-template-columns:1fr;margin-bottom:70px}
-.journey-intro .kicker{margin-bottom:12px}
 .journey-spine{position:relative;max-width:720px;margin:0 auto}
 .journey-line{position:absolute;left:50%;top:0;bottom:0;width:2px;background:var(--line);transform:translateX(-50%)}
 .journey-line-fill{position:absolute;left:50%;top:0;width:2px;background:linear-gradient(180deg,var(--brand-green),var(--brand-blue),var(--brand-gold));transform:translateX(-50%);height:0;transition:height .1s linear}
@@ -189,7 +186,6 @@
 /* ============ PRIZE ============ */
 .prize-section{padding:140px 7vw;background:var(--brand-ink);color:var(--ink);position:relative;z-index:2;overflow:hidden;text-align:center}
 .prize-section::before{content:"";position:absolute;inset:0;background:radial-gradient(circle at 50% 50%,color-mix(in srgb,var(--brand-gold) 12%,transparent),transparent 60%);pointer-events:none}
-.prize-section .kicker{color:var(--brand-gold);margin-bottom:16px}
 .prize-section h2{font:700 clamp(52px,8vw,120px)/.9 "Space Grotesk",sans-serif;letter-spacing:-.04em;margin:0 0 10px;color:#f5f7f8}
 .prize-amount{font:800 clamp(64px,12vw,180px)/.85 "Space Grotesk",sans-serif;letter-spacing:-.04em;color:var(--brand-gold);margin:0}
 .prize-amount span{font-size:.5em;vertical-align:super}
