@@ -137,41 +137,6 @@ function Nav() {
 	);
 }
 
-function CountUp({ target, suffix = "" }: { target: number; suffix?: string }) {
-	const [value, setValue] = useState(0);
-	const ref = useRef<HTMLSpanElement>(null);
-
-	useEffect(() => {
-		if (!ref.current) return;
-		const observer = new IntersectionObserver(
-			(entries) => {
-				if (entries[0]?.isIntersecting) {
-					let start: number | null = null;
-					const duration = 1200;
-					const step = (ts: number) => {
-						if (!start) start = ts;
-						const p = Math.min((ts - start) / duration, 1);
-						setValue(Math.floor(p * target));
-						if (p < 1) requestAnimationFrame(step);
-					};
-					requestAnimationFrame(step);
-					observer.disconnect();
-				}
-			},
-			{ threshold: 0.5 },
-		);
-		observer.observe(ref.current);
-		return () => observer.disconnect();
-	}, [target]);
-
-	return (
-		<span ref={ref} className="tele-value">
-			{value.toLocaleString()}
-			{suffix && <span>{suffix}</span>}
-		</span>
-	);
-}
-
 function Hero() {
 	const { theme } = useTheme();
 
@@ -205,27 +170,6 @@ function Hero() {
 						Participant Portal
 						<ExternalLink style={{ width: 16, height: 16 }} />
 					</Link>
-				</div>
-			</div>
-		</section>
-	);
-}
-
-function EventTelemetry() {
-	return (
-		<section className="telemetry" id="telemetry">
-			<div className="telemetry-grid" data-reveal>
-				<div className="tele-card" data-reveal>
-					<div className="tele-label">Duration</div>
-					<div className="tele-value">24<span>HR</span></div>
-				</div>
-				<div className="tele-card" data-reveal>
-					<div className="tele-label">Prize Pool</div>
-					<CountUp target={75} suffix="K+" />
-				</div>
-				<div className="tele-card" data-reveal>
-					<div className="tele-label">Venue</div>
-					<div className="tele-value" style={{ fontSize: 28 }}>VIT Chennai</div>
 				</div>
 			</div>
 		</section>
@@ -794,7 +738,6 @@ function HomePage() {
 	return (
 		<>
 			<Hero />
-			<EventTelemetry />
 			<TrackSplit />
 			<Themes />
 			<JourneySpine />
