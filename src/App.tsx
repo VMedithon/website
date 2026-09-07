@@ -439,22 +439,34 @@ function Resources() {
 				</div>
 			</div>
 			<div className="resources-grid" data-reveal>
-				{resources.map((r) => (
-					<div key={r.title} className="resource-card">
-						<FileText style={{ width: 26, color: "var(--brand-blue)" }} />
-						<div className="resource-card-text">
-							<strong>{r.title}</strong>
-							<small>{r.desc}</small>
+				{resources.map((r) => {
+					const file = "file" in r ? r.file : undefined;
+					const inner = (
+						<>
+							<FileText style={{ width: 26, color: "var(--brand-blue)" }} />
+							<div className="resource-card-text">
+								<strong>{r.title}</strong>
+								<small>{r.desc}</small>
+							</div>
+							<span className="file-type">{r.type}</span>
+							{file && (
+								<div className="download-row">
+									<span>Download</span>
+									<Download style={{ width: 18 }} />
+								</div>
+							)}
+						</>
+					);
+					return file ? (
+						<a key={r.title} className="resource-card" href={file} download>
+							{inner}
+						</a>
+					) : (
+						<div key={r.title} className="resource-card">
+							{inner}
 						</div>
-						<span className="file-type">{r.type}</span>
-						{"file" in r && r.file && (
-							<a className="download-row" href={r.file} download>
-								<span>Download</span>
-								<Download style={{ width: 18 }} />
-							</a>
-						)}
-					</div>
-				))}
+					);
+				})}
 			</div>
 		</section>
 	);
