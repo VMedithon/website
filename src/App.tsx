@@ -374,7 +374,7 @@ function Rounds() {
 								<strong>8:00 AM</strong> — Buildathon track participants arrive at MG Auditorium, VIT Chennai
 							</div>
 							<div className="round-timeline-item">
-								<strong>11:00 AM</strong> — Start at MG Auditorium, VIT Chennai
+								<strong>11:00 AM</strong> — Hackathon track participants start at MG Auditorium, VIT Chennai
 							</div>
 							<div className="round-timeline-item">
 								<strong>24 hours</strong> — Build, validate, and refine
