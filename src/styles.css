@@ -189,8 +189,6 @@
 .prize-section h2{font:700 clamp(52px,8vw,120px)/.9 "Space Grotesk",sans-serif;letter-spacing:-.04em;margin:0 0 10px;color:#f5f7f8}
 .prize-amount{font:800 clamp(64px,12vw,180px)/.85 "Space Grotesk",sans-serif;letter-spacing:-.04em;color:var(--brand-gold);margin:0}
 .prize-amount span{font-size:.5em;vertical-align:super}
-.prize-diamond{width:32px;height:32px;margin:30px auto 0;background:var(--brand-gold);transform:rotate(45deg) scale(.8);opacity:.7;animation:rotate-diamond 8s linear infinite}
-@keyframes rotate-diamond{to{transform:rotate(405deg) scale(.8)}}
 
 /* ============ RESOURCES ============ */
 .resources-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:20px}

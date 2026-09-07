@@ -435,7 +435,6 @@ function Prize() {
 			<Anchor id="prizes" />
 			<h2>PRIZE POOL</h2>
 			<div className="prize-amount">₹{value}<span>K+</span></div>
-			<div className="prize-diamond" />
 		</section>
 	);
 }
