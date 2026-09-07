@@ -43,7 +43,7 @@ export const tracks: Track[] = [
 		label: "PROJECT",
 		title: "Build toward ownership.",
 		description:
-			"Transform a product idea through guided design, building, and industry feedback—with a patent-ready outcome in sight.",
+			"Transform a product idea through guided design, building, and industry feedback, with a patent-ready outcome in sight.",
 		output: "Patent-ready design",
 		icon: Hammer,
 		accent: "blue",
@@ -92,7 +92,7 @@ export const themes = [
 ];
 
 export const roundOne = {
-	title: "Round 1 — Research & Ideation",
+	title: "Round 1 · Research & Ideation",
 	participants: "~1,200 participants expected",
 	description:
 		"Participants form teams, understand a problem, research existing approaches, identify gaps, propose a solution, and submit a proposal document or PPT.",
@@ -107,7 +107,7 @@ export const roundOne = {
 };
 
 export const roundTwo = {
-	title: "Round 2 — 24-hour Buildathon",
+	title: "Round 2 · 24-hour Buildathon",
 	description:
 		"Shortlisted teams move to the 24-hour on-campus buildathon. The round combines technical preparation, workshops, mentorship, development, prototyping, testing, industry refinement, final demos, and judging.",
 	items: [
@@ -172,7 +172,7 @@ export interface Sponsor {
 	logo: string;
 	/** Optional variant to use on the light theme. */
 	logoLight?: string;
-	/** White artwork — needs a dark chip to stay visible on light backgrounds. */
+	/** White artwork needs a dark chip to stay visible on light backgrounds. */
 	onDark?: boolean;
 }
 
