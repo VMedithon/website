@@ -371,6 +371,9 @@ function Rounds() {
 						<div className="round-timeline">
 							<div className="round-timeline-fill" />
 							<div className="round-timeline-item">
+								<strong>8:00 AM</strong> — Buildathon track participants arrive at MG Auditorium, VIT Chennai
+							</div>
+							<div className="round-timeline-item">
 								<strong>11:00 AM</strong> — Start at MG Auditorium, VIT Chennai
 							</div>
 							<div className="round-timeline-item">
@@ -378,6 +381,9 @@ function Rounds() {
 							</div>
 							<div className="round-timeline-item">
 								<strong>11:00 AM</strong> — Final submissions and judging
+							</div>
+							<div className="round-timeline-item">
+								<strong>3:30 — 4:00 PM</strong> — Event concludes (next day)
 							</div>
 						</div>
 					</div>
