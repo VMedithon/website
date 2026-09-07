@@ -94,8 +94,10 @@ export function Vessels() {
 					};
 				});
 				if (!js.length) continue;
-				const top = js[0]!.jy - 160;
-				const bot = js[js.length - 1]!.jy + 170;
+				// trunks run the full page: from the hero down to the footer,
+				// docking into every block along the way
+				const top = 40;
+				const bot = H - 60;
 
 				// the trunk weaves: margin -> bend to the card edge -> lobe dips
 				// inside the card -> back out to the margin
