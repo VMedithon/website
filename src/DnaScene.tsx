@@ -5,10 +5,10 @@ import dnaUrl from "./assets/dna.glb?url";
 
 const clamp01 = (t: number) => Math.min(1, Math.max(0, t));
 
-// VMEDITHON blues: bright -> brand -> deep, top to bottom
-const BRAND_TOP = new THREE.Color(0x7cc4ff); // light blue
-const BRAND_MID = new THREE.Color(0x2e9cff); // brand blue
-const BRAND_BOT = new THREE.Color(0x126faf); // deep blue
+// VMEDITHON palette: green base, shifts through blue to gold as you scroll
+const BRAND_GREEN = new THREE.Color(0x13e27c);
+const BRAND_BLUE = new THREE.Color(0x2e9cff);
+const BRAND_GOLD = new THREE.Color(0xf8c000);
 const DIM_DARK = new THREE.Color(0x33506b); // muted steel-blue, visible on the dark bg
 const DIM_LIGHT = new THREE.Color(0x54687e); // darker slate so it reads on light bg
 
@@ -44,9 +44,9 @@ export function DnaScene() {
 			uMinY: { value: -1 },
 			uMaxY: { value: 1 },
 			uDim: { value: DIM_DARK.clone() },
-			uTop: { value: BRAND_TOP },
-			uMid: { value: BRAND_MID },
-			uBot: { value: BRAND_BOT },
+			uTop: { value: BRAND_GREEN },
+			uMid: { value: BRAND_BLUE },
+			uBot: { value: BRAND_GOLD },
 		};
 
 		const material = new THREE.MeshStandardMaterial({
@@ -75,7 +75,10 @@ export function DnaScene() {
 					"#include <color_fragment>",
 					`#include <color_fragment>
 	float dnaT = clamp(vNy, 0.0, 1.0);
-	vec3 dnaBrand = dnaT < 0.5 ? mix(uBot, uMid, dnaT * 2.0) : mix(uMid, uTop, (dnaT - 0.5) * 2.0);
+	// base is VMEDITHON green; scroll morphs it green -> blue -> gold
+	vec3 dnaBase = mix(uTop, uMid, clamp(uProgress * 1.6, 0.0, 1.0));
+	dnaBase = mix(dnaBase, uBot, clamp((uProgress - 0.62) * 3.0, 0.0, 1.0));
+	vec3 dnaBrand = mix(dnaBase * 0.7, dnaBase, dnaT); // subtle top->bottom depth
 	float dnaLit = smoothstep(1.0 - uProgress - 0.06, 1.0 - uProgress + 0.02, dnaT);
 	diffuseColor.rgb = mix(uDim, dnaBrand, dnaLit);`,
 				)
@@ -156,6 +159,9 @@ export function DnaScene() {
 			uniforms.uProgress.value = p;
 			uniforms.uGlow.value = p * 1.8; // the lit region glows harder as you scroll
 			rim.intensity = 8 + p * 24;
+			// rim light follows the same green -> blue -> gold scroll morph
+			rim.color.copy(BRAND_GREEN).lerp(BRAND_BLUE, Math.min(1, p * 1.6));
+			if (p > 0.62) rim.color.lerp(BRAND_GOLD, Math.min(1, (p - 0.62) * 3));
 			uniforms.uDim.value.copy(
 				document.documentElement.dataset.theme === "light" ? DIM_LIGHT : DIM_DARK,
 			);
