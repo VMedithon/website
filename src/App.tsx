@@ -121,10 +121,6 @@ function Nav() {
 				<Link to="/dashboard" className="text-button" onClick={() => setOpen(false)}>
 					Portal
 				</Link>
-				<Link to="/dashboard" className="nav-cta" onClick={() => setOpen(false)}>
-					Register
-					<ArrowRight style={{ width: 16, height: 16 }} />
-				</Link>
 			</div>
 			<button className="theme-toggle" aria-label={`Switch to ${theme === "dark" ? "light" : "dark"} mode`} onClick={toggle} type="button">
 				<Sun className={theme === "light" ? "active" : ""} style={{ width: 14, height: 14 }} />
