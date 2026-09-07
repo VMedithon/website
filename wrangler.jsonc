@@ -1,46 +1,8 @@
 {
-  "$schema": "./node_modules/wrangler/config-schema.json",
-  "name": "vmedithon",
-  "main": "worker/index.ts",
-  "compatibility_date": "2026-08-25",
-  "compatibility_flags": ["nodejs_compat"],
+  "$schema": "https://unpkg.com/wrangler/config-schema.json",
+  "name": "vmedition-2026",
+  "compatibility_date": "2026-09-06",
   "assets": {
-    "directory": "./dist",
-    "not_found_handling": "single-page-application"
-  },
-  "d1_databases": [
-    {
-      "binding": "DB",
-      "database_name": "vmedithon",
-      "database_id": "00000000-0000-0000-0000-000000000000",
-      "migrations_dir": "./migrations"
-    }
-  ],
-  "r2_buckets": [
-    { "binding": "UPLOADS", "bucket_name": "vmedithon-uploads" },
-    { "binding": "ARTIFACTS", "bucket_name": "vmedithon-artifacts" }
-  ],
-  "queues": {
-    "producers": [{ "binding": "JOBS", "queue": "vmedithon-jobs" }],
-    "consumers": [
-      {
-        "queue": "vmedithon-jobs",
-        "dead_letter_queue": "vmedithon-jobs-dlq"
-      }
-    ]
-  },
-  "observability": {
-    "enabled": true,
-    "head_sampling_rate": 1
-  },
-  "vars": {
-    "ENVIRONMENT": "production",
-    "CLERK_ORG_ID": "org_..."
-  },
-  "env": {
-    "staging": {
-      "name": "vmedithon-staging",
-      "vars": { "ENVIRONMENT": "staging" }
-    }
+    "directory": "./dist"
   }
 }

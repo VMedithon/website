@@ -4,6 +4,12 @@
 > see `../execution/current-state.md`. For rules that implement this spec, see
 > `../domain/business-logic.md`.
 
+
+> **Scope update (2026-09-06):** This repository is now a frontend-only static
+> marketing and participant-preview site. All backend, auth, persistence, and
+> deployment capabilities described below have been removed and are no longer
+> in scope unless explicitly re-added.
+
 ## What the product is
 
 VMEDITHON 2026 is a 36-hour overnight hackathon at **VIT Vellore, India, on
