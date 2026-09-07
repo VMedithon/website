@@ -3,13 +3,11 @@ import { useLocation, Routes, Route, Link } from "react-router-dom";
 import {
 	ArrowRight,
 	Menu,
-	Check,
 	Code2,
 	Wrench,
 	FileText,
 	Download,
 	ExternalLink,
-	Award,
 	Activity,
 	Sun,
 	Moon,
@@ -541,43 +539,6 @@ function FaqToggle() {
 	);
 }
 
-function CertificateVerify() {
-	const [id, setId] = useState("");
-	const [checked, setChecked] = useState(false);
-	return (
-		<section className="section verify-section" id="certificates">
-			<Anchor id="certificates" />
-			<div className="verify-card" data-reveal>
-				<div className="verify-icon" style={{ width: 56, height: 56, borderRadius: "var(--r-inner)", background: "var(--accent-soft)", color: "var(--brand-gold)", display: "grid", placeItems: "center", margin: "0 auto 24px" }}>
-					<Award style={{ width: 26, height: 26 }} />
-				</div>
-				<h2>Verify a VMEDITHON Certificate</h2>
-				<p>Enter a certificate ID to check its status. Verification will be enabled after the event.</p>
-				<label>
-					Certificate ID
-					<input
-						type="text"
-						value={id}
-						onChange={(e) => { setId(e.target.value); setChecked(false); }}
-						placeholder="e.g. VMD-2026-XXXX"
-						className="full"
-					/>
-				</label>
-				<button type="button" onClick={() => setChecked(true)}>
-					Verify
-				</button>
-				{checked && (
-					<div className="verify-success">
-						<Check style={{ width: 28, height: 28 }} />
-						<strong>No certificate found for “{id || "—"}”.</strong>
-						<span>Certificates will be issued after the event.</span>
-					</div>
-				)}
-			</div>
-		</section>
-	);
-}
-
 function Contact() {
 	return (
 		<section className="section" id="contact">
@@ -666,7 +627,6 @@ function HomePage() {
 			<Resources />
 			<Partners />
 			<FAQ />
-			<CertificateVerify />
 			<Contact />
 			<Footer />
 		</>
