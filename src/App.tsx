@@ -1,20 +1,16 @@
 import { useEffect, useMemo, useRef, useState } from "react";
-import { useLocation, Routes, Route, Link } from "react-router-dom";
 import {
 	ArrowRight,
 	Menu,
-	Check,
 	Code2,
 	Wrench,
 	FileText,
 	Download,
 	ExternalLink,
-	Award,
 	Activity,
 	Sun,
 	Moon,
 } from "lucide-react";
-import { ParticipantDashboard } from "./ParticipantDashboard";
 import logoOnDark from "./assets/logo.png";
 import logoOnLight from "./assets/logo-dark.png";
 import { useTheme } from "./hooks/useTheme";
@@ -100,26 +96,22 @@ function ScrollProgress() {
 function Nav() {
 	const { theme, toggle } = useTheme();
 	const [open, setOpen] = useState(false);
-	const { pathname } = useLocation();
 
 	return (
 		<nav className="nav-wrap" aria-label="Main">
-			<Link to="/" className="brand" onClick={() => window.scrollTo({ top: 0, behavior: "smooth" })}>
+			<a href="#hero" className="brand">
 				<img src={theme === "dark" ? logoOnDark : logoOnLight} alt="VMEDITHON 3.0" className="nav-logo" />
-			</Link>
+			</a>
 			<div className={`nav-links ${open ? "open" : ""}`}>
 				{navLinks.map((l) => (
-					<Link
+					<a
 						key={l.id}
-						to={pathname === "/" ? l.path : `/${l.path.replace(/^\//, "")}`}
+						href={l.path.replace(/^\//, "")}
 						onClick={() => setOpen(false)}
 					>
 						{l.label}
-					</Link>
+					</a>
 				))}
-				<Link to="/dashboard" className="text-button" onClick={() => setOpen(false)}>
-					Portal
-				</Link>
 			</div>
 			<button className="theme-toggle" aria-label={`Switch to ${theme === "dark" ? "light" : "dark"} mode`} onClick={toggle} type="button">
 				<Sun className={theme === "light" ? "active" : ""} style={{ width: 14, height: 14 }} />
@@ -155,16 +147,12 @@ function Hero() {
 						BUILDATHON
 					</div>
 				</div>
-				<p className="hero-meta">SEP 15 — 16 · 24 HOURS · VIT CHENNAI</p>
+				<p className="hero-meta">SEP 15–16 · 24 HOURS · VIT CHENNAI</p>
 				<div className="hero-actions">
-					<Link to="/dashboard" className="button primary">
-						Register / Devnovate
+					<a href="https://devnovate.co/event/vmedithon-30" target="_blank" rel="noreferrer" className="button primary">
+						Register on Devnovate
 						<ArrowRight style={{ width: 16, height: 16 }} />
-					</Link>
-					<Link to="/dashboard" className="button portal">
-						Participant Portal
-						<ExternalLink style={{ width: 16, height: 16 }} />
-					</Link>
+					</a>
 				</div>
 			</div>
 		</section>
@@ -365,7 +353,7 @@ function Rounds() {
 						<h3>Online · Free · Devnovate</h3>
 						<p>Submit your research, problem gap, proposed solution, and technical approach as a PPT through Devnovate.</p>
 						<a
-							href="https://devnovate.io"
+							href="https://devnovate.co/event/vmedithon-30"
 							target="_blank"
 							rel="noreferrer"
 							className="round-button"
@@ -379,23 +367,25 @@ function Rounds() {
 					<div className="round-number">02</div>
 					<div>
 						<div className="round-meta">ROUND TWO · 24 HOURS</div>
-						<h3>September 15 — 16</h3>
+						<h3>September 15–16</h3>
 						<div className="round-timeline">
 							<div className="round-timeline-fill" />
 							<div className="round-timeline-item">
-								<strong>11:00 AM</strong> — Start at MG Auditorium, VIT Chennai
+								<strong>8:00 AM</strong> · Buildathon track participants arrive at MG Auditorium, VIT Chennai
 							</div>
 							<div className="round-timeline-item">
-								<strong>24 hours</strong> — Build, validate, and refine
+								<strong>11:00 AM</strong> · Hackathon track participants start at MG Auditorium, VIT Chennai
 							</div>
 							<div className="round-timeline-item">
-								<strong>11:00 AM</strong> — Final submissions and judging
+								<strong>24 hours</strong> · Build, validate, and refine
+							</div>
+							<div className="round-timeline-item">
+								<strong>11:00 AM</strong> · Final submissions and judging for Hackathon track participants (next day)
+							</div>
+							<div className="round-timeline-item">
+								<strong>3:30–4:00 PM</strong> · Event concludes for Buildathon track participants (next day)
 							</div>
 						</div>
-						<Link to="/dashboard" className="round-button">
-							Round 2 Readiness
-							<ArrowRight style={{ width: 14 }} />
-						</Link>
 					</div>
 				</div>
 			</div>
@@ -457,10 +447,12 @@ function Resources() {
 							<small>{r.desc}</small>
 						</div>
 						<span className="file-type">{r.type}</span>
-						<div className="download-row">
-							<span>Download</span>
-							<Download style={{ width: 18 }} />
-						</div>
+						{"file" in r && r.file && (
+							<a className="download-row" href={r.file} download>
+								<span>Download</span>
+								<Download style={{ width: 18 }} />
+							</a>
+						)}
 					</div>
 				))}
 			</div>
@@ -541,43 +533,6 @@ function FaqToggle() {
 	);
 }
 
-function CertificateVerify() {
-	const [id, setId] = useState("");
-	const [checked, setChecked] = useState(false);
-	return (
-		<section className="section verify-section" id="certificates">
-			<Anchor id="certificates" />
-			<div className="verify-card" data-reveal>
-				<div className="verify-icon" style={{ width: 56, height: 56, borderRadius: "var(--r-inner)", background: "var(--accent-soft)", color: "var(--brand-gold)", display: "grid", placeItems: "center", margin: "0 auto 24px" }}>
-					<Award style={{ width: 26, height: 26 }} />
-				</div>
-				<h2>Verify a VMEDITHON Certificate</h2>
-				<p>Enter a certificate ID to check its status. Verification will be enabled after the event.</p>
-				<label>
-					Certificate ID
-					<input
-						type="text"
-						value={id}
-						onChange={(e) => { setId(e.target.value); setChecked(false); }}
-						placeholder="e.g. VMD-2026-XXXX"
-						className="full"
-					/>
-				</label>
-				<button type="button" onClick={() => setChecked(true)}>
-					Verify
-				</button>
-				{checked && (
-					<div className="verify-success">
-						<Check style={{ width: 28, height: 28 }} />
-						<strong>No certificate found for “{id || "—"}”.</strong>
-						<span>Certificates will be issued after the event.</span>
-					</div>
-				)}
-			</div>
-		</section>
-	);
-}
-
 function Contact() {
 	return (
 		<section className="section" id="contact">
@@ -602,7 +557,7 @@ function Contact() {
 						Interested in supporting the next generation of health-tech builders? Contact us for the sponsorship prospectus.
 					</p>
 					<a
-						href={`mailto:${contact.email}?subject=Sponsorship / Partnership — VMEDITHON 3.0`}
+						href={`mailto:${contact.email}?subject=Sponsorship / Partnership · VMEDITHON 3.0`}
 						className="round-button"
 						style={{ marginTop: 22 }}
 					>
@@ -621,7 +576,7 @@ function Footer() {
 			<div>
 				<strong className="brand" style={{ color: "#f5f7f8" }}>VMEDITHON 3.0</strong>
 				<small style={{ display: "block", marginTop: 8, color: "#98a8b4" }}>
-					Bioelectric Lab — a 24-hour hackathon and buildathon at VIT Chennai.
+					A 24-hour hackathon and buildathon at VIT Chennai.
 				</small>
 			</div>
 			<div>
@@ -632,9 +587,8 @@ function Footer() {
 			</div>
 			<div>
 				<strong style={{ color: "#f5f7f8" }}>Quick Links</strong>
-				<Link to="/#journey">Journey</Link>
-				<Link to="/#themes">Themes</Link>
-				<Link to="/dashboard">Participant Portal</Link>
+				<a href="#journey">Journey</a>
+				<a href="#themes">Themes</a>
 			</div>
 			<small>© 2026 Team VMEDITHON. Operational details subject to confirmation.</small>
 		</footer>
@@ -643,17 +597,6 @@ function Footer() {
 
 function HomePage() {
 	useReveal();
-	const { hash } = useLocation();
-
-	useEffect(() => {
-		if (hash) {
-			const id = hash.replace("#", "");
-			const el = document.getElementById(id);
-			if (el) setTimeout(() => el.scrollIntoView({ behavior: "smooth" }), 50);
-		} else {
-			window.scrollTo({ top: 0, behavior: "smooth" });
-		}
-	}, [hash]);
 
 	return (
 		<>
@@ -666,7 +609,6 @@ function HomePage() {
 			<Resources />
 			<Partners />
 			<FAQ />
-			<CertificateVerify />
 			<Contact />
 			<Footer />
 		</>
@@ -679,11 +621,7 @@ export function App() {
 			<BioCircuitBackground />
 			<ScrollProgress />
 			<Nav />
-			<Routes>
-				<Route path="/" element={<HomePage />} />
-				<Route path="/dashboard" element={<ParticipantDashboard />} />
-				<Route path="*" element={<HomePage />} />
-			</Routes>
+			<HomePage />
 		</div>
 	);
 }

@@ -43,7 +43,7 @@ export const tracks: Track[] = [
 		label: "PROJECT",
 		title: "Build toward ownership.",
 		description:
-			"Transform a product idea through guided design, building, and industry feedback—with a patent-ready outcome in sight.",
+			"Transform a product idea through guided design, building, and industry feedback, with a patent-ready outcome in sight.",
 		output: "Patent-ready design",
 		icon: Hammer,
 		accent: "blue",
@@ -66,8 +66,8 @@ export const journeySteps: JourneyStep[] = [
 	{ step: "01", title: "Register", desc: "Create your team and confirm participation through Devnovate." },
 	{ step: "02", title: "PPT Submission", desc: "Submit your problem understanding, research, and proposed solution." },
 	{ step: "03", title: "Evaluation", desc: "Reviewers score submissions across research, innovation, and feasibility." },
-	{ step: "04", title: "Interview / Selection", desc: "Shortlisted teams attend a brief alignment call before track assignment." },
-	{ step: "05", title: "Track Assignment", desc: "Matched to Hackathon, Buildathon, or a blended track for Round 2." },
+	{ step: "04", title: "Shortlisting", desc: "Shortlisted teams receive a selection email for Round 2 and are asked to pay a venue entry fee." },
+	{ step: "05", title: "Track Assignment", desc: "Matched to Hackathon or Buildathon depending on patentability or industry orientation." },
 	{ step: "06", title: "Round 2 Build", desc: "24-hour onsite buildathon at VIT Chennai." },
 	{ step: "07", title: "Final Deliverables", desc: "Demo, documentation, and submission for judging and awards.", final: true },
 ];
@@ -92,7 +92,7 @@ export const themes = [
 ];
 
 export const roundOne = {
-	title: "Round 1 — Research & Ideation",
+	title: "Round 1 · Research & Ideation",
 	participants: "~1,200 participants expected",
 	description:
 		"Participants form teams, understand a problem, research existing approaches, identify gaps, propose a solution, and submit a proposal document or PPT.",
@@ -107,7 +107,7 @@ export const roundOne = {
 };
 
 export const roundTwo = {
-	title: "Round 2 — 24-hour Buildathon",
+	title: "Round 2 · 24-hour Buildathon",
 	description:
 		"Shortlisted teams move to the 24-hour on-campus buildathon. The round combines technical preparation, workshops, mentorship, development, prototyping, testing, industry refinement, final demos, and judging.",
 	items: [
@@ -164,8 +164,7 @@ export const problemStatements = [
 
 export const resources = [
 	{ title: "PPT Template", type: "PPTX", desc: "Round 1 submission format." },
-	{ title: "Event Brochure", type: "PDF", desc: "Branding, schedule, and overview." },
-	{ title: "Participant Guide", type: "PDF", desc: "Rules, judging, and venue details." },
+	{ title: "Brochure", type: "PDF", desc: "Branding, schedule, and overview.", file: "/vmed-brochure.pdf" },
 ];
 
 export interface Sponsor {
@@ -173,7 +172,7 @@ export interface Sponsor {
 	logo: string;
 	/** Optional variant to use on the light theme. */
 	logoLight?: string;
-	/** White artwork — needs a dark chip to stay visible on light backgrounds. */
+	/** White artwork needs a dark chip to stay visible on light backgrounds. */
 	onDark?: boolean;
 }
 
@@ -189,8 +188,8 @@ export const sponsors: Sponsor[] = [
 export const faq = [
 	{
 		q: "Who can participate?",
-		a: "Students from invited institutions can register in teams. Eligibility details will be published once confirmed.",
-		confirmed: false,
+		a: "Any college student can participate. Teams can consist of a mix of external and internal participants.",
+		confirmed: true,
 	},
 	{
 		q: "How does Round 1 work?",
@@ -204,12 +203,12 @@ export const faq = [
 	},
 	{
 		q: "What is the team size?",
-		a: "Team size will be confirmed before registration opens. Updates will be posted here and in the participant portal.",
-		confirmed: false,
+		a: "Each team can consist of 1–5 members.",
+		confirmed: true,
 	},
 	{
 		q: "Will food and power be available?",
-		a: "Yes. On-site meals, power, and network infrastructure are being planned for the 24-hour event.",
+		a: "Yes. Dinner and breakfast will be provided, along with power and network infrastructure for the 24-hour event.",
 		confirmed: true,
 	},
 	{
