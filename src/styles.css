@@ -109,15 +109,6 @@
 @keyframes resolve{from{opacity:0;filter:blur(10px);transform:translateY(14px)}to{opacity:1;filter:blur(0);transform:translateY(0)}}
 @keyframes logo-float{0%,100%{transform:translateY(0)}50%{transform:translateY(-12px)}}
 
-/* ============ PROOF STRIP / EVENT TELEMETRY ============ */
-.telemetry{padding:30px 7vw;position:relative;z-index:2}
-.telemetry-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:20px;width:min(1240px,100%);margin:0 auto;padding:30px 44px;background:color-mix(in srgb,var(--bg-elev) 72%,transparent);backdrop-filter:var(--glass);-webkit-backdrop-filter:var(--glass);border:1px solid var(--line);border-radius:var(--r-pill);box-shadow:var(--shadow-1)}
-.tele-card{position:relative;text-align:center}
-@media(min-width:1025px){.tele-card + .tele-card::before{content:"";position:absolute;left:-10px;top:15%;bottom:15%;width:1px;background:var(--line)}}
-.tele-label{font:500 10px Inter;letter-spacing:1.4px;color:var(--ink-3);text-transform:uppercase;margin-bottom:10px}
-.tele-value{font:700 38px "Space Grotesk",sans-serif;letter-spacing:-.03em;color:var(--ink);display:flex;align-items:end;justify-content:center;gap:8px;line-height:1}
-.tele-value span{font:500 13px Inter;color:var(--ink-2);letter-spacing:0;margin-bottom:5px}
-
 /* ============ SECTIONS ============ */
 .section{padding:120px 7vw;position:relative;z-index:2}
 .section-heading{display:grid;grid-template-columns:1fr;align-items:end;margin-bottom:60px;gap:20px}
@@ -468,7 +459,6 @@ footer>small{grid-column:1/-1;border-top:1px solid #1c2b36;padding-top:26px;colo
 	.journey-step:nth-child(odd) .journey-step-content,.journey-step:nth-child(even) .journey-step-content{grid-column:2;text-align:left}
 	.journey-dot{grid-column:1;justify-self:start}
 	.journey-line,.journey-line-fill{left:18px}
-	.telemetry-grid{grid-template-columns:repeat(2,1fr);border-radius:var(--r-card);padding:26px 30px;row-gap:32px}
 	.schedule-events{grid-template-columns:repeat(3,1fr)}
 }
 @media(max-width:900px){
@@ -506,7 +496,6 @@ footer>small{grid-column:1/-1;border-top:1px solid #1c2b36;padding-top:26px;colo
 	.hero-split{gap:14px}
 	.hero-track{font-size:13px;padding:12px 20px}
 	.hero-caduceus{width:60px;height:60px}
-	.telemetry-grid{grid-template-columns:1fr}
 	.resources-grid{grid-template-columns:1fr}
 	.schedule-events{grid-template-columns:1fr}
 	.schedule-days{grid-template-columns:1fr;gap:20px}
