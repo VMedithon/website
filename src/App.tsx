@@ -13,6 +13,8 @@ import {
 	Activity,
 } from "lucide-react";
 import { ParticipantDashboard } from "./ParticipantDashboard";
+import logoOnDark from "./assets/logo.png";
+import logoOnLight from "./assets/logo-dark.png";
 import { useTheme } from "./hooks/useTheme";
 import { useReveal } from "./hooks/useReveal";
 import {
@@ -102,11 +104,7 @@ function Nav() {
 	return (
 		<nav className="nav-wrap" aria-label="Main">
 			<Link to="/" className="brand" onClick={() => window.scrollTo({ top: 0, behavior: "smooth" })}>
-				<div className="brand-mark"><span>V</span></div>
-				<div>
-					VMEDITHON
-					<small>3.0 · BIOELECTRIC LAB</small>
-				</div>
+				<img src={theme === "dark" ? logoOnDark : logoOnLight} alt="VMEDITHON 3.0" className="nav-logo" />
 			</Link>
 			<div className={`nav-links ${open ? "open" : ""}`}>
 				{navLinks.map((l) => (
@@ -173,24 +171,25 @@ function CountUp({ target, suffix = "" }: { target: number; suffix?: string }) {
 }
 
 function Hero() {
+	const { theme } = useTheme();
+
 	return (
 		<section className="hero" id="hero">
 			<div className="hero-orbit orbit-one" />
 			<div className="hero-orbit orbit-two" />
 			<div className="hero-center">
 				<div className="hero-tagline">Technology for a Healthier Tomorrow</div>
-				<h1 className="hero-title">VMEDITHON <em>3.0</em></h1>
-				<p className="hero-subtitle">HACKATHON × BUILDATHON</p>
+				<img src={theme === "dark" ? logoOnDark : logoOnLight} alt="VMEDITHON 3.0" className="hero-logo" />
 				<div className="hero-split">
 					<div className="hero-track hack">
-						<Code2 style={{ width: 18 }} />
+						<Code2 style={{ width: 22 }} />
 						HACKATHON
 					</div>
 					<div className="hero-caduceus">
-						<Activity style={{ width: 28 }} />
+						<Activity style={{ width: 36 }} />
 					</div>
 					<div className="hero-track build">
-						<Wrench style={{ width: 18 }} />
+						<Wrench style={{ width: 22 }} />
 						BUILDATHON
 					</div>
 				</div>
@@ -634,6 +633,8 @@ function Resources() {
 }
 
 function Partners() {
+	const { theme } = useTheme();
+
 	return (
 		<section className="partners-section" id="partners">
 			<Anchor id="partners" />
@@ -641,7 +642,9 @@ function Partners() {
 			<h2 style={{ font: "700 40px 'Space Grotesk', sans-serif", margin: "16px 0 0", letterSpacing: "-.02em" }}>Organisations behind VMEDITHON</h2>
 			<div className="partner-logos" data-reveal>
 				{sponsors.map((s) => (
-					<div key={s} className="partner-logo">{s}</div>
+					<div key={s.name} className={`partner-logo${s.onDark && theme === "light" ? " on-dark" : ""}`} title={s.name}>
+						<img src={theme === "light" && s.logoLight ? s.logoLight : s.logo} alt={s.name} />
+					</div>
 				))}
 			</div>
 		</section>
