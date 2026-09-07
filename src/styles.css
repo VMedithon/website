@@ -69,8 +69,8 @@
 .nav-links a,.text-button{transition:color .25s var(--ease);color:var(--ink-2)}
 .nav-links a:hover,.text-button:hover{color:var(--brand-green)}
 .text-button{border:0;background:none;padding:0}
-.nav-cta,.dash-primary{border:0;background:var(--accent);color:var(--accent-ink);height:42px;padding:0 20px;border-radius:var(--r-pill);display:flex;align-items:center;gap:9px;font-size:12px;font-weight:700;transition:transform .2s var(--ease),background .25s var(--ease);box-shadow:0 4px 14px color-mix(in srgb,var(--accent) 35%,transparent)}
-.nav-cta:hover,.dash-primary:hover{background:var(--brand-green);color:var(--on-accent);transform:translateY(-1px)}
+.nav-cta,.dash-primary{border:0;background:var(--accent);color:var(--accent-ink);height:42px;padding:0 22px;border-radius:var(--r-pill);display:flex;align-items:center;gap:9px;font-size:13px;font-weight:700;transition:transform .2s var(--ease),background .25s var(--ease),box-shadow .25s var(--ease);box-shadow:0 4px 14px color-mix(in srgb,var(--accent) 35%,transparent)}
+.nav-cta:hover,.dash-primary:hover{background:color-mix(in srgb,var(--accent) 76%,black);color:var(--accent-ink);transform:translateY(-1px);box-shadow:0 6px 18px color-mix(in srgb,var(--accent) 45%,transparent)}
 .nav-cta:active,.dash-primary:active{transform:scale(.97)}
 .theme-toggle{height:34px;border-radius:var(--r-pill);border:1px solid var(--line);background:var(--bg-elev);color:var(--ink-2);display:flex;align-items:center;gap:8px;padding:4px 12px;font:600 10px Inter;letter-spacing:.08em;transition:.25s var(--ease);flex:none}
 .theme-toggle svg{opacity:.5;transition:opacity .2s,color .2s}
@@ -96,7 +96,7 @@
 .hero .button{height:54px;padding:0 28px;border:0;border-radius:var(--r-pill);display:inline-flex;align-items:center;justify-content:center;gap:10px;font-weight:700;font-size:14px;transition:transform .2s var(--ease),background .25s var(--ease),box-shadow .25s var(--ease)}
 .hero .button:active{transform:scale(.97)}
 .hero .button.primary{background:var(--accent);color:var(--accent-ink);box-shadow:0 6px 22px color-mix(in srgb,var(--accent) 35%,transparent)}
-.hero .button.primary:hover{background:var(--brand-green);transform:translateY(-2px)}
+.hero .button.primary:hover{background:color-mix(in srgb,var(--accent) 76%,black);transform:translateY(-2px)}
 .hero .button.portal{background:transparent;color:var(--ink);border:1px solid var(--line-strong)}
 .hero .button.portal:hover{border-color:var(--brand-blue);color:var(--brand-blue);transform:translateY(-2px)}
 .hero-orbit{position:absolute;border:1px solid color-mix(in srgb,var(--brand-green) 18%,transparent);border-radius:50%;pointer-events:none;animation:spin 60s linear infinite}
