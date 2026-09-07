@@ -2,18 +2,8 @@ import {
 	Beaker,
 	BriefcaseBusiness,
 	Hammer,
-	Users,
-	GraduationCap,
-	Building2,
-	Microscope,
-	Lightbulb,
-	BookOpen,
+	Code2,
 	Wrench,
-	MessageSquare,
-	RefreshCw,
-	MonitorPlay,
-	Scale,
-	Award,
 	type LucideIcon,
 } from "lucide-react";
 
@@ -36,7 +26,7 @@ export const tracks: Track[] = [
 			"Work with faculty mentors to shape a rigorous idea, implement its core, and leave with a publication-ready research paper.",
 		output: "Research paper",
 		icon: Beaker,
-		accent: "mint",
+		accent: "green",
 	},
 	{
 		number: "02",
@@ -60,23 +50,53 @@ export const tracks: Track[] = [
 	},
 ];
 
-export const journeyStages = [
-	{ step: "01", title: "Research", icon: Microscope, desc: "Map the problem landscape and identify gaps." },
-	{ step: "02", title: "Ideate", icon: Lightbulb, desc: "Frame a focused, original solution direction." },
-	{ step: "03", title: "Learn", icon: BookOpen, desc: "Use workshops and resources to upskill fast." },
-	{ step: "04", title: "Build", icon: Wrench, desc: "Develop a working prototype overnight." },
-	{ step: "05", title: "Mentor", icon: MessageSquare, desc: "Get feedback from faculty, students, and industry." },
-	{ step: "06", title: "Refine", icon: RefreshCw, desc: "Iterate architecture, UX, and feasibility." },
-	{ step: "07", title: "Demonstrate", icon: MonitorPlay, desc: "Present the live prototype and research defense." },
-	{ step: "08", title: "Evaluate", icon: Scale, desc: "Judging against research, impact, and craft." },
-	{ step: "09", title: "Recognise", icon: Award, desc: "Awards, publication, and industry pathways." },
-] as const;
+export const navLinks = [
+	{ id: "home", label: "Home", path: "/#hero" },
+	{ id: "tracks", label: "Tracks", path: "/#tracks" },
+	{ id: "themes", label: "Themes", path: "/#themes" },
+	{ id: "journey", label: "Journey", path: "/#journey" },
+	{ id: "rounds", label: "Rounds", path: "/#rounds" },
+	{ id: "schedule", label: "Schedule", path: "/#schedule" },
+	{ id: "prizes", label: "Prizes", path: "/#prizes" },
+	{ id: "faq", label: "FAQ", path: "/#faq" },
+];
+
+export type JourneyStep = { step: string; title: string; desc: string; final?: boolean };
+
+export const journeySteps: JourneyStep[] = [
+	{ step: "01", title: "Register", desc: "Create your team and confirm participation through Devnovate." },
+	{ step: "02", title: "PPT Submission", desc: "Submit your problem understanding, research, and proposed solution." },
+	{ step: "03", title: "Evaluation", desc: "Reviewers score submissions across research, innovation, and feasibility." },
+	{ step: "04", title: "Interview / Selection", desc: "Shortlisted teams attend a brief alignment call before track assignment." },
+	{ step: "05", title: "Track Assignment", desc: "Matched to Hackathon, Buildathon, or a blended track for Round 2." },
+	{ step: "06", title: "Round 2 Build", desc: "24-hour onsite buildathon at VIT Chennai." },
+	{ step: "07", title: "Final Deliverables", desc: "Demo, documentation, and submission for judging and awards.", final: true },
+];
+
+export const themes = [
+	{
+		title: "Open Innovation",
+		description:
+			"No boundaries. Bring your own problem, validate it with research, and build a software or hardware proof that could stand alone.",
+		accent: "green" as const,
+		icon: Code2,
+		keywords: ["software", "hardware", "research", "social impact", "devices"],
+	},
+	{
+		title: "Bio × Engineering",
+		description:
+			"Combine biomedical insight with engineering craft. Work on diagnostics, devices, health data, and human-centered systems.",
+		accent: "blue" as const,
+		icon: Wrench,
+		keywords: ["diagnostics", "wearables", "health data", "biomechanics", "imaging"],
+	},
+];
 
 export const roundOne = {
 	title: "Round 1 — Research & Ideation",
 	participants: "~1,200 participants expected",
 	description:
-		"Participants form teams, understand a problem statement, research existing approaches, identify gaps, propose a solution, explain the technical approach, and submit a proposal document or PPT.",
+		"Participants form teams, understand a problem, research existing approaches, identify gaps, propose a solution, and submit a proposal document or PPT.",
 	items: [
 		"Understand the problem statement",
 		"Research existing approaches",
@@ -143,141 +163,55 @@ export const problemStatements = [
 	},
 ] as const;
 
-export const roundOneCriteria = [
-	{ label: "Research strength / problem understanding", note: "Depth of background review and gap analysis." },
-	{ label: "Innovation and originality", note: "Novel angle or non-obvious combination of ideas." },
-	{ label: "Technical feasibility", note: "Can be built with the time and tools available." },
-	{ label: "Real-world relevance", note: "Addresses an identifiable clinical or operational need." },
-	{ label: "Potential impact", note: "Magnitude of benefit if the solution succeeds." },
-	{ label: "Development / implementation potential", note: "Clear pathway from proposal to working prototype." },
+export const scheduleEvents = [
+	{ day: 1, time: "11:00 AM", name: "Opening", detail: "Inauguration, briefing, and workspace setup." },
+	{ day: 1, time: "12:30 PM", name: "Workshops", detail: "Tooling, biomedical ethics, and rapid prototyping." },
+	{ day: 1, time: "03:00 PM", name: "Build Block", detail: "Teams begin core development and prototyping." },
+	{ day: 1, time: "08:00 PM", name: "Mentor Sync", detail: "Midway review with student, faculty, and industry mentors." },
+	{ day: 1, time: "11:00 PM", name: "Overnight Sprint", detail: "Integration, testing, and iteration through the night." },
+	{ day: 2, time: "06:00 AM", name: "Refinement", detail: "UI polish, documentation, and practice demos." },
+	{ day: 2, time: "09:00 AM", name: "Industry Review", detail: "Final expert feedback before judging." },
+	{ day: 2, time: "11:00 AM", name: "Finish", detail: "Submission deadline and judging begins." },
 ];
 
-export const schedule = [
-	{
-		block: "11 AM → 11 PM",
-		items: [
-			"Inauguration & briefing",
-			"Workshops",
-			"Domain sessions",
-			"Mentoring",
-			"Problem clarification",
-			"Architecture planning",
-			"Implementation planning",
-		],
-	},
-	{
-		block: "11 PM → 11 AM",
-		items: [
-			"Development",
-			"Prototyping",
-			"Integration",
-			"Testing",
-			"Debugging",
-			"Iteration",
-		],
-	},
-	{
-		block: "11 AM onwards",
-		items: [
-			"Industry refinement",
-			"Final demo",
-			"Judging",
-			"Deliberation",
-			"Winners",
-		],
-	},
+export const resources = [
+	{ title: "PPT Template", type: "PPTX", desc: "Round 1 submission format." },
+	{ title: "Event Brochure", type: "PDF", desc: "Branding, schedule, and overview." },
+	{ title: "Participant Guide", type: "PDF", desc: "Rules, judging, and venue details." },
 ];
 
-export const mentorGroups = [
-	{
-		role: "Student Mentors",
-		icon: Users,
-		focus: "Technical and execution support.",
-		description:
-			"Peer mentors help teams navigate tools, debug code, set up environments, and keep projects moving through the night.",
-	},
-	{
-		role: "Faculty Mentors",
-		icon: GraduationCap,
-		focus: "Research, domain, and technical validation.",
-		description:
-			"Faculty mentors challenge assumptions, validate research framing, and guide domain-specific decisions.",
-	},
-	{
-		role: "Industry Experts",
-		icon: Building2,
-		focus: "Product, feasibility, and industry refinement.",
-		description:
-			"Industry experts review how the prototype maps to real users, workflows, and go-to-market constraints.",
-	},
-];
-
-export const industryRefinementAreas = [
-	"Technical feasibility",
-	"Architecture",
-	"Product relevance",
-	"Usability gaps",
-	"Scalability",
-	"Deployment",
-	"Differentiation",
-	"Potential impact",
-];
-
-export const innovationHighlights = [
-	"Novel approaches",
-	"Unique system architectures",
-	"New applications of existing technology",
-	"Technical improvements",
-	"Original implementations",
-];
-
-export const finalJudgingCriteria = [
-	"Research & problem understanding",
-	"Innovation & originality",
-	"Technical implementation",
-	"Functionality",
-	"Real-world impact",
-	"Scalability",
-	"Industry applicability",
-	"Patentability / novelty",
-	"Presentation & demonstration",
-];
+export const sponsors = ["VIT Chennai", "CYSCOM", "NEXUS"];
 
 export const faq = [
 	{
 		q: "Who can participate?",
-		a: "Eligibility details will be published once confirmed. The event is student-driven and open to teams from invited institutions.",
+		a: "Students from invited institutions can register in teams. Eligibility details will be published once confirmed.",
 		confirmed: false,
+	},
+	{
+		q: "How does Round 1 work?",
+		a: "Teams submit a proposal PPT through Devnovate. Submissions are reviewed across problem understanding, innovation, feasibility, and impact.",
+		confirmed: true,
+	},
+	{
+		q: "What should we submit?",
+		a: "Use the provided PPT template. Include research, problem gaps, proposed solution, technical approach, and expected impact.",
+		confirmed: true,
 	},
 	{
 		q: "What is the team size?",
-		a: "Team size is not finalised. Updates will be posted here and in the participant dashboard.",
+		a: "Team size will be confirmed before registration opens. Updates will be posted here and in the participant portal.",
 		confirmed: false,
 	},
 	{
-		q: "What should I bring?",
-		a: "Laptop, charger, and any personal peripherals. A detailed packing list will be shared before the event.",
-		confirmed: false,
-	},
-	{
-		q: "Will Wi-Fi and power be available?",
-		a: "Yes. On-site power and network infrastructure are being planned.",
-		confirmed: false,
-	},
-	{
-		q: "What about food and overnight arrangements?",
-		a: "Meals and rest-area plans are being finalised and will be announced through official channels.",
-		confirmed: false,
-	},
-	{
-		q: "Do external participants need OD?",
-		a: "On-duty arrangements for external participants will be communicated after the participation policy is confirmed.",
-		confirmed: false,
+		q: "Will food and power be available?",
+		a: "Yes. On-site meals, power, and network infrastructure are being planned for the 24-hour event.",
+		confirmed: true,
 	},
 	{
 		q: "Will certificates be issued?",
-		a: "Participant and winner certificates are planned. Distribution and verification details will be shared after the event.",
-		confirmed: false,
+		a: "Participant, mentor, and winner certificates will be issued after the event. Public verification will be enabled at that time.",
+		confirmed: true,
 	},
 ];
 
@@ -290,7 +224,7 @@ export const venue = {
 };
 
 export const contact = {
-	team: "Team VMedition",
+	team: "Team VMEDITHON",
 	institution: "VIT Chennai",
 	email: "team@vmedithon.co.in",
 };
@@ -335,16 +269,3 @@ export const emptyParticipant: ParticipantData = {
 		{ date: "TBA", text: "Round 1 submission portal will open after problem statement release." },
 	],
 };
-
-export const navLinks = [
-	{ id: "home", label: "Home", path: "/#hero" },
-	{ id: "about", label: "About", path: "/#about" },
-	{ id: "challenges", label: "Challenges", path: "/#challenges" },
-	{ id: "event-flow", label: "Event Flow", path: "/#event-flow" },
-	{ id: "schedule", label: "Schedule", path: "/#schedule" },
-	{ id: "mentors", label: "Mentors", path: "/#mentors" },
-	{ id: "speakers", label: "Speakers / Judges", path: "/#speakers" },
-	{ id: "sponsors", label: "Sponsors", path: "/#sponsors" },
-	{ id: "faq", label: "FAQ", path: "/#faq" },
-	{ id: "dashboard", label: "Dashboard", path: "/dashboard" },
-];
