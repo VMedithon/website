@@ -452,7 +452,7 @@ function Resources() {
 			<div className="section-heading" data-reveal>
 				<div>
 					<span className="kicker">Resources</span>
-					<h2>Resource Tray</h2>
+					<h2>Resource</h2>
 				</div>
 			</div>
 			<div className="resources-grid" data-reveal>
