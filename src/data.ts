@@ -180,7 +180,24 @@ export const resources = [
 	{ title: "Participant Guide", type: "PDF", desc: "Rules, judging, and venue details." },
 ];
 
-export const sponsors = ["VIT Chennai", "CYSCOM", "NEXUS"];
+export interface Sponsor {
+	name: string;
+	logo: string;
+	/** Optional variant to use on the light theme. */
+	logoLight?: string;
+	/** White artwork — needs a dark chip to stay visible on light backgrounds. */
+	onDark?: boolean;
+}
+
+export const sponsors: Sponsor[] = [
+	{ name: "VIT Chennai", logo: "/vit-chennai-for-dark-mode.png", logoLight: "/vit-chennai-light-mode-full.png" },
+	{ name: "CYSCOM", logo: "/cyscom-logo.png" },
+	{ name: "Nexus", logo: "/nexus-logo.png" },
+	{ name: "Yenepoya", logo: "/yenepoya-logo.png" },
+	{ name: "Devnovate", logo: "/devonate-logo.png", onDark: true },
+	{ name: "goRobo", logo: "/gorobo-logo.png", onDark: true },
+	{ name: "Z", logo: "/Z-logo.png" },
+];
 
 export const faq = [
 	{
