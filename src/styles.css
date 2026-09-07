@@ -118,11 +118,10 @@
 
 /* ============ SECTIONS ============ */
 .section{padding:120px 7vw;position:relative;z-index:2}
-.section-heading{display:grid;grid-template-columns:1.3fr .7fr;align-items:end;margin-bottom:60px;gap:20px}
+.section-heading{display:grid;grid-template-columns:1fr;align-items:end;margin-bottom:60px;gap:20px}
 .kicker{font:500 11px Inter;letter-spacing:2.4px;text-transform:uppercase;color:var(--brand-gold)}
 .kicker.green{color:var(--brand-green)}.kicker.blue{color:var(--brand-blue)}
-.section-heading h2,.journey-intro h2,.closing h2{font:700 clamp(40px,5vw,68px)/.98 "Space Grotesk",sans-serif;letter-spacing:-.03em;margin:18px 0 0}
-.section-heading>p{line-height:1.8;color:var(--ink-2);max-width:520px}
+.section-heading h2,.journey-intro h2,.closing h2{font:700 clamp(34px,4.4vw,56px)/.98 "Space Grotesk",sans-serif;letter-spacing:-.03em;margin:18px 0 0}
 
 /* ============ HACKATHON × BUILDATHON ============ */
 .track-split{display:grid;grid-template-columns:1fr 1fr;min-height:560px;border:1px solid var(--line);border-radius:var(--r-card);overflow:hidden;background:var(--bg-elev)}
@@ -164,9 +163,8 @@
 
 /* ============ JOURNEY SPINE ============ */
 .journey-section{background:var(--bg-subtle);padding:120px 7vw;position:relative;z-index:2;overflow:hidden}
-.journey-intro{display:grid;grid-template-columns:1fr 1fr;column-gap:8vw;margin-bottom:70px}
-.journey-intro .kicker{grid-column:1/-1;margin-bottom:12px}
-.journey-intro p{align-self:end;color:var(--ink-2);line-height:1.8;max-width:470px}
+.journey-intro{display:grid;grid-template-columns:1fr;margin-bottom:70px}
+.journey-intro .kicker{margin-bottom:12px}
 .journey-spine{position:relative;max-width:720px;margin:0 auto}
 .journey-line{position:absolute;left:50%;top:0;bottom:0;width:2px;background:var(--line);transform:translateX(-50%)}
 .journey-line-fill{position:absolute;left:50%;top:0;width:2px;background:linear-gradient(180deg,var(--brand-green),var(--brand-blue),var(--brand-gold));transform:translateX(-50%);height:0;transition:height .1s linear}
