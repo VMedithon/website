@@ -1,20 +1,16 @@
 import { useEffect, useMemo, useRef, useState } from "react";
-import { useLocation, Routes, Route, Link } from "react-router-dom";
 import {
 	ArrowRight,
 	Menu,
-	Check,
 	Code2,
 	Wrench,
 	FileText,
 	Download,
 	ExternalLink,
-	Award,
 	Activity,
 	Sun,
 	Moon,
 } from "lucide-react";
-import { ParticipantDashboard } from "./ParticipantDashboard";
 import logoOnDark from "./assets/logo.png";
 import logoOnLight from "./assets/logo-dark.png";
 import { useTheme } from "./hooks/useTheme";
@@ -23,7 +19,6 @@ import {
 	navLinks,
 	journeySteps,
 	themes,
-	scheduleEvents,
 	resources,
 	sponsors,
 	faq,
@@ -101,30 +96,22 @@ function ScrollProgress() {
 function Nav() {
 	const { theme, toggle } = useTheme();
 	const [open, setOpen] = useState(false);
-	const { pathname } = useLocation();
 
 	return (
 		<nav className="nav-wrap" aria-label="Main">
-			<Link to="/" className="brand" onClick={() => window.scrollTo({ top: 0, behavior: "smooth" })}>
+			<a href="#hero" className="brand">
 				<img src={theme === "dark" ? logoOnDark : logoOnLight} alt="VMEDITHON 3.0" className="nav-logo" />
-			</Link>
+			</a>
 			<div className={`nav-links ${open ? "open" : ""}`}>
 				{navLinks.map((l) => (
-					<Link
+					<a
 						key={l.id}
-						to={pathname === "/" ? l.path : `/${l.path.replace(/^\//, "")}`}
+						href={l.path.replace(/^\//, "")}
 						onClick={() => setOpen(false)}
 					>
 						{l.label}
-					</Link>
+					</a>
 				))}
-				<Link to="/dashboard" className="text-button" onClick={() => setOpen(false)}>
-					Portal
-				</Link>
-				<Link to="/dashboard" className="nav-cta" onClick={() => setOpen(false)}>
-					Register
-					<ArrowRight style={{ width: 16, height: 16 }} />
-				</Link>
 			</div>
 			<button className="theme-toggle" aria-label={`Switch to ${theme === "dark" ? "light" : "dark"} mode`} onClick={toggle} type="button">
 				<Sun className={theme === "light" ? "active" : ""} style={{ width: 14, height: 14 }} />
@@ -134,41 +121,6 @@ function Nav() {
 				<Menu />
 			</button>
 		</nav>
-	);
-}
-
-function CountUp({ target, suffix = "" }: { target: number; suffix?: string }) {
-	const [value, setValue] = useState(0);
-	const ref = useRef<HTMLSpanElement>(null);
-
-	useEffect(() => {
-		if (!ref.current) return;
-		const observer = new IntersectionObserver(
-			(entries) => {
-				if (entries[0]?.isIntersecting) {
-					let start: number | null = null;
-					const duration = 1200;
-					const step = (ts: number) => {
-						if (!start) start = ts;
-						const p = Math.min((ts - start) / duration, 1);
-						setValue(Math.floor(p * target));
-						if (p < 1) requestAnimationFrame(step);
-					};
-					requestAnimationFrame(step);
-					observer.disconnect();
-				}
-			},
-			{ threshold: 0.5 },
-		);
-		observer.observe(ref.current);
-		return () => observer.disconnect();
-	}, [target]);
-
-	return (
-		<span ref={ref} className="tele-value">
-			{value.toLocaleString()}
-			{suffix && <span>{suffix}</span>}
-		</span>
 	);
 }
 
@@ -195,41 +147,12 @@ function Hero() {
 						BUILDATHON
 					</div>
 				</div>
-				<p className="hero-meta">SEP 15 — 16 · 24 HOURS · VIT CHENNAI</p>
+				<p className="hero-meta">SEP 15–16 · 24 HOURS · VIT CHENNAI</p>
 				<div className="hero-actions">
-					<Link to="/dashboard" className="button primary">
-						Register / Devnovate
+					<a href="https://devnovate.co/event/vmedithon-30" target="_blank" rel="noreferrer" className="button primary">
+						Register on Devnovate
 						<ArrowRight style={{ width: 16, height: 16 }} />
-					</Link>
-					<Link to="/dashboard" className="button portal">
-						Participant Portal
-						<ExternalLink style={{ width: 16, height: 16 }} />
-					</Link>
-				</div>
-			</div>
-		</section>
-	);
-}
-
-function EventTelemetry() {
-	return (
-		<section className="telemetry" id="telemetry">
-			<div className="telemetry-grid" data-reveal>
-				<div className="tele-card" data-reveal>
-					<div className="tele-label">Duration</div>
-					<div className="tele-value">24<span>HR</span></div>
-				</div>
-				<div className="tele-card" data-reveal>
-					<div className="tele-label">Prize Pool</div>
-					<CountUp target={75} suffix="K+" />
-				</div>
-				<div className="tele-card" data-reveal>
-					<div className="tele-label">Themes</div>
-					<div className="tele-value">2</div>
-				</div>
-				<div className="tele-card" data-reveal>
-					<div className="tele-label">Venue</div>
-					<div className="tele-value" style={{ fontSize: 28 }}>VIT Chennai</div>
+					</a>
 				</div>
 			</div>
 		</section>
@@ -242,7 +165,6 @@ function TrackSplit() {
 			<Anchor id="tracks" />
 			<div className="section-heading" data-reveal>
 				<div>
-					<span className="kicker green">Two Tracks</span>
 					<h2>Hackathon × Buildathon</h2>
 				</div>
 			</div>
@@ -360,7 +282,6 @@ function Themes() {
 			<Anchor id="themes" />
 			<div className="section-heading" data-reveal>
 				<div>
-					<span className="kicker blue">Themes</span>
 					<h2>Open Innovation · Bio × Engineering</h2>
 				</div>
 			</div>
@@ -396,7 +317,6 @@ function JourneySpine() {
 		<section className="journey-section" id="journey">
 			<Anchor id="journey" />
 			<div className="journey-intro" data-reveal>
-				<span className="kicker green">Participant Journey</span>
 				<h2>From registration to final deliverable.</h2>
 			</div>
 			<div className="journey-spine" ref={containerRef} data-reveal>
@@ -422,7 +342,6 @@ function Rounds() {
 			<Anchor id="rounds" />
 			<div className="section-heading" data-reveal>
 				<div>
-					<span className="kicker">Format</span>
 					<h2>Round 1 & Round 2</h2>
 				</div>
 			</div>
@@ -434,7 +353,7 @@ function Rounds() {
 						<h3>Online · Free · Devnovate</h3>
 						<p>Submit your research, problem gap, proposed solution, and technical approach as a PPT through Devnovate.</p>
 						<a
-							href="https://devnovate.io"
+							href="https://devnovate.co/event/vmedithon-30"
 							target="_blank"
 							rel="noreferrer"
 							className="round-button"
@@ -448,88 +367,26 @@ function Rounds() {
 					<div className="round-number">02</div>
 					<div>
 						<div className="round-meta">ROUND TWO · 24 HOURS</div>
-						<h3>September 15 — 16</h3>
+						<h3>September 15–16</h3>
 						<div className="round-timeline">
 							<div className="round-timeline-fill" />
 							<div className="round-timeline-item">
-								<strong>11:00 AM</strong> — Start at MG Auditorium, VIT Chennai
+								<strong>8:00 AM</strong> · Buildathon track participants arrive at MG Auditorium, VIT Chennai
 							</div>
 							<div className="round-timeline-item">
-								<strong>24 hours</strong> — Build, validate, and refine
+								<strong>11:00 AM</strong> · Hackathon track participants start at MG Auditorium, VIT Chennai
 							</div>
 							<div className="round-timeline-item">
-								<strong>11:00 AM</strong> — Final submissions and judging
+								<strong>24 hours</strong> · Build, validate, and refine
+							</div>
+							<div className="round-timeline-item">
+								<strong>11:00 AM</strong> · Final submissions and judging for Hackathon track participants (next day)
+							</div>
+							<div className="round-timeline-item">
+								<strong>3:30–4:00 PM</strong> · Event concludes for Buildathon track participants (next day)
 							</div>
 						</div>
-						<Link to="/dashboard" className="round-button">
-							Round 2 Readiness
-							<ArrowRight style={{ width: 14 }} />
-						</Link>
 					</div>
-				</div>
-			</div>
-		</section>
-	);
-}
-
-function Schedule() {
-	const [active, setActive] = useState(0);
-	const railRef = useRef<HTMLDivElement>(null);
-
-	useEffect(() => {
-		const handler = () => {
-			if (!railRef.current) return;
-			const section = document.getElementById("schedule");
-			if (!section) return;
-			const rect = section.getBoundingClientRect();
-			const viewportH = window.innerHeight;
-			const visibleTop = Math.max(0, viewportH * 0.5 - rect.top);
-			const total = rect.height;
-			const progress = Math.max(0, Math.min(1, visibleTop / total));
-			railRef.current.style.width = `${progress * 100}%`;
-		};
-		handler();
-		window.addEventListener("scroll", handler, { passive: true });
-		return () => window.removeEventListener("scroll", handler);
-	}, []);
-
-	return (
-		<section className="section" id="schedule">
-			<Anchor id="schedule" />
-			<div className="section-heading" data-reveal>
-				<div>
-					<span className="kicker blue">Schedule</span>
-					<h2>24-Hour Timeline</h2>
-				</div>
-			</div>
-			<div className="schedule-timeline" data-reveal>
-				<div className="schedule-days">
-					<div className="schedule-day">
-						<h3>Day 01</h3>
-						<p>15 September · 11:00 AM start</p>
-					</div>
-					<div className="schedule-day" style={{ textAlign: "right" }}>
-						<h3>Day 02</h3>
-						<p>16 September · 11:00 AM finish</p>
-					</div>
-				</div>
-				<div className="schedule-rail">
-					<div className="schedule-rail-fill" ref={railRef} />
-				</div>
-				<div className="schedule-events">
-					{scheduleEvents.map((e, i) => (
-						<button
-							type="button"
-							key={e.name}
-							className={`event-node ${active === i ? "active" : ""}`}
-							onClick={() => setActive(i)}
-						>
-							<div className="event-pulse" />
-							<div className="event-time">{e.time}</div>
-							<div className="event-name">{e.name}</div>
-							{active === i && <p className="event-detail">{e.detail}</p>}
-						</button>
-					))}
 				</div>
 			</div>
 		</section>
@@ -566,10 +423,8 @@ function Prize() {
 	return (
 		<section className="prize-section" id="prizes" ref={ref}>
 			<Anchor id="prizes" />
-			<div className="kicker">Prize Pool</div>
 			<h2>PRIZE POOL</h2>
-			<div className="prize-amount">₹{value}<span>K+</span></div>
-			<div className="prize-diamond" />
+			<div className="prize-amount">UPTO ₹{value}K+</div>
 		</section>
 	);
 }
@@ -580,8 +435,7 @@ function Resources() {
 			<Anchor id="resources" />
 			<div className="section-heading" data-reveal>
 				<div>
-					<span className="kicker">Resources</span>
-					<h2>Resource Tray</h2>
+					<h2>Resource</h2>
 				</div>
 			</div>
 			<div className="resources-grid" data-reveal>
@@ -593,10 +447,12 @@ function Resources() {
 							<small>{r.desc}</small>
 						</div>
 						<span className="file-type">{r.type}</span>
-						<div className="download-row">
-							<span>Download</span>
-							<Download style={{ width: 18 }} />
-						</div>
+						{"file" in r && r.file && (
+							<a className="download-row" href={r.file} download>
+								<span>Download</span>
+								<Download style={{ width: 18 }} />
+							</a>
+						)}
 					</div>
 				))}
 			</div>
@@ -610,7 +466,6 @@ function Partners() {
 	return (
 		<section className="partners-section" id="partners">
 			<Anchor id="partners" />
-			<div className="kicker">Supported By</div>
 			<h2 style={{ font: "700 40px 'Space Grotesk', sans-serif", margin: "16px 0 0", letterSpacing: "-.02em" }}>Organisations behind VMEDITHON</h2>
 			<div className="partner-logos" data-reveal>
 				{sponsors.map((s) => (
@@ -630,7 +485,6 @@ function FAQ() {
 			<Anchor id="faq" />
 			<div className="section-heading" data-reveal>
 				<div>
-					<span className="kicker">FAQ</span>
 					<h2>Participant Information</h2>
 				</div>
 			</div>
@@ -679,50 +533,12 @@ function FaqToggle() {
 	);
 }
 
-function CertificateVerify() {
-	const [id, setId] = useState("");
-	const [checked, setChecked] = useState(false);
-	return (
-		<section className="section verify-section" id="certificates">
-			<Anchor id="certificates" />
-			<div className="verify-card" data-reveal>
-				<div className="verify-icon" style={{ width: 56, height: 56, borderRadius: "var(--r-inner)", background: "var(--accent-soft)", color: "var(--brand-gold)", display: "grid", placeItems: "center", margin: "0 auto 24px" }}>
-					<Award style={{ width: 26, height: 26 }} />
-				</div>
-				<h2>Verify a VMEDITHON Certificate</h2>
-				<p>Enter a certificate ID to check its status. Verification will be enabled after the event.</p>
-				<label>
-					Certificate ID
-					<input
-						type="text"
-						value={id}
-						onChange={(e) => { setId(e.target.value); setChecked(false); }}
-						placeholder="e.g. VMD-2026-XXXX"
-						className="full"
-					/>
-				</label>
-				<button type="button" onClick={() => setChecked(true)}>
-					Verify
-				</button>
-				{checked && (
-					<div className="verify-success">
-						<Check style={{ width: 28, height: 28 }} />
-						<strong>No certificate found for “{id || "—"}”.</strong>
-						<span>Certificates will be issued after the event.</span>
-					</div>
-				)}
-			</div>
-		</section>
-	);
-}
-
 function Contact() {
 	return (
 		<section className="section" id="contact">
 			<Anchor id="contact" />
 			<div className="section-heading" data-reveal>
 				<div>
-					<span className="kicker">Contact</span>
 					<h2>Coordinators</h2>
 				</div>
 			</div>
@@ -741,7 +557,7 @@ function Contact() {
 						Interested in supporting the next generation of health-tech builders? Contact us for the sponsorship prospectus.
 					</p>
 					<a
-						href={`mailto:${contact.email}?subject=Sponsorship / Partnership — VMEDITHON 3.0`}
+						href={`mailto:${contact.email}?subject=Sponsorship / Partnership · VMEDITHON 3.0`}
 						className="round-button"
 						style={{ marginTop: 22 }}
 					>
@@ -760,7 +576,7 @@ function Footer() {
 			<div>
 				<strong className="brand" style={{ color: "#f5f7f8" }}>VMEDITHON 3.0</strong>
 				<small style={{ display: "block", marginTop: 8, color: "#98a8b4" }}>
-					Bioelectric Lab — a 24-hour hackathon and buildathon at VIT Chennai.
+					A 24-hour hackathon and buildathon at VIT Chennai.
 				</small>
 			</div>
 			<div>
@@ -771,10 +587,8 @@ function Footer() {
 			</div>
 			<div>
 				<strong style={{ color: "#f5f7f8" }}>Quick Links</strong>
-				<Link to="/#journey">Journey</Link>
-				<Link to="/#schedule">Schedule</Link>
-				<Link to="/#themes">Themes</Link>
-				<Link to="/dashboard">Participant Portal</Link>
+				<a href="#journey">Journey</a>
+				<a href="#themes">Themes</a>
 			</div>
 			<small>© 2026 Team VMEDITHON. Operational details subject to confirmation.</small>
 		</footer>
@@ -783,32 +597,18 @@ function Footer() {
 
 function HomePage() {
 	useReveal();
-	const { hash } = useLocation();
-
-	useEffect(() => {
-		if (hash) {
-			const id = hash.replace("#", "");
-			const el = document.getElementById(id);
-			if (el) setTimeout(() => el.scrollIntoView({ behavior: "smooth" }), 50);
-		} else {
-			window.scrollTo({ top: 0, behavior: "smooth" });
-		}
-	}, [hash]);
 
 	return (
 		<>
 			<Hero />
-			<EventTelemetry />
 			<TrackSplit />
 			<Themes />
 			<JourneySpine />
 			<Rounds />
-			<Schedule />
 			<Prize />
 			<Resources />
 			<Partners />
 			<FAQ />
-			<CertificateVerify />
 			<Contact />
 			<Footer />
 		</>
@@ -821,11 +621,7 @@ export function App() {
 			<BioCircuitBackground />
 			<ScrollProgress />
 			<Nav />
-			<Routes>
-				<Route path="/" element={<HomePage />} />
-				<Route path="/dashboard" element={<ParticipantDashboard />} />
-				<Route path="*" element={<HomePage />} />
-			</Routes>
+			<HomePage />
 		</div>
 	);
 }
