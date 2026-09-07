@@ -182,6 +182,7 @@ export const sponsors: Sponsor[] = [
 	{ name: "CYSCOM", logo: "/cyscom-logo.png" },
 	{ name: "Nexus", logo: "/nexus-logo.png" },
 	{ name: "Yenepoya", logo: "/yenepoya-logo.png" },
+	{ name: "Devnovate", logo: "/devnovate-logo-dark.png", logoLight: "/devnovate-logo.png" },
 	{ name: "Z", logo: "/Z-logo.png" },
 ];
 
