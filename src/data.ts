@@ -209,7 +209,7 @@ export const faq = [
 	},
 	{
 		q: "Will food and power be available?",
-		a: "Yes. On-site meals, power, and network infrastructure are being planned for the 24-hour event.",
+		a: "Yes. Dinner and breakfast will be provided, along with power and network infrastructure for the 24-hour event.",
 		confirmed: true,
 	},
 	{
