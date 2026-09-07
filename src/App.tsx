@@ -568,7 +568,7 @@ function Footer() {
 			<div>
 				<strong className="brand" style={{ color: "#f5f7f8" }}>VMEDITHON 3.0</strong>
 				<small style={{ display: "block", marginTop: 8, color: "#98a8b4" }}>
-					Bioelectric Lab — a 24-hour hackathon and buildathon at VIT Chennai.
+					A 24-hour hackathon and buildathon at VIT Chennai.
 				</small>
 			</div>
 			<div>
