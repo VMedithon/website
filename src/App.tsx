@@ -99,7 +99,7 @@ function Nav() {
 
 	return (
 		<nav className="nav-wrap" aria-label="Main">
-			<a href="#hero" className="brand" onClick={() => window.scrollTo({ top: 0, behavior: "smooth" })}>
+			<a href="#hero" className="brand">
 				<img src={theme === "dark" ? logoOnDark : logoOnLight} alt="VMEDITHON 3.0" className="nav-logo" />
 			</a>
 			<div className={`nav-links ${open ? "open" : ""}`}>
