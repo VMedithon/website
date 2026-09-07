@@ -23,7 +23,6 @@ import {
 	navLinks,
 	journeySteps,
 	themes,
-	scheduleEvents,
 	resources,
 	sponsors,
 	faq,
@@ -408,70 +407,6 @@ function Rounds() {
 	);
 }
 
-function Schedule() {
-	const [active, setActive] = useState(0);
-	const railRef = useRef<HTMLDivElement>(null);
-
-	useEffect(() => {
-		const handler = () => {
-			if (!railRef.current) return;
-			const section = document.getElementById("schedule");
-			if (!section) return;
-			const rect = section.getBoundingClientRect();
-			const viewportH = window.innerHeight;
-			const visibleTop = Math.max(0, viewportH * 0.5 - rect.top);
-			const total = rect.height;
-			const progress = Math.max(0, Math.min(1, visibleTop / total));
-			railRef.current.style.width = `${progress * 100}%`;
-		};
-		handler();
-		window.addEventListener("scroll", handler, { passive: true });
-		return () => window.removeEventListener("scroll", handler);
-	}, []);
-
-	return (
-		<section className="section" id="schedule">
-			<Anchor id="schedule" />
-			<div className="section-heading" data-reveal>
-				<div>
-					<span className="kicker blue">Schedule</span>
-					<h2>24-Hour Timeline</h2>
-				</div>
-			</div>
-			<div className="schedule-timeline" data-reveal>
-				<div className="schedule-days">
-					<div className="schedule-day">
-						<h3>Day 01</h3>
-						<p>15 September · 11:00 AM start</p>
-					</div>
-					<div className="schedule-day" style={{ textAlign: "right" }}>
-						<h3>Day 02</h3>
-						<p>16 September · 11:00 AM finish</p>
-					</div>
-				</div>
-				<div className="schedule-rail">
-					<div className="schedule-rail-fill" ref={railRef} />
-				</div>
-				<div className="schedule-events">
-					{scheduleEvents.map((e, i) => (
-						<button
-							type="button"
-							key={e.name}
-							className={`event-node ${active === i ? "active" : ""}`}
-							onClick={() => setActive(i)}
-						>
-							<div className="event-pulse" />
-							<div className="event-time">{e.time}</div>
-							<div className="event-name">{e.name}</div>
-							{active === i && <p className="event-detail">{e.detail}</p>}
-						</button>
-					))}
-				</div>
-			</div>
-		</section>
-	);
-}
-
 function Prize() {
 	const ref = useRef<HTMLDivElement>(null);
 	const [value, setValue] = useState(0);
@@ -708,7 +643,6 @@ function Footer() {
 			<div>
 				<strong style={{ color: "#f5f7f8" }}>Quick Links</strong>
 				<Link to="/#journey">Journey</Link>
-				<Link to="/#schedule">Schedule</Link>
 				<Link to="/#themes">Themes</Link>
 				<Link to="/dashboard">Participant Portal</Link>
 			</div>
@@ -738,7 +672,6 @@ function HomePage() {
 			<Themes />
 			<JourneySpine />
 			<Rounds />
-			<Schedule />
 			<Prize />
 			<Resources />
 			<Partners />

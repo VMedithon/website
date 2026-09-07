@@ -56,7 +56,6 @@ export const navLinks = [
 	{ id: "themes", label: "Themes", path: "/#themes" },
 	{ id: "journey", label: "Journey", path: "/#journey" },
 	{ id: "rounds", label: "Rounds", path: "/#rounds" },
-	{ id: "schedule", label: "Schedule", path: "/#schedule" },
 	{ id: "prizes", label: "Prizes", path: "/#prizes" },
 	{ id: "faq", label: "FAQ", path: "/#faq" },
 ];
@@ -162,17 +161,6 @@ export const problemStatements = [
 		industry: false,
 	},
 ] as const;
-
-export const scheduleEvents = [
-	{ day: 1, time: "11:00 AM", name: "Opening", detail: "Inauguration, briefing, and workspace setup." },
-	{ day: 1, time: "12:30 PM", name: "Workshops", detail: "Tooling, biomedical ethics, and rapid prototyping." },
-	{ day: 1, time: "03:00 PM", name: "Build Block", detail: "Teams begin core development and prototyping." },
-	{ day: 1, time: "08:00 PM", name: "Mentor Sync", detail: "Midway review with student, faculty, and industry mentors." },
-	{ day: 1, time: "11:00 PM", name: "Overnight Sprint", detail: "Integration, testing, and iteration through the night." },
-	{ day: 2, time: "06:00 AM", name: "Refinement", detail: "UI polish, documentation, and practice demos." },
-	{ day: 2, time: "09:00 AM", name: "Industry Review", detail: "Final expert feedback before judging." },
-	{ day: 2, time: "11:00 AM", name: "Finish", detail: "Submission deadline and judging begins." },
-];
 
 export const resources = [
 	{ title: "PPT Template", type: "PPTX", desc: "Round 1 submission format." },
