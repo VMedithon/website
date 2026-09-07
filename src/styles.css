@@ -223,20 +223,6 @@
 .faq-progress::after{content:"";position:absolute;left:0;top:0;height:100%;width:0;background:linear-gradient(90deg,var(--brand-green),var(--brand-blue));transition:width .4s var(--ease)}
 .faq-item.open .faq-progress::after{width:100%}
 
-/* ============ CERTIFICATE VERIFY ============ */
-.verify-section{background:var(--bg);position:relative;z-index:2}
-.verify-card{max-width:520px;margin:0 auto;background:var(--bg-elev);border:1px solid var(--line);border-radius:var(--r-card);padding:46px;text-align:center;box-shadow:var(--shadow-1)}
-.verify-card h2{font:700 32px "Space Grotesk",sans-serif;margin:0 0 8px}
-.verify-card p{font-size:14px;color:var(--ink-2);margin:0 0 28px}
-.verify-card label{display:grid;gap:8px;font:600 12px Inter;color:var(--ink-2);text-align:left;margin-bottom:16px}
-.verify-card input{width:100%;height:52px;border:1px solid var(--line-strong);background:var(--bg);color:var(--ink);border-radius:var(--r-field);padding:0 16px;font:14px Inter;transition:border-color .2s}
-.verify-card input:focus{border-color:var(--brand-gold);outline:none}
-.verify-card button{width:100%;height:52px;border:0;border-radius:var(--r-pill);background:var(--brand-gold);color:var(--brand-ink);font:700 14px Inter;cursor:pointer;transition:transform .2s,box-shadow .2s}
-.verify-card button:hover{transform:translateY(-2px);box-shadow:0 8px 24px color-mix(in srgb,var(--brand-gold) 30%,transparent)}
-.verify-success{display:flex;flex-direction:column;align-items:center;gap:14px;margin-top:24px;color:var(--brand-gold)}
-.verify-success svg{animation:draw-caduceus .8s var(--ease) forwards}
-@keyframes draw-caduceus{from{stroke-dashoffset:200}to{stroke-dashoffset:0}}
-
 /* ============ FOOTER ============ */
 footer{padding:60px 7vw;background:#050c12;color:#98a8b4;display:grid;grid-template-columns:1fr 1fr 1fr;gap:30px;align-items:start;font-size:12px;position:relative;z-index:2}
 footer .brand{color:#f5f7f8}
@@ -472,7 +458,6 @@ footer>small{grid-column:1/-1;border-top:1px solid #1c2b36;padding-top:26px;colo
 	.theme-card{padding:28px;min-height:auto}
 	.round-card{padding:28px}
 	.round-number{font-size:64px}
-	.verify-card{padding:32px 24px}
 	footer{grid-template-columns:1fr}
 	.dashboard-overlay{grid-template-columns:1fr}
 	.dash-sidebar{position:fixed;bottom:0;left:0;right:0;height:64px;z-index:8;flex-direction:row;padding:8px;background:var(--brand-ink)}
