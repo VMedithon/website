@@ -3,7 +3,7 @@ import * as THREE from "three";
 import { OBJLoader } from "three/examples/jsm/loaders/OBJLoader.js";
 import caduceusUrl from "./assets/Caduceus_V1_L1.123c90e1bfa0-7801-4864-851a-b3feb655204d/16985_Caduceus_V1_NEW.obj?url";
 
-const GOLD = 0xd9a92f;
+const GOLD = 0xf8c000;
 const EXTRACT_PX = 340; // scroll distance over which the model leaves the logo
 const ROTATE_PER_PX = 0.0032; // radians of rotation per pixel scrolled
 const REST_OPACITY = 0.32;
