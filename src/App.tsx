@@ -168,9 +168,6 @@ function TrackSplit() {
 	return (
 		<section className="section" id="tracks">
 			<Anchor id="tracks" />
-			<Suspense fallback={null}>
-				<Vessels />
-			</Suspense>
 			<div className="section-heading" data-reveal>
 				<div>
 					<h2>Hackathon × Buildathon</h2>
@@ -288,9 +285,6 @@ function Themes() {
 	return (
 		<section className="section" id="themes">
 			<Anchor id="themes" />
-			<Suspense fallback={null}>
-				<Vessels />
-			</Suspense>
 			<div className="section-heading" data-reveal>
 				<div>
 					<h2>Open Innovation · Bio × Engineering</h2>
@@ -361,9 +355,6 @@ function Rounds() {
 	return (
 		<section className="section" id="rounds">
 			<Anchor id="rounds" />
-			<Suspense fallback={null}>
-				<Vessels />
-			</Suspense>
 			<div className="section-heading" data-reveal>
 				<div>
 					<h2>Round 1 & Round 2</h2>
@@ -657,6 +648,7 @@ export function App() {
 			<BioCircuitBackground />
 			<Suspense fallback={null}>
 				<CaduceusScene />
+				<Vessels />
 			</Suspense>
 			<ScrollProgress />
 			<Nav />

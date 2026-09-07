@@ -1,33 +1,26 @@
 import { useEffect, useRef } from "react";
 
 const NS = "http://www.w3.org/2000/svg";
-const CYCLE = 2.4; // heartbeat period in seconds
-const STAGGER = 0.18; // left/right beat offset
-const RGB = ["19,226,124", "46,156,255"]; // left=green, right=blue
+const CYCLE = 4.6; // seconds for one heartbeat wave top -> bottom
+const ECHO = 0.09; // echo pulse trails the main pulse by this much of the path
+const RGB = { left: "19,226,124", right: "46,156,255" }; // green / blue
 
 const clamp01 = (t: number) => Math.min(1, Math.max(0, t));
-const smooth = (t: number) => {
-	const x = clamp01(t);
-	return x * x * (3 - 2 * x);
-};
 const gauss = (x: number, c: number, w: number) => Math.exp(-((x - c) * (x - c)) / (2 * w * w));
 
-// blood position along the vessel: pump -> dub -> drift -> rest
-const pulsePos = (ph: number) =>
-	ph < 0.38
-		? smooth(ph / 0.38) * 0.55
-		: ph < 0.58
-			? 0.55 + smooth((ph - 0.38) / 0.2) * 0.17
-			: ph < 0.8
-				? 0.72 + smooth((ph - 0.58) / 0.22) * 0.28
-				: 1;
+interface Node {
+	card: HTMLElement;
+	s: number; // junction position along the path, 0..1
+}
 
-interface Vessel {
+interface Trunk {
 	path: SVGPathElement;
 	core: SVGCircleElement;
 	glow: SVGCircleElement;
-	card: HTMLElement;
+	echo: SVGCircleElement;
+	echoGlow: SVGCircleElement;
 	len: number;
+	nodes: Node[];
 	rgb: string;
 }
 
@@ -36,8 +29,8 @@ export function Vessels() {
 
 	useEffect(() => {
 		const host = ref.current;
-		const section = host?.parentElement;
-		if (!host || !section) return;
+		const shell = host?.parentElement;
+		if (!host || !shell) return;
 		if (window.matchMedia("(prefers-reduced-motion: reduce)").matches) return;
 
 		const svg = document.createElementNS(NS, "svg");
@@ -55,76 +48,113 @@ export function Vessels() {
 			return el;
 		};
 
-		let vessels: Vessel[] = [];
+		let trunks: Trunk[] = [];
 		let lastKey = "";
 
 		const build = () => {
-			const sr = section.getBoundingClientRect();
-			if (sr.width < 10) return;
-			const cards = [
-				...section.querySelectorAll<HTMLElement>(".track-half,.theme-card,.round-card"),
-			].slice(0, 2);
-			if (cards.length < 2) return;
+			const sr = shell.getBoundingClientRect();
+			const all = [
+				...shell.querySelectorAll<HTMLElement>(".track-half,.theme-card,.round-card"),
+			];
+			if (all.length < 4 || sr.width < 10) return;
 
-			// rebuild only when layout actually changed (reveal transforms settle)
-			const key = cards
-				.map((c) => {
-					const r = c.getBoundingClientRect();
-					return `${(r.left - sr.left).toFixed(0)},${(r.top - sr.top).toFixed(0)},${r.width.toFixed(0)},${r.height.toFixed(0)}`;
-				})
-				.join("|");
-			const fullKey = `${sr.width.toFixed(0)}x${key}`;
-			if (fullKey === lastKey) return;
-			lastKey = fullKey;
+			// document order alternates left,right within each paired section
+			const sides: { cards: HTMLElement[]; rgb: string; right: boolean }[] = [
+				{ cards: all.filter((_, i) => i % 2 === 0), rgb: RGB.left, right: false },
+				{ cards: all.filter((_, i) => i % 2 === 1), rgb: RGB.right, right: true },
+			];
+
+			const key =
+				sr.width.toFixed(0) +
+				all
+					.map((c) => {
+						const r = c.getBoundingClientRect();
+						return `|${(r.left - sr.left).toFixed(0)},${(r.top - sr.top).toFixed(0)},${r.height.toFixed(0)}`;
+					})
+					.join("");
+			if (key === lastKey) return;
+			lastKey = key;
 
 			svg.textContent = "";
-			vessels = [];
-			svg.setAttribute("viewBox", `0 0 ${sr.width} ${sr.height + 160}`);
-			svg.style.height = `${sr.height + 160}px`;
+			trunks = [];
+			const H = sr.height;
+			svg.setAttribute("viewBox", `0 0 ${sr.width} ${H}`);
 
-			cards.forEach((card, i) => {
-				const r = card.getBoundingClientRect();
-				const l = r.left - sr.left;
-				const t = r.top - sr.top;
-				const w = r.width;
-				const h = r.height;
-				const rgb = RGB[i] ?? "19,226,124";
-				const out = i === 0 ? -1 : 1; // left card swings left, right swings right
-				const x0 = i === 0 ? l - 6 : l + w + 6; // outer edge attach
-				const x1 = i === 0 ? l + w + 6 : l - 6; // inner edge attach
-				const y0 = t + h * 0.28;
-				const y1 = t + h * 0.72;
-				const edge = i === 0 ? Math.max(28, l * 0.35) : Math.min(sr.width - 28, l + w + (sr.width - l - w) * 0.65);
-				const belly = t + h + 95;
-				// vessel: leaves the outer edge, sweeps out and down, arcs back
-				// under the card into the inner edge — the card sits inside the loop
-				const d =
-					`M ${x0} ${y0}` +
-					` C ${x0 + out * 90} ${y0 - 12}, ${edge + out * 70} ${belly - 70}, ${edge} ${belly}` +
-					` C ${edge - out * 30} ${belly + 45}, ${x1 - out * 120} ${y1 + h * 0.9}, ${x1} ${y1}`;
+			for (const side of sides) {
+				const dir = side.right ? 1 : -1;
+				const trunkX = side.right ? sr.width - 54 : 54;
+				// junctions: the card edge point the vessel bends into
+				const js = side.cards.map((card) => {
+					const r = card.getBoundingClientRect();
+					return {
+						card,
+						jx: side.right ? r.right - sr.left + 4 : r.left - sr.left - 4,
+						jy: r.top - sr.top + r.height / 2,
+					};
+				});
+				if (!js.length) continue;
+				const top = js[0]!.jy - 160;
+				const bot = js[js.length - 1]!.jy + 170;
+
+				// the trunk weaves: margin line -> bend into each card edge -> back out
+				let d = `M ${trunkX} ${top}`;
+				for (const j of js) {
+					d +=
+						` C ${trunkX} ${j.jy - 130}, ${j.jx + dir * 90} ${j.jy - 55}, ${j.jx} ${j.jy}` +
+						` C ${j.jx + dir * 90} ${j.jy + 55}, ${trunkX} ${j.jy + 130}, ${trunkX} ${j.jy + 170}`;
+				}
+				d += ` C ${trunkX} ${bot - 60}, ${trunkX} ${bot - 20}, ${trunkX} ${bot}`;
 
 				const path = mk("path", {
 					d,
 					fill: "none",
-					stroke: `rgba(${rgb},0.14)`,
-					"stroke-width": "6",
+					stroke: `rgba(${side.rgb},0.16)`,
+					"stroke-width": "7",
 					"stroke-linecap": "round",
 				});
 				mk("path", {
 					d,
 					fill: "none",
 					stroke: "rgba(255,255,255,0.05)",
-					"stroke-width": "1.5",
+					"stroke-width": "2",
 					"stroke-linecap": "round",
 				});
-				// connection ports where the vessel meets the card
-				mk("circle", { cx: String(x0), cy: String(y0), r: "4", fill: `rgba(${rgb},0.5)` });
-				mk("circle", { cx: String(x1), cy: String(y1), r: "4", fill: `rgba(${rgb},0.5)` });
-				// travelling blood pulse: soft glow + bright core
-				const glow = mk("circle", { r: "11", fill: `rgba(${rgb},0.22)` });
-				const core = mk("circle", { r: "3.6", fill: `rgba(${rgb},0.95)` });
-				vessels.push({ path, core, glow, card, len: path.getTotalLength(), rgb });
-			});
+
+				const len = path.getTotalLength();
+				const nodes: Node[] = [];
+				for (const j of js) {
+					// collar ring where the vessel meets the card — the "stuck on" joint
+					mk("circle", {
+						cx: String(j.jx),
+						cy: String(j.jy),
+						r: "9",
+						fill: "none",
+						stroke: `rgba(${side.rgb},0.55)`,
+						"stroke-width": "2.5",
+					});
+					mk("circle", { cx: String(j.jx), cy: String(j.jy), r: "3.5", fill: `rgba(${side.rgb},0.8)` });
+					// find the junction's position along the path (for beat sync)
+					let lo = 0;
+					let hi = len;
+					for (let k = 0; k < 24; k++) {
+						const m1 = lo + (hi - lo) / 3;
+						const m2 = hi - (hi - lo) / 3;
+						const p1 = path.getPointAtLength(m1);
+						const p2 = path.getPointAtLength(m2);
+						const d1 = (p1.x - j.jx) ** 2 + (p1.y - j.jy) ** 2;
+						const d2 = (p2.x - j.jx) ** 2 + (p2.y - j.jy) ** 2;
+						if (d1 < d2) hi = m2;
+						else lo = m1;
+					}
+					nodes.push({ card: j.card, s: (lo + hi) / 2 / len });
+				}
+
+				const glow = mk("circle", { r: "13", fill: `rgba(${side.rgb},0.22)` });
+				const core = mk("circle", { r: "4.2", fill: `rgba(${side.rgb},0.95)` });
+				const echoGlow = mk("circle", { r: "9", fill: `rgba(${side.rgb},0.14)` });
+				const echo = mk("circle", { r: "2.8", fill: `rgba(${side.rgb},0.6)` });
+				trunks.push({ path, core, glow, echo, echoGlow, len, nodes, rgb: side.rgb });
+			}
 		};
 
 		build();
@@ -137,51 +167,72 @@ export function Vessels() {
 		const t0 = performance.now();
 		let raf = 0;
 		let frame = 0;
-		const active = new Set<Vessel>();
+		const bumpCards = new Map<HTMLElement, number>();
+
 		const tick = () => {
 			raf = requestAnimationFrame(tick);
-			const sr = section.getBoundingClientRect();
-			if (sr.bottom < -160 || sr.top > window.innerHeight + 160) return; // off-screen
-			if (++frame % 50 === 0) build(); // pick up layout drift (reveals, resize)
+			if (++frame % 60 === 0) build(); // pick up layout drift (reveals, fonts)
 			const now = (performance.now() - t0) / 1000;
 
-			vessels.forEach((v, i) => {
-				const ph = ((now + STAGGER * i) % CYCLE) / CYCLE;
-				const s = pulsePos(ph);
-				const pt = v.path.getPointAtLength(s * v.len);
-				const a = smooth(ph / 0.05) * (1 - smooth((ph - 0.78) / 0.14));
-				v.glow.setAttribute("transform", `translate(${pt.x} ${pt.y})`);
-				v.core.setAttribute("transform", `translate(${pt.x} ${pt.y})`);
-				v.glow.setAttribute("opacity", String(a));
-				v.core.setAttribute("opacity", String(a));
+			// wave travels the whole trunk in 80% of the cycle, then rests
+			const ph = (now % CYCLE) / CYCLE;
+			const sMain = clamp01(ph / 0.8);
+			const sEcho = clamp01((ph - ECHO) / 0.8);
+			const vis = smoothFade(ph);
 
-				// heartbeat: lub at pulse entry, dub mid-travel under the card
-				const b = 0.016 * gauss(ph, 0.04, 0.055) + 0.009 * gauss(ph, 0.47, 0.05);
-				if (b > 0.0007) {
-					v.card.style.transition = "none";
-					v.card.style.transform = `translateY(${(-b * 210).toFixed(2)}px) scale(${(1 + b).toFixed(4)})`;
-					v.card.style.boxShadow = `0 0 ${(b * 1500).toFixed(0)}px rgba(${v.rgb},0.4), inset 0 0 ${(b * 800).toFixed(0)}px rgba(${v.rgb},0.16)`;
-					v.card.style.borderColor = `rgba(${v.rgb},0.55)`;
-					active.add(v);
-				} else if (active.has(v)) {
-					v.card.style.transition = "";
-					v.card.style.transform = "";
-					v.card.style.boxShadow = "";
-					v.card.style.borderColor = "";
-					active.delete(v);
+			for (const t of trunks) {
+				const p1 = t.path.getPointAtLength(sMain * t.len);
+				t.glow.setAttribute("transform", `translate(${p1.x} ${p1.y})`);
+				t.core.setAttribute("transform", `translate(${p1.x} ${p1.y})`);
+				t.glow.setAttribute("opacity", String(vis));
+				t.core.setAttribute("opacity", String(vis));
+
+				const p2 = t.path.getPointAtLength(sEcho * t.len);
+				t.echoGlow.setAttribute("transform", `translate(${p2.x} ${p2.y})`);
+				t.echo.setAttribute("transform", `translate(${p2.x} ${p2.y})`);
+				const ev = ph > ECHO ? vis * 0.7 : 0;
+				t.echoGlow.setAttribute("opacity", String(ev));
+				t.echo.setAttribute("opacity", String(ev));
+
+				// each card thumps when a pulse crosses its junction — lub + dub
+				for (const n of t.nodes) {
+					const b =
+						0.016 * gauss(sMain, n.s, 0.022) + 0.009 * gauss(sEcho, n.s, 0.022);
+					const prev = bumpCards.get(n.card) ?? 0;
+					if (b > 0.0007) {
+						n.card.style.transition = "none";
+						n.card.style.transform = `translateY(${(-b * 210).toFixed(2)}px) scale(${(1 + b).toFixed(4)})`;
+						n.card.style.boxShadow = `0 0 ${(b * 1500).toFixed(0)}px rgba(${t.rgb},0.4), inset 0 0 ${(b * 800).toFixed(0)}px rgba(${t.rgb},0.16)`;
+						n.card.style.borderColor = `rgba(${t.rgb},0.55)`;
+						bumpCards.set(n.card, b);
+					} else if (prev > 0) {
+						n.card.style.transition = "";
+						n.card.style.transform = "";
+						n.card.style.boxShadow = "";
+						n.card.style.borderColor = "";
+						bumpCards.set(n.card, 0);
+					}
 				}
-			});
+			}
 		};
+
+		// fade pulses in/out at the wave ends
+		const smoothFade = (ph: number) => {
+			const inn = clamp01(ph / 0.06);
+			const out = 1 - clamp01((ph - 0.74) / 0.12);
+			return inn * out;
+		};
+
 		tick();
 
 		return () => {
 			cancelAnimationFrame(raf);
 			window.removeEventListener("resize", onResize);
-			for (const v of vessels) {
-				v.card.style.transition = "";
-				v.card.style.transform = "";
-				v.card.style.boxShadow = "";
-				v.card.style.borderColor = "";
+			for (const card of bumpCards.keys()) {
+				card.style.transition = "";
+				card.style.transform = "";
+				card.style.boxShadow = "";
+				card.style.borderColor = "";
 			}
 			host.removeChild(svg);
 		};
