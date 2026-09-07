@@ -108,21 +108,13 @@
 @keyframes logo-float{0%,100%{transform:translateY(0)}50%{transform:translateY(-12px)}}
 
 /* ============ PROOF STRIP / EVENT TELEMETRY ============ */
-.telemetry{padding:30px 7vw;background:var(--bg-elev);border-top:1px solid var(--line);border-bottom:1px solid var(--line);position:relative;z-index:2}
-.telemetry-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:20px}
-.tele-card{background:var(--bg);border:1px solid var(--line);border-radius:var(--r-inner);padding:22px;position:relative;overflow:hidden}
-.tele-card::before{content:"";position:absolute;top:0;left:0;right:0;height:2px;background:linear-gradient(90deg,var(--brand-green),var(--brand-blue))}
+.telemetry{padding:30px 7vw;position:relative;z-index:2}
+.telemetry-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:20px;width:min(1240px,100%);margin:0 auto;padding:30px 44px;background:color-mix(in srgb,var(--bg-elev) 72%,transparent);backdrop-filter:var(--glass);-webkit-backdrop-filter:var(--glass);border:1px solid var(--line);border-radius:var(--r-pill);box-shadow:var(--shadow-1)}
+.tele-card{position:relative;text-align:center}
+@media(min-width:1025px){.tele-card + .tele-card::before{content:"";position:absolute;left:-10px;top:15%;bottom:15%;width:1px;background:var(--line)}}
 .tele-label{font:500 10px Inter;letter-spacing:1.4px;color:var(--ink-3);text-transform:uppercase;margin-bottom:10px}
-.tele-value{font:700 38px "Space Grotesk",sans-serif;letter-spacing:-.03em;color:var(--ink);display:flex;align-items:end;gap:8px;line-height:1}
+.tele-value{font:700 38px "Space Grotesk",sans-serif;letter-spacing:-.03em;color:var(--ink);display:flex;align-items:end;justify-content:center;gap:8px;line-height:1}
 .tele-value span{font:500 13px Inter;color:var(--ink-2);letter-spacing:0;margin-bottom:5px}
-.tele-graph{height:28px;margin-top:14px;display:flex;align-items:end;gap:3px;opacity:.7}
-.tele-graph i{flex:1;background:var(--brand-green);border-radius:2px;transition:height .6s var(--ease)}
-.tele-graph.blue i{background:var(--brand-blue)}
-.tele-graph.gold i{background:var(--brand-gold)}
-.tele-nodes{display:flex;gap:10px;margin-top:14px;align-items:center}
-.tele-nodes i{width:10px;height:10px;border-radius:50%;border:2px solid var(--line);transition:background .4s var(--ease),border-color .4s var(--ease)}
-.tele-nodes i.on{background:var(--brand-green);border-color:var(--brand-green);box-shadow:0 0 8px color-mix(in srgb,var(--brand-green) 40%,transparent)}
-.tele-nodes i.on.blue{background:var(--brand-blue);border-color:var(--brand-blue);box-shadow:0 0 8px color-mix(in srgb,var(--brand-blue) 40%,transparent)}
 
 /* ============ SECTIONS ============ */
 .section{padding:120px 7vw;position:relative;z-index:2}
@@ -476,7 +468,7 @@ footer>small{grid-column:1/-1;border-top:1px solid #1c2b36;padding-top:26px;colo
 	.journey-step:nth-child(odd) .journey-step-content,.journey-step:nth-child(even) .journey-step-content{grid-column:2;text-align:left}
 	.journey-dot{grid-column:1;justify-self:start}
 	.journey-line,.journey-line-fill{left:18px}
-	.telemetry-grid{grid-template-columns:repeat(2,1fr)}
+	.telemetry-grid{grid-template-columns:repeat(2,1fr);border-radius:var(--r-card);padding:26px 30px;row-gap:32px}
 	.schedule-events{grid-template-columns:repeat(3,1fr)}
 }
 @media(max-width:900px){
