@@ -156,7 +156,7 @@ function Hero() {
 				<p className="hero-meta">SEP 15 — 16 · 24 HOURS · VIT CHENNAI</p>
 				<div className="hero-actions">
 					<Link to="/dashboard" className="button primary">
-						Register / Devnovate
+						Register on Devnovate
 						<ArrowRight style={{ width: 16, height: 16 }} />
 					</Link>
 					<Link to="/dashboard" className="button portal">
