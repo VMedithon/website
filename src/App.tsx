@@ -28,6 +28,7 @@ import {
 
 const CaduceusScene = lazy(() => import("./CaduceusScene").then((m) => ({ default: m.CaduceusScene })));
 const DnaScene = lazy(() => import("./DnaScene").then((m) => ({ default: m.DnaScene })));
+const Vessels = lazy(() => import("./Vessels").then((m) => ({ default: m.Vessels })));
 
 function Anchor({ id }: { id: string }) {
 	return <span id={id} className="anchor" />;
@@ -167,6 +168,9 @@ function TrackSplit() {
 	return (
 		<section className="section" id="tracks">
 			<Anchor id="tracks" />
+			<Suspense fallback={null}>
+				<Vessels />
+			</Suspense>
 			<div className="section-heading" data-reveal>
 				<div>
 					<h2>Hackathon × Buildathon</h2>
@@ -284,6 +288,9 @@ function Themes() {
 	return (
 		<section className="section" id="themes">
 			<Anchor id="themes" />
+			<Suspense fallback={null}>
+				<Vessels />
+			</Suspense>
 			<div className="section-heading" data-reveal>
 				<div>
 					<h2>Open Innovation · Bio × Engineering</h2>
@@ -354,6 +361,9 @@ function Rounds() {
 	return (
 		<section className="section" id="rounds">
 			<Anchor id="rounds" />
+			<Suspense fallback={null}>
+				<Vessels />
+			</Suspense>
 			<div className="section-heading" data-reveal>
 				<div>
 					<h2>Round 1 & Round 2</h2>
