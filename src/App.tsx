@@ -177,7 +177,6 @@ function TrackSplit() {
 			<Anchor id="tracks" />
 			<div className="section-heading" data-reveal>
 				<div>
-					<span className="kicker green">Two Tracks</span>
 					<h2>Hackathon × Buildathon</h2>
 				</div>
 			</div>
@@ -295,7 +294,6 @@ function Themes() {
 			<Anchor id="themes" />
 			<div className="section-heading" data-reveal>
 				<div>
-					<span className="kicker blue">Themes</span>
 					<h2>Open Innovation · Bio × Engineering</h2>
 				</div>
 			</div>
@@ -331,7 +329,6 @@ function JourneySpine() {
 		<section className="journey-section" id="journey">
 			<Anchor id="journey" />
 			<div className="journey-intro" data-reveal>
-				<span className="kicker green">Participant Journey</span>
 				<h2>From registration to final deliverable.</h2>
 			</div>
 			<div className="journey-spine" ref={containerRef} data-reveal>
@@ -357,7 +354,6 @@ function Rounds() {
 			<Anchor id="rounds" />
 			<div className="section-heading" data-reveal>
 				<div>
-					<span className="kicker">Format</span>
 					<h2>Round 1 & Round 2</h2>
 				</div>
 			</div>
@@ -437,7 +433,6 @@ function Prize() {
 	return (
 		<section className="prize-section" id="prizes" ref={ref}>
 			<Anchor id="prizes" />
-			<div className="kicker">Prize Pool</div>
 			<h2>PRIZE POOL</h2>
 			<div className="prize-amount">₹{value}<span>K+</span></div>
 			<div className="prize-diamond" />
@@ -451,7 +446,6 @@ function Resources() {
 			<Anchor id="resources" />
 			<div className="section-heading" data-reveal>
 				<div>
-					<span className="kicker">Resources</span>
 					<h2>Resource</h2>
 				</div>
 			</div>
@@ -481,7 +475,6 @@ function Partners() {
 	return (
 		<section className="partners-section" id="partners">
 			<Anchor id="partners" />
-			<div className="kicker">Supported By</div>
 			<h2 style={{ font: "700 40px 'Space Grotesk', sans-serif", margin: "16px 0 0", letterSpacing: "-.02em" }}>Organisations behind VMEDITHON</h2>
 			<div className="partner-logos" data-reveal>
 				{sponsors.map((s) => (
@@ -501,7 +494,6 @@ function FAQ() {
 			<Anchor id="faq" />
 			<div className="section-heading" data-reveal>
 				<div>
-					<span className="kicker">FAQ</span>
 					<h2>Participant Information</h2>
 				</div>
 			</div>
@@ -593,7 +585,6 @@ function Contact() {
 			<Anchor id="contact" />
 			<div className="section-heading" data-reveal>
 				<div>
-					<span className="kicker">Contact</span>
 					<h2>Coordinators</h2>
 				</div>
 			</div>
