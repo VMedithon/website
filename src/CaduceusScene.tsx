@@ -57,13 +57,18 @@ export function CaduceusScene() {
 			obj.traverse((c) => {
 				if ((c as THREE.Mesh).isMesh) (c as THREE.Mesh).material = material;
 			});
+			// 3ds Max OBJs are Z-up: find the model's longest axis and stand it up on Y
+			const raw = new THREE.Box3().setFromObject(obj).getSize(new THREE.Vector3());
+			if (raw.z >= raw.x && raw.z >= raw.y) obj.rotation.x = -Math.PI / 2;
+			else if (raw.x >= raw.y && raw.x >= raw.z) obj.rotation.z = Math.PI / 2;
+			obj.updateMatrixWorld(true);
 			const box = new THREE.Box3().setFromObject(obj);
 			const size = box.getSize(new THREE.Vector3());
 			const center = box.getCenter(new THREE.Vector3());
-			modelH = Math.max(size.x, size.y, size.z);
+			modelH = size.y;
 			obj.position.sub(center);
-			model = obj;
-			scene.add(obj);
+			model = new THREE.Group().add(obj);
+			scene.add(model);
 			measureStart();
 		});
 
