@@ -75,10 +75,17 @@ export function DnaScene() {
 					"#include <color_fragment>",
 					`#include <color_fragment>
 	float dnaT = clamp(vNy, 0.0, 1.0);
-	// base is VMEDITHON green; scroll morphs it green -> blue -> gold
-	vec3 dnaBase = mix(uTop, uMid, clamp(uProgress * 1.6, 0.0, 1.0));
-	dnaBase = mix(dnaBase, uBot, clamp((uProgress - 0.62) * 3.0, 0.0, 1.0));
-	vec3 dnaBrand = mix(dnaBase * 0.7, dnaBase, dnaT); // subtle top->bottom depth
+	// two scroll phases: green family -> blue family -> gold family
+	float ph1 = clamp(uProgress * 1.6, 0.0, 1.0);
+	float ph2 = clamp((uProgress - 0.62) * 3.0, 0.0, 1.0);
+	// light / base / deep gradient stops for the current hue
+	vec3 cTop = mix(mix(vec3(0.36, 0.95, 0.55), vec3(0.49, 0.77, 1.0), ph1), vec3(1.0, 0.85, 0.35), ph2);
+	vec3 cMid = mix(mix(uTop, uMid, ph1), uBot, ph2);
+	vec3 cBot = mix(mix(vec3(0.03, 0.48, 0.30), vec3(0.07, 0.44, 0.69), ph1), vec3(0.60, 0.44, 0.05), ph2);
+	// 3-stop vertical gradient down the helix
+	vec3 dnaBrand = dnaT < 0.5 ? mix(cBot, cMid, dnaT * 2.0) : mix(cMid, cTop, (dnaT - 0.5) * 2.0);
+	// bright band where colour is actively filling
+	dnaBrand += cTop * 0.45 * smoothstep(0.10, 0.0, abs(dnaT - (1.0 - uProgress)));
 	float dnaLit = smoothstep(1.0 - uProgress - 0.06, 1.0 - uProgress + 0.02, dnaT);
 	diffuseColor.rgb = mix(uDim, dnaBrand, dnaLit);`,
 				)
