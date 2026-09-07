@@ -224,10 +224,6 @@ function EventTelemetry() {
 					<CountUp target={75} suffix="K+" />
 				</div>
 				<div className="tele-card" data-reveal>
-					<div className="tele-label">Themes</div>
-					<div className="tele-value">2</div>
-				</div>
-				<div className="tele-card" data-reveal>
 					<div className="tele-label">Venue</div>
 					<div className="tele-value" style={{ fontSize: 28 }}>VIT Chennai</div>
 				</div>
