@@ -99,7 +99,7 @@ function Nav() {
 
 	return (
 		<nav className="nav-wrap" aria-label="Main">
-			<a href="#hero" className="brand" onClick={() => window.scrollTo({ top: 0, behavior: "smooth" })}>
+			<a href="#hero" className="brand">
 				<img src={theme === "dark" ? logoOnDark : logoOnLight} alt="VMEDITHON 3.0" className="nav-logo" />
 			</a>
 			<div className={`nav-links ${open ? "open" : ""}`}>
@@ -147,7 +147,7 @@ function Hero() {
 						BUILDATHON
 					</div>
 				</div>
-				<p className="hero-meta">SEP 15 — 16 · 24 HOURS · VIT CHENNAI</p>
+				<p className="hero-meta">SEP 15–16 · 24 HOURS · VIT CHENNAI</p>
 				<div className="hero-actions">
 					<a href="https://devnovate.co/event/vmedithon-30" target="_blank" rel="noreferrer" className="button primary">
 						Register on Devnovate
@@ -367,17 +367,23 @@ function Rounds() {
 					<div className="round-number">02</div>
 					<div>
 						<div className="round-meta">ROUND TWO · 24 HOURS</div>
-						<h3>September 15 — 16</h3>
+						<h3>September 15–16</h3>
 						<div className="round-timeline">
 							<div className="round-timeline-fill" />
 							<div className="round-timeline-item">
-								<strong>11:00 AM</strong> — Start at MG Auditorium, VIT Chennai
+								<strong>8:00 AM</strong> · Buildathon track participants arrive at MG Auditorium, VIT Chennai
 							</div>
 							<div className="round-timeline-item">
-								<strong>24 hours</strong> — Build, validate, and refine
+								<strong>11:00 AM</strong> · Hackathon track participants start at MG Auditorium, VIT Chennai
 							</div>
 							<div className="round-timeline-item">
-								<strong>11:00 AM</strong> — Final submissions and judging
+								<strong>24 hours</strong> · Build, validate, and refine
+							</div>
+							<div className="round-timeline-item">
+								<strong>11:00 AM</strong> · Final submissions and judging for Hackathon track participants (next day)
+							</div>
+							<div className="round-timeline-item">
+								<strong>3:30–4:00 PM</strong> · Event concludes for Buildathon track participants (next day)
 							</div>
 						</div>
 					</div>
@@ -441,10 +447,12 @@ function Resources() {
 							<small>{r.desc}</small>
 						</div>
 						<span className="file-type">{r.type}</span>
-						<div className="download-row">
-							<span>Download</span>
-							<Download style={{ width: 18 }} />
-						</div>
+						{"file" in r && r.file && (
+							<a className="download-row" href={r.file} download>
+								<span>Download</span>
+								<Download style={{ width: 18 }} />
+							</a>
+						)}
 					</div>
 				))}
 			</div>
@@ -549,7 +557,7 @@ function Contact() {
 						Interested in supporting the next generation of health-tech builders? Contact us for the sponsorship prospectus.
 					</p>
 					<a
-						href={`mailto:${contact.email}?subject=Sponsorship / Partnership — VMEDITHON 3.0`}
+						href={`mailto:${contact.email}?subject=Sponsorship / Partnership · VMEDITHON 3.0`}
 						className="round-button"
 						style={{ marginTop: 22 }}
 					>
