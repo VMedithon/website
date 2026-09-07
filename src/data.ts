@@ -43,7 +43,7 @@ export const tracks: Track[] = [
 		label: "PROJECT",
 		title: "Build toward ownership.",
 		description:
-			"Transform a product idea through guided design, building, and industry feedback—with a patent-ready outcome in sight.",
+			"Transform a product idea through guided design, building, and industry feedback, with a patent-ready outcome in sight.",
 		output: "Patent-ready design",
 		icon: Hammer,
 		accent: "blue",
@@ -56,7 +56,6 @@ export const navLinks = [
 	{ id: "themes", label: "Themes", path: "/#themes" },
 	{ id: "journey", label: "Journey", path: "/#journey" },
 	{ id: "rounds", label: "Rounds", path: "/#rounds" },
-	{ id: "schedule", label: "Schedule", path: "/#schedule" },
 	{ id: "prizes", label: "Prizes", path: "/#prizes" },
 	{ id: "faq", label: "FAQ", path: "/#faq" },
 ];
@@ -67,8 +66,8 @@ export const journeySteps: JourneyStep[] = [
 	{ step: "01", title: "Register", desc: "Create your team and confirm participation through Devnovate." },
 	{ step: "02", title: "PPT Submission", desc: "Submit your problem understanding, research, and proposed solution." },
 	{ step: "03", title: "Evaluation", desc: "Reviewers score submissions across research, innovation, and feasibility." },
-	{ step: "04", title: "Interview / Selection", desc: "Shortlisted teams attend a brief alignment call before track assignment." },
-	{ step: "05", title: "Track Assignment", desc: "Matched to Hackathon, Buildathon, or a blended track for Round 2." },
+	{ step: "04", title: "Shortlisting", desc: "Shortlisted teams receive a selection email for Round 2 and are asked to pay a venue entry fee." },
+	{ step: "05", title: "Track Assignment", desc: "Matched to Hackathon or Buildathon depending on patentability or industry orientation." },
 	{ step: "06", title: "Round 2 Build", desc: "24-hour onsite buildathon at VIT Chennai." },
 	{ step: "07", title: "Final Deliverables", desc: "Demo, documentation, and submission for judging and awards.", final: true },
 ];
@@ -93,7 +92,7 @@ export const themes = [
 ];
 
 export const roundOne = {
-	title: "Round 1 — Research & Ideation",
+	title: "Round 1 · Research & Ideation",
 	participants: "~1,200 participants expected",
 	description:
 		"Participants form teams, understand a problem, research existing approaches, identify gaps, propose a solution, and submit a proposal document or PPT.",
@@ -108,7 +107,7 @@ export const roundOne = {
 };
 
 export const roundTwo = {
-	title: "Round 2 — 24-hour Buildathon",
+	title: "Round 2 · 24-hour Buildathon",
 	description:
 		"Shortlisted teams move to the 24-hour on-campus buildathon. The round combines technical preparation, workshops, mentorship, development, prototyping, testing, industry refinement, final demos, and judging.",
 	items: [
@@ -163,30 +162,34 @@ export const problemStatements = [
 	},
 ] as const;
 
-export const scheduleEvents = [
-	{ day: 1, time: "11:00 AM", name: "Opening", detail: "Inauguration, briefing, and workspace setup." },
-	{ day: 1, time: "12:30 PM", name: "Workshops", detail: "Tooling, biomedical ethics, and rapid prototyping." },
-	{ day: 1, time: "03:00 PM", name: "Build Block", detail: "Teams begin core development and prototyping." },
-	{ day: 1, time: "08:00 PM", name: "Mentor Sync", detail: "Midway review with student, faculty, and industry mentors." },
-	{ day: 1, time: "11:00 PM", name: "Overnight Sprint", detail: "Integration, testing, and iteration through the night." },
-	{ day: 2, time: "06:00 AM", name: "Refinement", detail: "UI polish, documentation, and practice demos." },
-	{ day: 2, time: "09:00 AM", name: "Industry Review", detail: "Final expert feedback before judging." },
-	{ day: 2, time: "11:00 AM", name: "Finish", detail: "Submission deadline and judging begins." },
-];
-
 export const resources = [
 	{ title: "PPT Template", type: "PPTX", desc: "Round 1 submission format." },
-	{ title: "Event Brochure", type: "PDF", desc: "Branding, schedule, and overview." },
-	{ title: "Participant Guide", type: "PDF", desc: "Rules, judging, and venue details." },
+	{ title: "Brochure", type: "PDF", desc: "Branding, schedule, and overview.", file: "/vmed-brochure.pdf" },
 ];
 
-export const sponsors = ["VIT Chennai", "CYSCOM", "NEXUS"];
+export interface Sponsor {
+	name: string;
+	logo: string;
+	/** Optional variant to use on the light theme. */
+	logoLight?: string;
+	/** White artwork needs a dark chip to stay visible on light backgrounds. */
+	onDark?: boolean;
+}
+
+export const sponsors: Sponsor[] = [
+	{ name: "VIT Chennai", logo: "/vit-chennai-for-dark-mode.png", logoLight: "/vit-chennai-light-mode-full.png" },
+	{ name: "CYSCOM", logo: "/cyscom-logo.png" },
+	{ name: "Nexus", logo: "/nexus-logo.png" },
+	{ name: "Yenepoya", logo: "/yenepoya-logo.png" },
+	{ name: "Devnovate", logo: "/devnovate-logo-dark.png", logoLight: "/devnovate-logo.png" },
+	{ name: "Z", logo: "/Z-logo.png" },
+];
 
 export const faq = [
 	{
 		q: "Who can participate?",
-		a: "Students from invited institutions can register in teams. Eligibility details will be published once confirmed.",
-		confirmed: false,
+		a: "Any college student can participate. Teams can consist of a mix of external and internal participants.",
+		confirmed: true,
 	},
 	{
 		q: "How does Round 1 work?",
@@ -200,12 +203,12 @@ export const faq = [
 	},
 	{
 		q: "What is the team size?",
-		a: "Team size will be confirmed before registration opens. Updates will be posted here and in the participant portal.",
-		confirmed: false,
+		a: "Each team can consist of 1–5 members.",
+		confirmed: true,
 	},
 	{
 		q: "Will food and power be available?",
-		a: "Yes. On-site meals, power, and network infrastructure are being planned for the 24-hour event.",
+		a: "Yes. Dinner and breakfast will be provided, along with power and network infrastructure for the 24-hour event.",
 		confirmed: true,
 	},
 	{
