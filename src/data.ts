@@ -189,8 +189,8 @@ export const sponsors: Sponsor[] = [
 export const faq = [
 	{
 		q: "Who can participate?",
-		a: "Students from invited institutions can register in teams. Eligibility details will be published once confirmed.",
-		confirmed: false,
+		a: "Any college student can participate. Teams can consist of a mix of external and internal participants.",
+		confirmed: true,
 	},
 	{
 		q: "How does Round 1 work?",
@@ -204,8 +204,8 @@ export const faq = [
 	},
 	{
 		q: "What is the team size?",
-		a: "Team size will be confirmed before registration opens. Updates will be posted here and in the participant portal.",
-		confirmed: false,
+		a: "Each team can consist of 1–5 members.",
+		confirmed: true,
 	},
 	{
 		q: "Will food and power be available?",
