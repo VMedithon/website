@@ -155,10 +155,10 @@ function Hero() {
 				</div>
 				<p className="hero-meta">SEP 15 — 16 · 24 HOURS · VIT CHENNAI</p>
 				<div className="hero-actions">
-					<Link to="/dashboard" className="button primary">
+					<a href="https://devnovate.co/event/vmedithon-30" target="_blank" rel="noreferrer" className="button primary">
 						Register on Devnovate
 						<ArrowRight style={{ width: 16, height: 16 }} />
-					</Link>
+					</a>
 				</div>
 			</div>
 		</section>
@@ -359,7 +359,7 @@ function Rounds() {
 						<h3>Online · Free · Devnovate</h3>
 						<p>Submit your research, problem gap, proposed solution, and technical approach as a PPT through Devnovate.</p>
 						<a
-							href="https://devnovate.io"
+							href="https://devnovate.co/event/vmedithon-30"
 							target="_blank"
 							rel="noreferrer"
 							className="round-button"
