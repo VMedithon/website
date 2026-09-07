@@ -67,7 +67,7 @@ export const journeySteps: JourneyStep[] = [
 	{ step: "02", title: "PPT Submission", desc: "Submit your problem understanding, research, and proposed solution." },
 	{ step: "03", title: "Evaluation", desc: "Reviewers score submissions across research, innovation, and feasibility." },
 	{ step: "04", title: "Shortlisting", desc: "Shortlisted teams receive a selection email for Round 2 and are asked to pay a venue entry fee." },
-	{ step: "05", title: "Track Assignment", desc: "Matched to Hackathon, Buildathon, or a blended track for Round 2." },
+	{ step: "05", title: "Track Assignment", desc: "Matched to Hackathon or Buildathon depending on patentability or industry orientation." },
 	{ step: "06", title: "Round 2 Build", desc: "24-hour onsite buildathon at VIT Chennai." },
 	{ step: "07", title: "Final Deliverables", desc: "Demo, documentation, and submission for judging and awards.", final: true },
 ];
