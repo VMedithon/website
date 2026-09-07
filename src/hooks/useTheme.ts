@@ -3,7 +3,13 @@ import { useCallback, useEffect, useState } from "react";
 export type Theme = "light" | "dark";
 
 function currentTheme(): Theme {
-	return document.documentElement.dataset.theme === "dark" ? "dark" : "light";
+	if (typeof document === "undefined") return "dark";
+	if (document.documentElement.dataset.theme) {
+		return document.documentElement.dataset.theme === "dark" ? "dark" : "light";
+	}
+	const saved = localStorage.getItem("theme");
+	if (saved === "dark" || saved === "light") return saved;
+	return "dark";
 }
 
 export function useTheme() {
@@ -11,7 +17,7 @@ export function useTheme() {
 
 	useEffect(() => {
 		const meta = document.querySelector('meta[name="theme-color"]');
-		if (meta) meta.setAttribute("content", theme === "dark" ? "#0a1410" : "#f5f6f4");
+		if (meta) meta.setAttribute("content", theme === "dark" ? "#071018" : "#f5f8f7");
 	}, [theme]);
 
 	const toggle = useCallback(() => {
