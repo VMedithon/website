@@ -9,8 +9,8 @@ const clamp01 = (t: number) => Math.min(1, Math.max(0, t));
 const BRAND_TOP = new THREE.Color(0x13e27c); // green
 const BRAND_MID = new THREE.Color(0x2e9cff); // blue
 const BRAND_BOT = new THREE.Color(0xf6c80c); // gold
-const DIM_DARK = new THREE.Color(0x1c2b38); // blends into the dark background
-const DIM_LIGHT = new THREE.Color(0x44566a); // darker slate so it reads on light bg
+const DIM_DARK = new THREE.Color(0x33506b); // muted steel-blue, visible on the dark bg
+const DIM_LIGHT = new THREE.Color(0x54687e); // darker slate so it reads on light bg
 
 export function DnaScene() {
 	const hostRef = useRef<HTMLDivElement>(null);
@@ -89,10 +89,15 @@ export function DnaScene() {
 			obj.traverse((c) => {
 				if ((c as THREE.Mesh).isMesh) (c as THREE.Mesh).material = material;
 			});
-			// stand the model on Y regardless of export axes
+			// stand the model on Y regardless of export axes — bake it into the
+			// geometry so the shader's position.y is the true vertical axis
 			const raw = new THREE.Box3().setFromObject(obj).getSize(new THREE.Vector3());
-			if (raw.z >= raw.x && raw.z >= raw.y) obj.rotation.x = -Math.PI / 2;
-			else if (raw.x >= raw.y && raw.x >= raw.z) obj.rotation.z = Math.PI / 2;
+			obj.traverse((c) => {
+				const mesh = c as THREE.Mesh;
+				if (!mesh.isMesh) return;
+				if (raw.z >= raw.x && raw.z >= raw.y) mesh.geometry.rotateX(-Math.PI / 2);
+				else if (raw.x >= raw.y && raw.x >= raw.z) mesh.geometry.rotateZ(Math.PI / 2);
+			});
 			obj.updateMatrixWorld(true);
 			const box = new THREE.Box3().setFromObject(obj);
 			const size = box.getSize(new THREE.Vector3());

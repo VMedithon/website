@@ -343,7 +343,6 @@ function JourneySpine() {
 							<h4>{s.title}</h4>
 							<p>{s.desc}</p>
 						</div>
-						<div className="journey-dot" />
 					</div>
 				))}
 			</div>
