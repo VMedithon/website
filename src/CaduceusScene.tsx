@@ -121,9 +121,10 @@ export function CaduceusScene() {
 			model.rotation.x = 0.08 + p * 0.15;
 
 			const beat = heartbeat(((performance.now() / 1000) % 1.6) / 1.6);
-			material.emissiveIntensity = pop * 0.9 + beat * 0.55;
+			rim.intensity = 6 + beat * 14;
+			material.emissiveIntensity = pop * 0.9 + beat * 1.4;
 			material.opacity =
-				clamp01(p * 4) * (1 - (1 - REST_OPACITY) * clamp01((p - 0.45) / 0.55)) + beat * 0.08 * p;
+				clamp01(p * 4) * (1 - (1 - REST_OPACITY) * clamp01((p - 0.45) / 0.55)) + beat * 0.22 * p;
 
 			renderer.render(scene, camera);
 		};
