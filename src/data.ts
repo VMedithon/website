@@ -164,7 +164,7 @@ export const problemStatements = [
 
 export const resources = [
 	{ title: "PPT Template", type: "PPTX", desc: "Round 1 submission format." },
-	{ title: "Brochure", type: "PDF", desc: "Branding, schedule, and overview." },
+	{ title: "Brochure", type: "PNG", desc: "Branding, schedule, and overview.", file: "/vmed-brochure.png" },
 ];
 
 export interface Sponsor {
