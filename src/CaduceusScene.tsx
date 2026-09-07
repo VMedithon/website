@@ -6,7 +6,7 @@ import caduceusUrl from "./assets/Caduceus_V1_L1.123c90e1bfa0-7801-4864-851a-b3f
 const GOLD = 0xd9a92f;
 const EXTRACT_PX = 340; // scroll distance over which the model leaves the logo
 const ROTATE_PER_PX = 0.0032; // radians of rotation per pixel scrolled
-const REST_OPACITY = 0.14;
+const REST_OPACITY = 0.32;
 
 const easeOutCubic = (t: number) => 1 - (1 - t) ** 3;
 const clamp01 = (t: number) => Math.min(1, Math.max(0, t));
@@ -32,18 +32,18 @@ export function CaduceusScene() {
 		const camera = new THREE.PerspectiveCamera(45, window.innerWidth / window.innerHeight, 0.1, 50);
 		camera.position.set(0, 0, 5);
 
-		scene.add(new THREE.AmbientLight(0xffffff, 0.55));
-		const key = new THREE.DirectionalLight(0xfff3d0, 1.6);
+		scene.add(new THREE.AmbientLight(0xffffff, 0.9));
+		const key = new THREE.DirectionalLight(0xfff3d0, 2.4);
 		key.position.set(2.5, 4, 3);
 		scene.add(key);
-		const rim = new THREE.PointLight(GOLD, 6, 20);
+		const rim = new THREE.PointLight(GOLD, 10, 20);
 		rim.position.set(-3, -1, 2);
 		scene.add(rim);
 
 		const material = new THREE.MeshStandardMaterial({
 			color: GOLD,
-			metalness: 0.85,
-			roughness: 0.32,
+			metalness: 0.45,
+			roughness: 0.35,
 			emissive: GOLD,
 			emissiveIntensity: 0,
 			transparent: true,
@@ -121,10 +121,10 @@ export function CaduceusScene() {
 			model.rotation.x = 0.08 + p * 0.15;
 
 			const beat = heartbeat(((performance.now() / 1000) % 1.6) / 1.6);
-			rim.intensity = 6 + beat * 14;
-			material.emissiveIntensity = pop * 0.9 + beat * 1.4;
+			rim.intensity = 10 + beat * 22;
+			material.emissiveIntensity = 0.25 + pop * 0.9 + beat * 2.0;
 			material.opacity =
-				clamp01(p * 4) * (1 - (1 - REST_OPACITY) * clamp01((p - 0.45) / 0.55)) + beat * 0.22 * p;
+				clamp01(p * 4) * (1 - (1 - REST_OPACITY) * clamp01((p - 0.45) / 0.55)) + beat * 0.3 * p;
 
 			renderer.render(scene, camera);
 		};
