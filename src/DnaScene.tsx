@@ -1,0 +1,173 @@
+import { useEffect, useRef } from "react";
+import * as THREE from "three";
+import { GLTFLoader } from "three/examples/jsm/loaders/GLTFLoader.js";
+import dnaUrl from "./assets/dna.glb?url";
+
+const clamp01 = (t: number) => Math.min(1, Math.max(0, t));
+
+// VMEDITHON palette: top -> bottom brand gradient matching the old journey line
+const BRAND_TOP = new THREE.Color(0x13e27c); // green
+const BRAND_MID = new THREE.Color(0x2e9cff); // blue
+const BRAND_BOT = new THREE.Color(0xf6c80c); // gold
+const DIM_DARK = new THREE.Color(0x1c2b38); // blends into the dark background
+const DIM_LIGHT = new THREE.Color(0x44566a); // darker slate so it reads on light bg
+
+export function DnaScene() {
+	const hostRef = useRef<HTMLDivElement>(null);
+
+	useEffect(() => {
+		const host = hostRef.current;
+		if (!host) return;
+		if (window.matchMedia("(prefers-reduced-motion: reduce)").matches) return;
+
+		const renderer = new THREE.WebGLRenderer({ alpha: true, antialias: true });
+		renderer.setClearColor(0x000000, 0);
+		renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
+		renderer.setSize(window.innerWidth, window.innerHeight);
+		host.appendChild(renderer.domElement);
+
+		const scene = new THREE.Scene();
+		const camera = new THREE.PerspectiveCamera(45, window.innerWidth / window.innerHeight, 0.1, 50);
+		camera.position.set(0, 0, 5);
+
+		scene.add(new THREE.AmbientLight(0xffffff, 0.85));
+		const key = new THREE.DirectionalLight(0xffffff, 1.8);
+		key.position.set(2, 3, 4);
+		scene.add(key);
+		const rim = new THREE.PointLight(0x2e9cff, 8, 20);
+		rim.position.set(-2.5, 0, 2);
+		scene.add(rim);
+
+		const uniforms = {
+			uProgress: { value: 0 },
+			uMinY: { value: -1 },
+			uMaxY: { value: 1 },
+			uDim: { value: DIM_DARK.clone() },
+			uTop: { value: BRAND_TOP },
+			uMid: { value: BRAND_MID },
+			uBot: { value: BRAND_BOT },
+		};
+
+		const material = new THREE.MeshStandardMaterial({
+			metalness: 0.2,
+			roughness: 0.55,
+			transparent: true,
+			opacity: 0.95,
+		});
+		material.onBeforeCompile = (shader) => {
+			Object.assign(shader.uniforms, uniforms);
+			shader.vertexShader = shader.vertexShader
+				.replace(
+					"#include <common>",
+					"#include <common>\nuniform float uMinY;\nuniform float uMaxY;\nvarying float vNy;",
+				)
+				.replace(
+					"#include <begin_vertex>",
+					"#include <begin_vertex>\nvNy = (position.y - uMinY) / max(uMaxY - uMinY, 1e-4);",
+				);
+			shader.fragmentShader = shader.fragmentShader
+				.replace(
+					"#include <common>",
+					"#include <common>\nuniform float uProgress;\nuniform vec3 uDim;\nuniform vec3 uTop;\nuniform vec3 uMid;\nuniform vec3 uBot;\nvarying float vNy;",
+				)
+				.replace(
+					"#include <color_fragment>",
+					`#include <color_fragment>
+	float dnaT = clamp(vNy, 0.0, 1.0);
+	vec3 dnaBrand = dnaT < 0.5 ? mix(uBot, uMid, dnaT * 2.0) : mix(uMid, uTop, (dnaT - 0.5) * 2.0);
+	float dnaLit = smoothstep(1.0 - uProgress - 0.06, 1.0 - uProgress + 0.02, dnaT);
+	diffuseColor.rgb = mix(uDim, dnaBrand, dnaLit);`,
+				);
+		};
+
+		let model: THREE.Group | null = null;
+		let disposed = false;
+
+		new GLTFLoader().load(dnaUrl, (gltf) => {
+			if (disposed) return;
+			const obj = gltf.scene;
+			obj.traverse((c) => {
+				if ((c as THREE.Mesh).isMesh) (c as THREE.Mesh).material = material;
+			});
+			// stand the model on Y regardless of export axes
+			const raw = new THREE.Box3().setFromObject(obj).getSize(new THREE.Vector3());
+			if (raw.z >= raw.x && raw.z >= raw.y) obj.rotation.x = -Math.PI / 2;
+			else if (raw.x >= raw.y && raw.x >= raw.z) obj.rotation.z = Math.PI / 2;
+			obj.updateMatrixWorld(true);
+			const box = new THREE.Box3().setFromObject(obj);
+			const size = box.getSize(new THREE.Vector3());
+			const center = box.getCenter(new THREE.Vector3());
+			obj.position.sub(center);
+			// normalized model height drives the shader's top->bottom colouring
+			uniforms.uMinY.value = -size.y / 2;
+			uniforms.uMaxY.value = size.y / 2;
+			model = new THREE.Group().add(obj);
+			model.userData.height = size.y;
+			scene.add(model);
+		});
+
+		const spine = () => document.querySelector<HTMLElement>(".journey-spine");
+		const section = () => document.querySelector<HTMLElement>(".journey-section");
+
+		const onResize = () => {
+			camera.aspect = window.innerWidth / window.innerHeight;
+			camera.updateProjectionMatrix();
+			renderer.setSize(window.innerWidth, window.innerHeight);
+		};
+		window.addEventListener("resize", onResize);
+
+		let raf = 0;
+		const tick = () => {
+			raf = requestAnimationFrame(tick);
+			const sec = section();
+			const sp = spine();
+			if (!model || !sec || !sp) return;
+
+			const sr = sec.getBoundingClientRect();
+			const pr = sp.getBoundingClientRect();
+			const vh = window.innerHeight;
+
+			// visibility: fade in as the section enters, out as it leaves
+			const vis = clamp01((vh - sr.top) / (vh * 0.2)) * clamp01(sr.bottom / (vh * 0.3));
+			host.style.opacity = String(vis);
+			if (vis <= 0) return;
+
+			// progress: 0 when the spine's top reaches 70% viewport, 1 when its bottom hits 40%
+			const p = clamp01((vh * 0.7 - pr.top) / Math.max(1, pr.height - vh * 0.3));
+
+			uniforms.uProgress.value = p;
+			uniforms.uDim.value.copy(
+				document.documentElement.dataset.theme === "light" ? DIM_LIGHT : DIM_DARK,
+			);
+
+			// centred on the spine, ~92% of viewport height
+			const worldH = 2 * Math.tan(THREE.MathUtils.degToRad(camera.fov / 2)) * camera.position.z;
+			const scale = (worldH * 0.92) / model.userData.height;
+			model.scale.setScalar(scale);
+
+			const ndcX = ((pr.left + pr.width / 2) / window.innerWidth) * 2 - 1;
+			model.position.set(ndcX * ((worldH * camera.aspect) / 2), 0, 0);
+
+			// scroll-linked rotation only: down spins forward, up reverses
+			model.rotation.y = p * Math.PI * 4;
+			model.rotation.x = 0.1;
+
+			renderer.render(scene, camera);
+		};
+		tick();
+
+		return () => {
+			disposed = true;
+			cancelAnimationFrame(raf);
+			window.removeEventListener("resize", onResize);
+			material.dispose();
+			model?.traverse((c) => {
+				if ((c as THREE.Mesh).isMesh) (c as THREE.Mesh).geometry.dispose();
+			});
+			renderer.dispose();
+			host.removeChild(renderer.domElement);
+		};
+	}, []);
+
+	return <div ref={hostRef} className="dna-canvas" aria-hidden="true" />;
+}

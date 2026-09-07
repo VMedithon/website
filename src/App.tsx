@@ -27,6 +27,7 @@ import {
 } from "./data";
 
 const CaduceusScene = lazy(() => import("./CaduceusScene").then((m) => ({ default: m.CaduceusScene })));
+const DnaScene = lazy(() => import("./DnaScene").then((m) => ({ default: m.DnaScene })));
 
 function Anchor({ id }: { id: string }) {
 	return <span id={id} className="anchor" />;
@@ -299,17 +300,26 @@ function Themes() {
 
 function JourneySpine() {
 	const containerRef = useRef<HTMLDivElement>(null);
-	const fillRef = useRef<HTMLDivElement>(null);
 
 	useEffect(() => {
+		const steps = () =>
+			containerRef.current?.querySelectorAll<HTMLElement>(".journey-step") ?? [];
 		const handler = () => {
-			if (!containerRef.current || !fillRef.current) return;
-			const rect = containerRef.current.getBoundingClientRect();
-			const viewportH = window.innerHeight;
-			const visibleTop = Math.max(0, viewportH - rect.top);
-			const total = rect.height + viewportH * 0.6;
-			const progress = Math.max(0, Math.min(1, visibleTop / total));
-			fillRef.current.style.height = `${progress * 100}%`;
+			if (!containerRef.current) return;
+			const r = containerRef.current.getBoundingClientRect();
+			const vh = window.innerHeight;
+			// same progress the DNA uses: 0 at 70% viewport, 1 when the bottom hits 40%
+			const p = Math.min(1, Math.max(0, (vh * 0.7 - r.top) / Math.max(1, r.height - vh * 0.3)));
+			const n = steps().length;
+			steps().forEach((el, i) => {
+				const d = p * n - i; // rises 0 -> 1 as the scroll crosses this step
+				const reveal = Math.min(1, Math.max(0, d / 0.55));
+				const mute = Math.min(1, Math.max(0, d - 1.9)); // passed steps dim away
+				const opacity = (0.07 + 0.93 * reveal) * (1 - mute * 0.45);
+				el.style.opacity = String(Math.max(0, opacity));
+				el.style.transform = `translateY(${(1 - reveal) * 22}px)`;
+				el.classList.toggle("active", d > 0.2 && d <= 1.9);
+			});
 		};
 		handler();
 		window.addEventListener("scroll", handler, { passive: true });
@@ -319,14 +329,16 @@ function JourneySpine() {
 	return (
 		<section className="journey-section" id="journey">
 			<Anchor id="journey" />
+			<Suspense fallback={null}>
+				<DnaScene />
+			</Suspense>
 			<div className="journey-intro" data-reveal>
 				<h2>From registration to final deliverable.</h2>
 			</div>
 			<div className="journey-spine" ref={containerRef} data-reveal>
 				<div className="journey-line" />
-				<div className="journey-line-fill" ref={fillRef} />
 				{journeySteps.map((s) => (
-					<div key={s.step} className={`journey-step ${s.final ? "final" : ""}`} data-reveal>
+					<div key={s.step} className={`journey-step ${s.final ? "final" : ""}`}>
 						<div className="journey-step-content">
 							<h4>{s.title}</h4>
 							<p>{s.desc}</p>

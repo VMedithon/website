@@ -5,6 +5,11 @@ declare module "*.obj?url" {
 	export default src;
 }
 
+declare module "*.glb?url" {
+	const src: string;
+	export default src;
+}
+
 interface ImportMetaEnv {
 	readonly VITE_CLERK_PUBLISHABLE_KEY?: string;
 }
