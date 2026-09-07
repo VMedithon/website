@@ -5,10 +5,10 @@ import dnaUrl from "./assets/dna.glb?url";
 
 const clamp01 = (t: number) => Math.min(1, Math.max(0, t));
 
-// VMEDITHON palette: green base, shifts through blue to gold as you scroll
-const BRAND_GREEN = new THREE.Color(0x13e27c);
-const BRAND_BLUE = new THREE.Color(0x2e9cff);
-const BRAND_GOLD = new THREE.Color(0xf8c000);
+// VMEDITHON palette: cycles green -> blue -> gold over time
+const CYCLE = [new THREE.Color(0x13e27c), new THREE.Color(0x2e9cff), new THREE.Color(0xf8c000)];
+const WHITE = new THREE.Color(0xffffff);
+const scratch = new THREE.Color();
 const DIM_DARK = new THREE.Color(0x33506b); // muted steel-blue, visible on the dark bg
 const DIM_LIGHT = new THREE.Color(0x54687e); // darker slate so it reads on light bg
 
@@ -44,9 +44,9 @@ export function DnaScene() {
 			uMinY: { value: -1 },
 			uMaxY: { value: 1 },
 			uDim: { value: DIM_DARK.clone() },
-			uTop: { value: BRAND_GREEN },
-			uMid: { value: BRAND_BLUE },
-			uBot: { value: BRAND_GOLD },
+			uTop: { value: CYCLE[0]!.clone().lerp(WHITE, 0.35) },
+			uMid: { value: CYCLE[0]!.clone() },
+			uBot: { value: CYCLE[0]!.clone().multiplyScalar(0.45) },
 		};
 
 		const material = new THREE.MeshStandardMaterial({
@@ -75,17 +75,10 @@ export function DnaScene() {
 					"#include <color_fragment>",
 					`#include <color_fragment>
 	float dnaT = clamp(vNy, 0.0, 1.0);
-	// two scroll phases: green family -> blue family -> gold family
-	float ph1 = clamp(uProgress * 1.6, 0.0, 1.0);
-	float ph2 = clamp((uProgress - 0.62) * 3.0, 0.0, 1.0);
-	// light / base / deep gradient stops for the current hue
-	vec3 cTop = mix(mix(vec3(0.36, 0.95, 0.55), vec3(0.49, 0.77, 1.0), ph1), vec3(1.0, 0.85, 0.35), ph2);
-	vec3 cMid = mix(mix(uTop, uMid, ph1), uBot, ph2);
-	vec3 cBot = mix(mix(vec3(0.03, 0.48, 0.30), vec3(0.07, 0.44, 0.69), ph1), vec3(0.60, 0.44, 0.05), ph2);
-	// 3-stop vertical gradient down the helix
-	vec3 dnaBrand = dnaT < 0.5 ? mix(cBot, cMid, dnaT * 2.0) : mix(cMid, cTop, (dnaT - 0.5) * 2.0);
+	// 3-stop vertical gradient: deep -> current hue -> light
+	vec3 dnaBrand = dnaT < 0.5 ? mix(uBot, uMid, dnaT * 2.0) : mix(uMid, uTop, (dnaT - 0.5) * 2.0);
 	// bright band where colour is actively filling
-	dnaBrand += cTop * 0.45 * smoothstep(0.10, 0.0, abs(dnaT - (1.0 - uProgress)));
+	dnaBrand += uTop * 0.45 * smoothstep(0.10, 0.0, abs(dnaT - (1.0 - uProgress)));
 	float dnaLit = smoothstep(1.0 - uProgress - 0.06, 1.0 - uProgress + 0.02, dnaT);
 	diffuseColor.rgb = mix(uDim, dnaBrand, dnaLit);`,
 				)
@@ -163,12 +156,21 @@ export function DnaScene() {
 			// progress: 0 when the spine's top reaches 70% viewport, 1 when its bottom hits 40%
 			const p = clamp01((vh * 0.7 - pr.top) / Math.max(1, pr.height - vh * 0.3));
 
+			const time = performance.now() / 1000;
+			// colour cycles green -> blue -> gold -> green every ~9s
+			const cyc = ((time % 9) / 9) * CYCLE.length;
+			const ci = Math.floor(cyc);
+			const cur = scratch
+				.copy(CYCLE[ci % CYCLE.length]!)
+				.lerp(CYCLE[(ci + 1) % CYCLE.length]!, cyc - ci);
+			uniforms.uMid.value.copy(cur);
+			uniforms.uTop.value.copy(cur).lerp(WHITE, 0.35);
+			uniforms.uBot.value.copy(cur).multiplyScalar(0.45);
+			rim.color.copy(cur);
+
 			uniforms.uProgress.value = p;
-			uniforms.uGlow.value = p * 1.8; // the lit region glows harder as you scroll
+			uniforms.uGlow.value = 0.3 + p * 1.5; // lit region always glows, more as you scroll
 			rim.intensity = 8 + p * 24;
-			// rim light follows the same green -> blue -> gold scroll morph
-			rim.color.copy(BRAND_GREEN).lerp(BRAND_BLUE, Math.min(1, p * 1.6));
-			if (p > 0.62) rim.color.lerp(BRAND_GOLD, Math.min(1, (p - 0.62) * 3));
 			uniforms.uDim.value.copy(
 				document.documentElement.dataset.theme === "light" ? DIM_LIGHT : DIM_DARK,
 			);
@@ -181,8 +183,8 @@ export function DnaScene() {
 			const ndcX = ((pr.left + pr.width / 2) / window.innerWidth) * 2 - 1;
 			model.position.set(ndcX * ((worldH * camera.aspect) / 2), 0, 0);
 
-			// scroll-linked rotation only: down spins forward, up reverses
-			model.rotation.y = p * Math.PI * 4;
+			// continuous spin plus a scroll-linked twist
+			model.rotation.y = time * 0.5 + p * Math.PI * 4;
 			model.rotation.x = 0.1;
 
 			renderer.render(scene, camera);
