@@ -201,7 +201,11 @@
 
 /* ============ SPONSORS / PARTNERS ============ */
 .partners-section{padding:100px 7vw;background:color-mix(in srgb,var(--bg-subtle) 82%,transparent);border-top:1px solid var(--line);border-bottom:1px solid var(--line);text-align:center;position:relative;z-index:2}
-.partner-logos{display:flex;flex-wrap:wrap;justify-content:center;gap:28px 48px;margin-top:50px;align-items:center}
+.partner-marquee{margin-top:50px;overflow:hidden;-webkit-mask-image:linear-gradient(90deg,transparent,#000 12%,#000 88%,transparent);mask-image:linear-gradient(90deg,transparent,#000 12%,#000 88%,transparent)}
+.partner-logos{display:flex;width:max-content;animation:partner-belt 26s linear infinite}
+.partner-marquee:hover .partner-logos{animation-play-state:paused}
+.partner-set{display:flex;align-items:center;gap:48px;padding-right:48px;flex-shrink:0}
+@keyframes partner-belt{to{transform:translateX(-50%)}}
 .partner-logo{display:grid;place-items:center;padding:10px 14px;border-radius:14px;opacity:.85;transition:opacity .3s var(--ease),transform .3s var(--ease);cursor:default}
 .partner-logo img{display:block;max-width:190px;max-height:72px;width:auto;height:auto}
 .partner-logo.on-dark{background:#0a141c}
@@ -266,7 +270,7 @@ footer>small{grid-column:1/-1;border-top:1px solid #1c2b36;padding-top:26px;colo
 	.section-heading{grid-template-columns:1fr;gap:20px}
 	.section-heading h2,.journey-intro h2,.closing h2{font-size:40px;letter-spacing:-.02em}
 	.experience-visual{height:460px}
-	.partner-logos{gap:30px}
+	.partner-set{gap:30px;padding-right:30px}
 	.dash-two-col{grid-template-columns:1fr}
 }
 @media(max-width:640px){

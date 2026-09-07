@@ -494,12 +494,18 @@ function Partners() {
 		<section className="partners-section" id="partners">
 			<Anchor id="partners" />
 			<h2 style={{ font: "700 40px 'Space Grotesk', sans-serif", margin: "16px 0 0", letterSpacing: "-.02em" }}>Organisations behind VMEDITHON</h2>
-			<div className="partner-logos" data-reveal>
-				{sponsors.map((s) => (
-					<div key={s.name} className={`partner-logo${s.onDark && theme === "light" ? " on-dark" : ""}`} title={s.name}>
-						<img src={theme === "light" && s.logoLight ? s.logoLight : s.logo} alt={s.name} />
-					</div>
-				))}
+			<div className="partner-marquee" data-reveal>
+				<div className="partner-logos">
+					{[0, 1].map((copy) => (
+						<div key={copy} className="partner-set" aria-hidden={copy === 1}>
+							{sponsors.map((s) => (
+								<div key={s.name} className={`partner-logo${s.onDark && theme === "light" ? " on-dark" : ""}`} title={s.name}>
+									<img src={theme === "light" && s.logoLight ? s.logoLight : s.logo} alt={s.name} />
+								</div>
+							))}
+						</div>
+					))}
+				</div>
 			</div>
 		</section>
 	);
