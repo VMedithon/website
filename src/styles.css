@@ -147,7 +147,7 @@
 /* ============ JOURNEY SPINE ============ */
 .journey-section{background:color-mix(in srgb,var(--bg-subtle) 82%,transparent);padding:120px 7vw;position:relative;z-index:2;overflow:hidden}
 .dna-canvas{position:fixed;inset:0;z-index:0;pointer-events:none;transition:opacity .3s var(--ease)}
-.vessels{position:absolute;inset:0;z-index:1;pointer-events:none}
+.vessels{position:absolute;inset:0;z-index:3;pointer-events:none}
 .vessels-svg{position:absolute;inset:0;width:100%;height:100%;overflow:visible;pointer-events:none}
 .track-split,.themes-grid,.rounds-grid{position:relative;z-index:1}
 .journey-intro{display:grid;grid-template-columns:1fr;margin-bottom:70px;position:relative;z-index:1}

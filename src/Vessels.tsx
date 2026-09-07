@@ -83,25 +83,28 @@ export function Vessels() {
 			for (const side of sides) {
 				const dir = side.right ? 1 : -1;
 				const trunkX = side.right ? sr.width - 54 : 54;
-				// junctions: the card edge point the vessel bends into
+				// junctions: the card edge point the vessel plugs into
 				const js = side.cards.map((card) => {
 					const r = card.getBoundingClientRect();
 					return {
 						card,
-						jx: side.right ? r.right - sr.left + 4 : r.left - sr.left - 4,
+						jx: side.right ? r.right - sr.left + 2 : r.left - sr.left - 2,
 						jy: r.top - sr.top + r.height / 2,
+						inX: side.right ? r.right - sr.left - 58 : r.left - sr.left + 58,
 					};
 				});
 				if (!js.length) continue;
 				const top = js[0]!.jy - 160;
 				const bot = js[js.length - 1]!.jy + 170;
 
-				// the trunk weaves: margin line -> bend into each card edge -> back out
+				// the trunk weaves: margin -> bend to the card edge -> lobe dips
+				// inside the card -> back out to the margin
 				let d = `M ${trunkX} ${top}`;
 				for (const j of js) {
 					d +=
-						` C ${trunkX} ${j.jy - 130}, ${j.jx + dir * 90} ${j.jy - 55}, ${j.jx} ${j.jy}` +
-						` C ${j.jx + dir * 90} ${j.jy + 55}, ${trunkX} ${j.jy + 130}, ${trunkX} ${j.jy + 170}`;
+						` C ${trunkX} ${j.jy - 130}, ${j.jx + dir * 80} ${j.jy - 45}, ${j.jx} ${j.jy}` +
+						` C ${j.inX} ${j.jy}, ${j.inX} ${j.jy + 34}, ${j.jx - dir * 12} ${j.jy + 48}` +
+						` C ${j.jx + dir * 55} ${j.jy + 58}, ${trunkX} ${j.jy + 120}, ${trunkX} ${j.jy + 170}`;
 				}
 				d += ` C ${trunkX} ${bot - 60}, ${trunkX} ${bot - 20}, ${trunkX} ${bot}`;
 
@@ -123,17 +126,19 @@ export function Vessels() {
 				const len = path.getTotalLength();
 				const nodes: Node[] = [];
 				for (const j of js) {
-					// collar ring where the vessel meets the card — the "stuck on" joint
+					// collar ring straddling the card edge — the "stuck on" joint
 					mk("circle", {
 						cx: String(j.jx),
 						cy: String(j.jy),
-						r: "9",
+						r: "10",
 						fill: "none",
-						stroke: `rgba(${side.rgb},0.55)`,
+						stroke: `rgba(${side.rgb},0.6)`,
 						"stroke-width": "2.5",
 					});
-					mk("circle", { cx: String(j.jx), cy: String(j.jy), r: "3.5", fill: `rgba(${side.rgb},0.8)` });
-					// find the junction's position along the path (for beat sync)
+					mk("circle", { cx: String(j.jx), cy: String(j.jy), r: "4", fill: `rgba(${side.rgb},0.85)` });
+					// bump syncs to the lobe's deepest point inside the card
+					const tx = j.inX - dir * 12;
+					const ty = j.jy + 24;
 					let lo = 0;
 					let hi = len;
 					for (let k = 0; k < 24; k++) {
@@ -141,8 +146,8 @@ export function Vessels() {
 						const m2 = hi - (hi - lo) / 3;
 						const p1 = path.getPointAtLength(m1);
 						const p2 = path.getPointAtLength(m2);
-						const d1 = (p1.x - j.jx) ** 2 + (p1.y - j.jy) ** 2;
-						const d2 = (p2.x - j.jx) ** 2 + (p2.y - j.jy) ** 2;
+						const d1 = (p1.x - tx) ** 2 + (p1.y - ty) ** 2;
+						const d2 = (p2.x - tx) ** 2 + (p2.y - ty) ** 2;
 						if (d1 < d2) hi = m2;
 						else lo = m1;
 					}
