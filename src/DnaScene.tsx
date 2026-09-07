@@ -7,7 +7,6 @@ const clamp01 = (t: number) => Math.min(1, Math.max(0, t));
 
 // VMEDITHON palette: cycles green -> blue -> gold over time
 const CYCLE = [new THREE.Color(0x13e27c), new THREE.Color(0x2e9cff), new THREE.Color(0xf8c000)];
-const WHITE = new THREE.Color(0xffffff);
 const scratch = new THREE.Color();
 const DIM_DARK = new THREE.Color(0x33506b); // muted steel-blue, visible on the dark bg
 const DIM_LIGHT = new THREE.Color(0x54687e); // darker slate so it reads on light bg
@@ -44,7 +43,7 @@ export function DnaScene() {
 			uMinY: { value: -1 },
 			uMaxY: { value: 1 },
 			uDim: { value: DIM_DARK.clone() },
-			uTop: { value: CYCLE[0]!.clone().lerp(WHITE, 0.35) },
+			uTop: { value: CYCLE[0]!.clone().multiplyScalar(1.5) },
 			uMid: { value: CYCLE[0]!.clone() },
 			uBot: { value: CYCLE[0]!.clone().multiplyScalar(0.45) },
 		};
@@ -164,7 +163,7 @@ export function DnaScene() {
 				.copy(CYCLE[ci % CYCLE.length]!)
 				.lerp(CYCLE[(ci + 1) % CYCLE.length]!, cyc - ci);
 			uniforms.uMid.value.copy(cur);
-			uniforms.uTop.value.copy(cur).lerp(WHITE, 0.35);
+			uniforms.uTop.value.copy(cur).multiplyScalar(1.5); // brightened hue, no white
 			uniforms.uBot.value.copy(cur).multiplyScalar(0.45);
 			rim.color.copy(cur);
 
@@ -183,8 +182,8 @@ export function DnaScene() {
 			const ndcX = ((pr.left + pr.width / 2) / window.innerWidth) * 2 - 1;
 			model.position.set(ndcX * ((worldH * camera.aspect) / 2), 0, 0);
 
-			// continuous spin plus a scroll-linked twist
-			model.rotation.y = time * 0.5 + p * Math.PI * 4;
+			// continuous spin plus a scroll-linked twist — never stops
+			model.rotation.y = time * 1.2 + p * Math.PI * 4;
 			model.rotation.x = 0.1;
 
 			renderer.render(scene, camera);
