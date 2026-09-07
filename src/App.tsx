@@ -447,10 +447,12 @@ function Resources() {
 							<small>{r.desc}</small>
 						</div>
 						<span className="file-type">{r.type}</span>
-						<div className="download-row">
-							<span>Download</span>
-							<Download style={{ width: 18 }} />
-						</div>
+						{"file" in r && r.file && (
+							<a className="download-row" href={r.file} download>
+								<span>Download</span>
+								<Download style={{ width: 18 }} />
+							</a>
+						)}
 					</div>
 				))}
 			</div>
