@@ -111,7 +111,7 @@
 
 /* ============ PROOF STRIP / EVENT TELEMETRY ============ */
 .telemetry{padding:30px 7vw;position:relative;z-index:2}
-.telemetry-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:20px;width:min(1240px,100%);margin:0 auto;padding:30px 44px;background:color-mix(in srgb,var(--bg-elev) 72%,transparent);backdrop-filter:var(--glass);-webkit-backdrop-filter:var(--glass);border:1px solid var(--line);border-radius:var(--r-pill);box-shadow:var(--shadow-1)}
+.telemetry-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:20px;width:min(1240px,100%);margin:0 auto;padding:30px 44px;background:color-mix(in srgb,var(--bg-elev) 72%,transparent);backdrop-filter:var(--glass);-webkit-backdrop-filter:var(--glass);border:1px solid var(--line);border-radius:var(--r-pill);box-shadow:var(--shadow-1)}
 .tele-card{position:relative;text-align:center}
 @media(min-width:1025px){.tele-card + .tele-card::before{content:"";position:absolute;left:-10px;top:15%;bottom:15%;width:1px;background:var(--line)}}
 .tele-label{font:500 10px Inter;letter-spacing:1.4px;color:var(--ink-3);text-transform:uppercase;margin-bottom:10px}
