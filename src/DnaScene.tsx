@@ -137,6 +137,13 @@ export function DnaScene() {
 			host.style.opacity = String(vis);
 			if (vis <= 0) return;
 
+			// confine drawing to the section's on-screen rect — the DNA never
+			// renders outside the journey section's bounds
+			const clipTop = Math.max(0, sr.top);
+			const clipBottom = Math.min(vh, sr.bottom);
+			renderer.setScissorTest(true);
+			renderer.setScissor(0, vh - clipBottom, window.innerWidth, clipBottom - clipTop);
+
 			// progress: 0 when the spine's top reaches 70% viewport, 1 when its bottom hits 40%
 			const p = clamp01((vh * 0.7 - pr.top) / Math.max(1, pr.height - vh * 0.3));
 
@@ -158,6 +165,7 @@ export function DnaScene() {
 			model.rotation.x = 0.1;
 
 			renderer.render(scene, camera);
+			renderer.setScissorTest(false);
 		};
 		tick();
 
