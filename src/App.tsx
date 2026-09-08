@@ -10,6 +10,7 @@ import {
 	Sun,
 	Moon,
 } from "lucide-react";
+import { Manifesto, OrbitSeal, TrackDiagram } from "./DesignDetails";
 import { SignalScene } from "./SignalScene";
 import logoOnDark from "./assets/logo.png";
 import logoOnLight from "./assets/logo-dark.png";
@@ -99,6 +100,7 @@ function TrackSplit() {
 			</div>
 			<div className="track-split" data-reveal>
 				<div className="track-half hack">
+					<TrackDiagram />
 					<div className="track-content">
 						<div className="track-icon"><Code2 style={{ width: 32, height: 32 }} /></div>
 						<h3>HACKATHON</h3>
@@ -112,6 +114,7 @@ function TrackSplit() {
 					</div>
 				</div>
 				<div className="track-half build">
+					<TrackDiagram hardware />
 					<div className="track-content">
 						<div className="track-icon"><Wrench style={{ width: 32, height: 32 }} /></div>
 						<h3>BUILDATHON</h3>
@@ -226,7 +229,7 @@ function Themes() {
 function JourneySpine() {
 	return (
 		<section className="journey-section" id="journey">
-			<div className="journey-intro"><p className="eyebrow">03 / THE PROCESS</p><h2>Small spark.<br /><em>Real-world impact.</em></h2><p>Every big build starts with a question. Here’s how yours moves forward.</p><a className="text-link" href="#resources">Get the submission template <ArrowRight size={16} /></a></div>
+			<div className="journey-intro"><div className="journey-symbol" aria-hidden="true"><span>01</span><svg viewBox="0 0 240 100" fill="none" aria-hidden="true"><path d="M0 50H60C100 50 80 5 120 5S140 95 180 95S200 50 240 50" /></svg><span>07</span></div><p className="eyebrow">03 / THE PROCESS</p><h2>Small spark.<br /><em>Real-world impact.</em></h2><p>Every big build starts with a question. Here’s how yours moves forward.</p><a className="text-link" href="#resources">Get the submission template <ArrowRight size={16} /></a></div>
 			<ol className="journey-spine">
 				{journeySteps.map((s) => <li key={s.step} className={`journey-step ${s.final ? "final" : ""}`}><span className="step-index">{s.step}</span><div className="journey-step-content"><h3>{s.title}</h3><p>{s.desc}</p></div></li>)}
 			</ol>
@@ -292,7 +295,7 @@ function Rounds() {
 }
 
 function Prize() {
-	return <section className="prize-section" id="prizes"><p className="eyebrow">BUILD SOMETHING THAT MATTERS</p><h2>Big ideas.<br />Bigger possibilities.</h2><div className="prize-amount"><span>UP TO</span> ₹75K+</div><p>PRIZE POOL</p><a className="button primary" href="https://devnovate.co/event/vmedithon-30" target="_blank" rel="noreferrer">Take your shot <ArrowRight size={18} /></a></section>;
+	return <section className="prize-section" id="prizes"><OrbitSeal /><p className="eyebrow">BUILD SOMETHING THAT MATTERS</p><h2>Big ideas.<br />Bigger possibilities.</h2><div className="prize-amount"><span>UP TO</span> ₹75K+</div><p>PRIZE POOL</p><a className="button primary" href="https://devnovate.co/event/vmedithon-30" target="_blank" rel="noreferrer">Take your shot <ArrowRight size={18} /></a></section>;
 }
 
 function Resources() {
@@ -486,6 +489,7 @@ function HomePage() {
 		<>
 			<Hero />
 			<TrackSplit />
+			<Manifesto />
 			<Themes />
 			<JourneySpine />
 			<Rounds />
