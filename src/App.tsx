@@ -474,7 +474,7 @@ function Footer() {
 				<a href="#journey">Journey</a>
 				<a href="#themes">Themes</a>
 			</div>
-			<small>© 2026 Team VMEDITHON. Operational details subject to confirmation.</small>
+			<small>© 2026 Team VMEDITHON.</small>
 		</footer>
 	);
 }
