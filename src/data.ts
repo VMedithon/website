@@ -183,6 +183,8 @@ export const sponsors: Sponsor[] = [
 	{ name: "Yenepoya", logo: "/yenepoya-logo.png" },
 	{ name: "Devnovate", logo: "/devnovate-logo-dark.png", logoLight: "/devnovate-logo.png" },
 	{ name: "Z", logo: "/Z-logo.png" },
+	{ name: "GoRobo", logo: "/gorobo-light-logo.svg", logoLight: "/gorobo-dark-logo.svg" },
+	{ name: "LearnHub", logo: "/learnhub-logo.jpeg" },
 ];
 
 export const faq = [
