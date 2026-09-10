@@ -1,8 +1,18 @@
 {
-  "$schema": "https://unpkg.com/wrangler/config-schema.json",
-  "name": "vmedition-2026",
+  "$schema": "./node_modules/wrangler/config-schema.json",
+  // Static-assets-only Worker: no "main" entrypoint, so every request is served
+  // straight from the asset store. Asset requests are free and unbilled; adding a
+  // "main" script would make requests that reach it billable.
+  // Deploy with: bun run deploy
+  "name": "vmedithon",
+  "account_id": "03dec81fd498c48fe0106857fab5a5ea",
   "compatibility_date": "2026-09-06",
   "assets": {
-    "directory": "./dist"
+    "directory": "./dist",
+    // Serve index.html for unknown paths instead of a bare 404.
+    "not_found_handling": "single-page-application"
+  },
+  "observability": {
+    "enabled": true
   }
 }
