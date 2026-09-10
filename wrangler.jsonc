@@ -5,7 +5,7 @@
   // "main" script would make requests that reach it billable.
   // Deploy with: bun run deploy
   "name": "vmedithon",
-  "account_id": "ee4c08f37c3a62fedc87fbd1b8b96ff4",
+  "account_id": "03dec81fd498c48fe0106857fab5a5ea",
   "compatibility_date": "2026-09-06",
   "assets": {
     "directory": "./dist",
