@@ -60,6 +60,9 @@ function Nav() {
 						{l.label}
 					</a>
 				))}
+				<a href="/schedule">Schedule</a>
+				<a href="/results">Results</a>
+				<a href="/dashboard">Dashboard</a>
 			</div>
 			<a className="nav-register" href="https://devnovate.co/event/vmedithon-30" target="_blank" rel="noreferrer">Register <ArrowRight size={14} /></a>
 			<button className="theme-toggle" aria-label={`Switch to ${theme === "dark" ? "light" : "dark"} mode`} onClick={toggle} type="button">
