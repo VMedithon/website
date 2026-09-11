@@ -41,5 +41,6 @@ worker-configuration.d.ts
 *.tsbuildinfo
 next-env.d.ts
 test-results/
+playwright-report/
 
 .omo

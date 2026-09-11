@@ -8,9 +8,11 @@
     "build": "tsc -b && vite build",
     "typecheck": "tsc -b --pretty false",
     "lint": "biome check .",
+    "test": "playwright test",
     "deploy": "bun run build && wrangler deploy"
   },
   "dependencies": {
+    "@clerk/react": "^6.15.2",
     "@vitejs/plugin-react": "^5.0.2",
     "lucide-react": "^0.542.0",
     "react": "^19.1.1",
@@ -21,6 +23,7 @@
   },
   "devDependencies": {
     "@biomejs/biome": "^2.2.2",
+    "@playwright/test": "^1.63.0",
     "@types/react": "^19.1.10",
     "@types/react-dom": "^19.1.7",
     "@types/three": "^0.185.4",
